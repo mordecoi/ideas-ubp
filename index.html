@@ -39,13 +39,9 @@ a{text-decoration:none;color:inherit}
 }
 .nav-inner{height:78px;display:flex;align-items:center;justify-content:space-between;gap:20px}
 .logo{display:flex;align-items:center;gap:12px;min-width:max-content}
-.logo-mark{
-  width:46px;height:46px;background:var(--ubp);color:white;display:grid;place-items:center;
-  font-size:13px;font-weight:850;border-radius:5px 13px 5px 5px;letter-spacing:.4px
-}
-.logo-copy{line-height:1.05}
-.logo-copy small{display:block;color:var(--ubp);text-transform:uppercase;letter-spacing:.14em;font-size:9px}
-.logo-copy strong{display:block;color:var(--ubp);font-size:18px}
+.logo img{display:block;height:46px;width:auto}
+.footer .logo{background:#fff;padding:10px 14px;border-radius:12px;width:max-content}
+.footer .logo img{height:40px}
 .nav-links{display:flex;align-items:center;gap:4px}
 .nav-links a{padding:10px 11px;border-radius:11px;font-size:14px;font-weight:700;color:#444}
 .nav-links a:hover{background:#f4f4f1;color:var(--ubp)}
@@ -385,8 +381,7 @@ textarea{min-height:96px;resize:vertical}
 <nav class="nav">
   <div class="container nav-inner">
     <a class="logo" href="#inicio">
-      <div class="logo-mark">UBP</div>
-      <div class="logo-copy"><small>Universidad</small><strong>Blas Pascal</strong></div>
+      <img src="ubp-logo.png" alt="Universidad Blas Pascal">
     </a>
     <div class="nav-links">
       <a href="#innovacion">Innovación UBP</a>
@@ -923,7 +918,7 @@ textarea{min-height:96px;resize:vertical}
   <div class="container">
     <div class="footer-grid">
       <div>
-        <div class="logo"><div class="logo-mark">UBP</div><div class="logo-copy"><small style="color:#ccc">Universidad</small><strong style="color:white">Blas Pascal</strong></div></div>
+        <div class="logo"><img src="ubp-logo.png" alt="Universidad Blas Pascal"></div>
         <p style="margin-top:15px;max-width:390px">Ideas UBP es la solución digital propuesta para vincular ideas estudiantiles con la estructura de innovación y con los recursos, personas y oportunidades existentes en la Universidad.</p>
       </div>
       <div><h4>Plataforma</h4><ul><li><a href="#innovacion">Innovación UBP</a></li><li><a href="#proyectos">Proyectos</a></li><li><a href="#eventos">Actividades</a></li><li><a href="#recursos">Recursos</a></li><li><a href="#recomendaciones">Próximo paso</a>
