@@ -3,376 +3,171 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Ideas UBP — Ecosistema de oportunidades</title>
+<title>Puente PreLab UBP</title>
+<meta name="description" content="Terminaste la materia, tu idea no tiene por qué terminar. Contanos en qué etapa está y te mostramos tu próximo paso en la UBP.">
 <style>
 :root{
   --ubp:#A3223A;
   --ubp-dark:#751528;
+  --ubp-soft:#fff2f4;
   --ink:#171717;
-  --muted:#6d6d6d;
+  --muted:#5f5f5f;
   --bg:#f7f7f5;
   --surface:#ffffff;
   --line:#e8e8e3;
-  --soft:#f0f0ec;
   --lime:#D9FF43;
-  --lime2:#B9EC23;
-  --purple:#6b4bd6;
-  --blue:#2f6fed;
   --shadow:0 16px 42px rgba(27,27,27,.09);
-  --radius:22px;
 }
 *{box-sizing:border-box}
 html{scroll-behavior:smooth}
 body{
-  margin:0;color:var(--ink);background:var(--bg);
+  margin:0;color:var(--ink);background:var(--bg);line-height:1.5;
   font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
 }
 button,input,select,textarea{font:inherit}
 button{cursor:pointer}
-a{text-decoration:none;color:inherit}
-.container{max-width:1220px;margin:0 auto;padding:0 24px}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--ubp);outline-offset:2px}
+.container{max-width:1080px;margin:0 auto;padding:0 24px}
 
 /* NAV */
-.nav{
-  position:sticky;top:0;z-index:100;background:rgba(255,255,255,.94);
-  backdrop-filter:blur(18px);border-bottom:1px solid rgba(0,0,0,.07)
-}
-.nav-inner{height:78px;display:flex;align-items:center;justify-content:space-between;gap:20px}
-.logo{display:flex;align-items:center;gap:12px;min-width:max-content}
-.logo img{display:block;height:46px;width:auto}
-.footer .logo{background:#fff;padding:10px 14px;border-radius:12px;width:max-content}
-.footer .logo img{height:40px}
-.nav-links{display:flex;align-items:center;gap:4px}
-.nav-links a{padding:10px 11px;border-radius:11px;font-size:14px;font-weight:700;color:#444}
+.nav{position:sticky;top:0;z-index:100;background:rgba(255,255,255,.95);backdrop-filter:blur(16px);border-bottom:1px solid var(--line)}
+.nav-inner{height:70px;display:flex;align-items:center;justify-content:space-between;gap:16px}
+.logo img{display:block;height:42px;width:auto}
+.nav-links{display:flex;gap:4px}
+.nav-links a{padding:10px 12px;border-radius:10px;font-size:15px;font-weight:700;color:#444;text-decoration:none}
 .nav-links a:hover{background:#f4f4f1;color:var(--ubp)}
-.nav-actions{display:flex;gap:9px}
-.btn{border:none;border-radius:12px;padding:11px 15px;font-weight:800}
-.btn-dark{background:#171717;color:#fff}
+.btn{display:inline-flex;align-items:center;justify-content:center;border:none;border-radius:12px;padding:13px 18px;font-weight:800;font-size:15px;text-decoration:none}
 .btn-red{background:var(--ubp);color:#fff}
-.btn-light{background:#fff;border:1px solid var(--line)}
-.btn-lime{background:var(--lime);color:#111}
-.mobile-btn{display:none;background:none;border:none;font-size:26px}
+.btn-red:hover{background:var(--ubp-dark)}
+.btn-light{background:#fff;color:var(--ink);border:1px solid var(--line)}
+.btn-light:hover{border-color:#ccc}
 
 /* HERO */
-.hero{background:#fff;overflow:hidden;border-bottom:1px solid var(--line)}
-.hero-grid{display:grid;grid-template-columns:1.05fr .95fr;min-height:590px;align-items:center;gap:44px}
-.kicker{
-  display:inline-flex;align-items:center;gap:8px;padding:8px 11px;border-radius:999px;
-  background:#fff2f4;color:var(--ubp);border:1px solid #f5d8de;font-size:13px;font-weight:850
-}
-.kicker-dot{width:9px;height:9px;border-radius:50%;background:var(--ubp)}
-h1{font-size:clamp(48px,6vw,78px);line-height:.98;letter-spacing:-3px;margin:18px 0}
-.hero h1 em{color:var(--ubp);font-style:normal}
-.hero p{font-size:19px;line-height:1.6;color:#555;max-width:670px}
-.hero-actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:28px}
-.hero-note{margin-top:18px;color:#858585;font-size:12px}
-.mock-wrap{position:relative;padding:22px}
-.glow{
-  position:absolute;width:330px;height:330px;border-radius:50%;background:#f4cdd6;
-  filter:blur(65px);opacity:.6;top:40px;right:-80px
-}
-.browser{position:relative;z-index:2;background:#fff;border:1px solid #deded8;border-radius:24px;box-shadow:var(--shadow);overflow:hidden;transform:rotate(1deg)}
-.browser-top{height:40px;background:#f2f2ef;border-bottom:1px solid #e5e5df;display:flex;align-items:center;gap:7px;padding:0 13px}
-.circle{width:9px;height:9px;border-radius:50%;background:#cacac3}
-.screen{padding:20px;background:#fcfcfa}
-.screen-hero{background:linear-gradient(135deg,#951f39,#5c1427);color:#fff;padding:22px;border-radius:16px}
-.screen-hero small{opacity:.82}
-.screen-search{margin:14px 0;background:#fff;border:1px solid #eee;border-radius:12px;padding:11px;color:#aaa}
-.screen-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}
-.screen-card{border:1px solid #e7e7e1;border-radius:12px;background:#fff;padding:13px;font-size:12px;font-weight:800}
-.screen-card span{display:block;font-size:22px;margin-bottom:5px}
+.hero{background:#fff;border-bottom:1px solid var(--line);padding:84px 0 72px;text-align:center}
+.kicker{display:inline-block;padding:7px 12px;border-radius:999px;background:var(--ubp-soft);color:var(--ubp);font-size:13px;font-weight:800}
+h1{font-size:clamp(36px,5.6vw,64px);line-height:1.03;letter-spacing:-2px;margin:18px auto 16px;max-width:820px}
+h1 em{color:var(--ubp);font-style:normal}
+.hero p{font-size:19px;color:var(--muted);margin:0 auto;max-width:560px}
+.hero-actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:28px}
 
 /* SECTIONS */
 .section{padding:72px 0}
 .section.white{background:#fff}
-.section-head{display:flex;justify-content:space-between;gap:24px;align-items:end;margin-bottom:28px}
-.section-head h2{font-size:38px;line-height:1.05;letter-spacing:-1.4px;margin:0}
-.section-head p{max-width:600px;margin:0;color:var(--muted);line-height:1.55}
-.mini-label{font-size:12px;text-transform:uppercase;letter-spacing:.12em;font-weight:900;color:var(--ubp);margin-bottom:9px}
+.section h2{font-size:clamp(28px,3.6vw,38px);line-height:1.1;letter-spacing:-1px;margin:0 0 8px}
+.section .lead{color:var(--muted);margin:0 0 28px;font-size:17px}
+.center{text-align:center}
 
-/* QUICK HUB */
-.hub-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:13px}
-.hub{
-  background:#fff;border:1px solid var(--line);border-radius:19px;padding:19px;text-align:center;
-  min-height:145px;transition:.18s ease;display:flex;flex-direction:column;align-items:center;justify-content:center
-}
-.hub:hover{transform:translateY(-4px);box-shadow:var(--shadow);border-color:#efd4da}
-.hub-icon{width:52px;height:52px;border-radius:50%;display:grid;place-items:center;background:#fff0f3;font-size:23px;margin-bottom:11px}
-.hub strong{font-size:14px}.hub small{display:block;margin-top:4px;color:#858585}
+/* HOW IT WORKS */
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;list-style:none;padding:0;margin:0}
+.step{background:#fff;border:1px solid var(--line);border-radius:20px;padding:24px}
+.step-num{width:40px;height:40px;border-radius:12px;background:var(--ink);color:var(--lime);display:grid;place-items:center;font-weight:900;font-size:18px;margin-bottom:16px}
+.step strong{display:block;font-size:18px;margin-bottom:4px}
+.step span{color:var(--muted);font-size:15px}
 
-/* SEARCH / PROJECTS */
-.toolbar{display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin-bottom:18px}
-.searchbox{flex:1;min-width:270px;display:flex;align-items:center;gap:10px;background:#fff;border:1px solid var(--line);padding:12px 14px;border-radius:14px}
-.searchbox input{border:none;outline:none;background:transparent;width:100%}
-.chips{display:flex;gap:7px;flex-wrap:wrap}
-.chip{border:1px solid var(--line);background:#fff;border-radius:999px;padding:9px 11px;font-size:12px;font-weight:800}
-.chip.active{background:var(--ink);color:#fff;border-color:var(--ink)}
-.projects{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
-.project{background:#fff;border:1px solid var(--line);border-radius:20px;overflow:hidden;transition:.18s ease}
-.project:hover{transform:translateY(-3px);box-shadow:var(--shadow)}
-.project-visual{height:145px;display:flex;align-items:center;justify-content:center;font-size:52px;position:relative}
-.project-visual.tech{background:linear-gradient(135deg,#f5e8ec,#fff)}
-.project-visual.research{background:linear-gradient(135deg,#edf1fb,#fff)}
-.project-visual.social{background:linear-gradient(135deg,#eff6df,#fff)}
-.project-visual.sustain{background:linear-gradient(135deg,#e6f3e8,#fff)}
-.project-body{padding:18px}
-.tag{display:inline-block;font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.06em;background:#f4f4f1;padding:6px 8px;border-radius:999px;margin-bottom:10px}
-.project h3{margin:0 0 7px;font-size:20px}
-.project p{margin:0;color:#696969;font-size:13px;line-height:1.5}
-.project-meta{display:flex;justify-content:space-between;gap:10px;margin-top:14px;color:#898989;font-size:11px}
-.project-link{margin-top:15px;border:none;background:none;color:var(--ubp);font-weight:850;padding:0}
+/* START: STAGES */
+.label-step{font-size:13px;font-weight:900;text-transform:uppercase;letter-spacing:.1em;color:var(--ubp);margin:0 0 12px}
+.stages{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.stage{border:2px solid var(--line);background:#fff;border-radius:18px;padding:18px;text-align:left;transition:.15s ease;color:var(--ink)}
+.stage:hover{border-color:#d4a3ae}
+.stage[aria-pressed="true"]{border-color:var(--ubp);background:var(--ubp-soft)}
+.stage .emoji{font-size:28px;display:block;margin-bottom:8px}
+.stage strong{display:block;font-size:16px;margin-bottom:2px}
+.stage small{color:var(--muted);font-size:14px}
 
-/* 6 STEPS */
-.journey{
-  background:#151515;color:#fff;border-radius:28px;padding:32px;position:relative;overflow:hidden
-}
-.journey:after{
-  content:"";position:absolute;width:330px;height:330px;border-radius:50%;background:var(--lime);
-  right:-170px;top:-170px;opacity:.12
-}
-.journey-head{position:relative;z-index:1;max-width:720px}
-.journey-head h2{font-size:40px;margin:0 0 10px;letter-spacing:-1.5px}
-.journey-head p{color:#bbb;line-height:1.55}
-.journey-grid{position:relative;z-index:1;display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-top:24px}
-.j-step{background:#202020;border:1px solid #303030;border-radius:17px;padding:15px;min-height:168px}
-.j-num{width:36px;height:36px;border-radius:11px;background:var(--lime);color:#111;display:grid;place-items:center;font-weight:950;margin-bottom:22px}
-.j-step b{display:block;margin-bottom:7px;font-size:14px}
-.j-step p{margin:0;color:#a9a9a9;font-size:12px;line-height:1.4}
+.route{display:none;margin-top:16px;background:var(--ink);color:#fff;border-radius:18px;padding:20px 22px}
+.route.show{display:block}
+.route h3{margin:0 0 8px;font-size:19px}
+.route h3 span{color:var(--lime)}
+.route ul{margin:0;padding-left:20px;color:#d6d6d6}
+.route li{margin:4px 0}
 
-
-/* PROGRAMA DE INNOVACIÓN */
-.program-shell{
-  background:linear-gradient(135deg,#171717 0%,#24171b 58%,#5d1628 100%);
-  color:#fff;border-radius:30px;padding:34px;position:relative;overflow:hidden
-}
-.program-shell:after{
-  content:"";position:absolute;width:360px;height:360px;border-radius:50%;
-  right:-170px;top:-180px;background:var(--lime);opacity:.11
-}
-.program-top{
-  position:relative;z-index:2;display:grid;grid-template-columns:1.05fr .95fr;gap:32px;align-items:start
-}
-.program-badge{
-  display:inline-flex;align-items:center;gap:8px;background:rgba(217,255,67,.12);
-  border:1px solid rgba(217,255,67,.28);color:var(--lime);padding:8px 11px;border-radius:999px;
-  font-size:12px;font-weight:900;text-transform:uppercase;letter-spacing:.08em
-}
-.program-top h2{font-size:42px;line-height:1.02;letter-spacing:-1.6px;margin:14px 0 12px}
-.program-top p{color:#c8c8c8;line-height:1.6;margin:0}
-.program-callout{
-  background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);
-  border-radius:20px;padding:20px
-}
-.program-callout strong{display:block;font-size:18px;margin-bottom:7px}
-.program-callout p{font-size:13px;color:#c9c9c9}
-.program-modules{
-  position:relative;z-index:2;display:grid;grid-template-columns:repeat(3,1fr);gap:11px;margin-top:26px
-}
-.pmodule{
-  background:#fff;color:#171717;border-radius:18px;padding:18px;min-height:168px
-}
-.pmodule .picon{font-size:27px;margin-bottom:17px}
-.pmodule h3{margin:0 0 7px;font-size:16px}
-.pmodule p{margin:0;color:#666;font-size:12.5px;line-height:1.45}
-.program-actions{position:relative;z-index:2;display:flex;gap:10px;flex-wrap:wrap;margin-top:22px}
-.program-actions .btn-light{border-color:rgba(255,255,255,.18);background:rgba(255,255,255,.09);color:#fff}
-.real-source{display:inline-block;margin-top:12px;color:var(--ubp);font-weight:850;font-size:12px}
-.real-source:hover{text-decoration:underline}
-.real-flag{
-  display:inline-flex;align-items:center;gap:6px;background:#edf7e7;color:#316029;
-  border:1px solid #d9ecd1;border-radius:999px;padding:5px 7px;font-size:9px;font-weight:900;
-  text-transform:uppercase;letter-spacing:.06em
-}
-.news-date{font-size:11px;color:#8b8b8b;margin-top:12px}
-
-/* DEMO FORM - kept from previous prototype */
-.demo{display:grid;grid-template-columns:.9fr 1.1fr;gap:20px}
-.panel{background:#fff;border:1px solid var(--line);border-radius:24px;padding:24px;box-shadow:0 8px 24px rgba(0,0,0,.04)}
-.panel h3{margin:0 0 8px;font-size:24px}
-.panel p{color:#6b6b6b;margin:0 0 20px;line-height:1.45}
-.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.field{display:flex;flex-direction:column;gap:7px}
+/* START: FORM + RESULT */
+.form-wrap{display:none;margin-top:36px}
+.form-wrap.show{display:block}
+.panel{background:#fff;border:1px solid var(--line);border-radius:22px;padding:26px;max-width:720px}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.field{display:flex;flex-direction:column;gap:6px}
 .field.full{grid-column:1/-1}
-label{font-size:13px;font-weight:750;color:#3e3e3e}
-input,select,textarea{width:100%;border:1px solid #dedfd6;background:#fbfbf8;border-radius:12px;padding:12px 13px;outline:none}
-input:focus,select:focus,textarea:focus{border-color:#c68191;box-shadow:0 0 0 3px rgba(163,34,58,.10)}
-textarea{min-height:96px;resize:vertical}
-.submit{margin-top:14px;width:100%;border:none;background:var(--ubp);color:#fff;border-radius:13px;padding:13px;font-weight:800}
-.result{min-height:100%;display:flex;flex-direction:column;gap:14px}
-.result-empty{flex:1;border:1px dashed #d8d9cf;background:#fbfbf7;border-radius:18px;display:grid;place-items:center;text-align:center;padding:28px;color:#7a7a7a}
-.result-card{display:none}.result-card.active{display:block}
-.badge{display:inline-flex;padding:7px 9px;border-radius:999px;background:#f6e3e8;color:var(--ubp);font-size:12px;font-weight:850}
-.next{margin-top:12px;background:#171717;color:#fff;border-radius:18px;padding:18px}
-.next h4{margin:0 0 8px}.next ul{margin:10px 0 0;padding-left:20px;color:#d0d0d0;line-height:1.6}
-.match-list{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:12px}
-.match{background:#f7f7f1;border:1px solid #e7e8dc;border-radius:14px;padding:13px}
-.match b{display:block;font-size:13px;margin-bottom:4px}.match span{font-size:12px;color:#666}
+label{font-size:14px;font-weight:750;color:#333}
+.hint{font-weight:500;color:#888}
+input,select,textarea{width:100%;border:1px solid #d9d9d1;background:#fbfbf8;border-radius:12px;padding:12px 13px;font-size:15px;color:var(--ink)}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--ubp);box-shadow:0 0 0 3px rgba(163,34,58,.12)}
+textarea{min-height:92px;resize:vertical}
+.check{display:flex;flex-direction:row;gap:10px;align-items:flex-start;font-weight:500;font-size:14px;color:#444;margin-top:4px}
+.check input{width:20px;height:20px;flex:0 0 auto;margin:1px 0 0;accent-color:var(--ubp)}
+.form-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
+.form-actions .btn-red{flex:1;min-width:220px}
+.form-note{font-size:13px;color:#888;margin:12px 0 0}
 
+.result{display:none;margin-top:36px;max-width:720px}
+.result.show{display:block}
+.result-card{background:#fff;border:1px solid var(--line);border-radius:22px;padding:26px;box-shadow:var(--shadow)}
+.code{display:inline-block;background:var(--lime);color:#111;padding:6px 10px;border-radius:999px;font-weight:900;font-size:12px}
+.result-card h3{font-size:24px;margin:12px 0 6px}
+.result-card > p{color:var(--muted);margin:0}
+.next{background:var(--ink);color:#fff;border-radius:16px;padding:18px 20px;margin-top:18px}
+.next h4{margin:0 0 6px;font-size:16px}
+.next ul{margin:0;padding-left:20px;color:#d6d6d6}
+.track{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:18px 0 0;padding:0;list-style:none}
+.track li{background:#f4f4f1;border-radius:12px;padding:10px 8px;text-align:center;font-size:13px;font-weight:700;color:#888}
+.track li.done{background:#eef8d6;color:#3c5a10}
+.letter{display:none;margin-top:18px;border:1px dashed #cfcfc7;border-radius:16px;padding:18px 20px;background:#fbfbf8;font-size:14px;color:#333;white-space:pre-line}
+.letter.show{display:block}
+.letter-title{display:block;font-weight:800;margin-bottom:8px;white-space:normal}
 
+/* ACTORS */
+.actors{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.actor{background:#fff;border:1px solid var(--line);border-radius:20px;padding:22px}
+.actor.main{border:2px solid var(--ubp)}
+.actor .icon{font-size:30px;display:block;margin-bottom:12px}
+.actor h3{margin:0 0 4px;font-size:17px}
+.actor p{margin:0;color:var(--muted);font-size:14px}
+.actor .when{display:block;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:var(--ubp);margin-bottom:6px}
 
-/* RECOMMENDATIONS / NEXT STEP */
-.reco-shell{
-  display:grid;grid-template-columns:.88fr 1.12fr;gap:20px;align-items:stretch
-}
-.reco-controls,.reco-output{
-  background:#fff;border:1px solid var(--line);border-radius:24px;padding:24px;
-  box-shadow:0 8px 24px rgba(0,0,0,.04)
-}
-.reco-controls h3,.reco-output h3{margin:0 0 8px;font-size:24px}
-.reco-controls>p,.reco-output>p{margin:0 0 18px;color:#6b6b6b;line-height:1.5}
-.stage-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin:12px 0 18px}
-.stage-choice{
-  border:1px solid #e2e2dc;background:#fbfbf8;border-radius:15px;padding:14px;text-align:left;
-  transition:.16s ease
-}
-.stage-choice:hover{border-color:#c78b99;background:#fff8fa}
-.stage-choice.active{border-color:var(--ubp);box-shadow:0 0 0 3px rgba(163,34,58,.08);background:#fff7f9}
-.stage-choice strong{display:block;font-size:14px;margin-bottom:4px}
-.stage-choice small{color:#777;line-height:1.35;display:block}
-.reco-select{display:grid;gap:8px;margin-top:12px}
-.reco-select label{font-size:13px;font-weight:800}
-.reco-generate{
-  width:100%;margin-top:14px;border:none;background:#171717;color:#fff;
-  padding:13px 15px;border-radius:13px;font-weight:850
-}
-.reco-placeholder{
-  min-height:420px;border:1px dashed #d5d5cf;border-radius:18px;background:#fafaf7;
-  display:grid;place-items:center;text-align:center;padding:28px;color:#777
-}
-.reco-result{display:none}
-.reco-result.active{display:block}
-.reco-topline{display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap}
-.reco-stage{display:inline-flex;background:#f6e3e8;color:var(--ubp);padding:7px 9px;border-radius:999px;font-size:11px;font-weight:900}
-.reco-confidence{font-size:11px;color:#777}
-.reco-headline{font-size:27px;margin:14px 0 8px;letter-spacing:-.5px}
-.reco-explain{color:#626262;line-height:1.55;margin-bottom:18px}
-.reco-box{
-  border-radius:18px;padding:18px;margin-top:12px
-}
-.reco-box.dark{background:#171717;color:#fff}
-.reco-box.soft{background:#f7f7f2;border:1px solid #e7e7df}
-.reco-box h4{margin:0 0 10px}
-.reco-list{margin:0;padding-left:20px;line-height:1.7}
-.reco-box.dark .reco-list{color:#d3d3d3}
-.reco-resources{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:12px}
-.reco-resource{background:#fff;border:1px solid var(--line);border-radius:14px;padding:13px}
-.reco-resource b{display:block;font-size:13px;margin-bottom:4px}
-.reco-resource span{font-size:11px;color:#727272;line-height:1.35}
-.reco-note{margin-top:14px;padding:12px;border-left:4px solid var(--lime2);background:#fbfce9;border-radius:10px;font-size:11px;color:#5e5e5e;line-height:1.45}
-@media(max-width:900px){.reco-shell{grid-template-columns:1fr}}
-@media(max-width:620px){.stage-grid,.reco-resources{grid-template-columns:1fr}}
+/* REAL PROJECTS */
+.cases{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.case{background:#fff;border:1px solid var(--line);border-radius:20px;padding:22px;display:flex;flex-direction:column}
+.case .icon{font-size:30px;display:block;margin-bottom:12px}
+.case h3{margin:0 0 6px;font-size:18px}
+.case p{margin:0;color:var(--muted);font-size:14px;flex:1}
+.case a,.more{display:inline-block;margin-top:14px;color:var(--ubp);font-weight:800;font-size:14px;text-decoration:none}
+.case a:hover,.more:hover{text-decoration:underline}
 
-/* SUBMISSION WORKFLOW */
-.submit-shell{display:grid;grid-template-columns:1fr .92fr;gap:20px}
-.form-section{border:1px solid var(--line);border-radius:18px;padding:18px;margin:15px 0;background:#fcfcfa}
-.form-section-head{display:flex;gap:12px;align-items:flex-start;margin-bottom:15px}
-.form-section-head .n{width:30px;height:30px;border-radius:9px;background:#f6e3e8;color:var(--ubp);display:grid;place-items:center;font-weight:900;flex:0 0 auto}
-.form-section-head h4{margin:1px 0 3px;font-size:16px}
-.form-section-head p{margin:0;color:#777;font-size:12px}
-.check-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:9px}
-.check-card{display:flex;align-items:center;gap:9px;padding:11px;border:1px solid #e4e4de;border-radius:12px;background:#fff;font-size:12px;font-weight:700}
-.check-card input{width:auto}
-.upload-zone{border:1.5px dashed #cfcfc7;background:#fafaf6;border-radius:14px;padding:17px;text-align:center;transition:.18s ease}
-.upload-zone:hover{border-color:#ba7686;background:#fff8fa}
-.upload-zone input{display:none}
-.upload-zone label{display:block;cursor:pointer}
-.upload-zone .uicon{font-size:28px;display:block;margin-bottom:6px}
-.upload-zone small{display:block;color:#888;margin-top:5px;font-weight:500}
-.file-list{display:grid;gap:7px;margin-top:10px}
-.file-pill{display:flex;justify-content:space-between;gap:10px;align-items:center;background:#f3f3ef;border:1px solid #e5e5df;border-radius:10px;padding:8px 10px;font-size:11px}
-.preview-wrap{display:none;margin-top:10px}.preview-wrap.show{display:block}
-.preview-img{width:100%;max-height:180px;object-fit:cover;border-radius:12px;border:1px solid var(--line)}
-.member-list{display:grid;gap:8px}
-.member-row{display:grid;grid-template-columns:1.2fr 1fr 1fr auto;gap:8px}
-.member-row button{border:none;background:#f4eeee;color:var(--ubp);border-radius:10px;width:38px}
-.add-member{border:1px dashed #cfcfc7;background:#fff;border-radius:11px;padding:10px 12px;font-weight:800;color:#555}
-.idea-visibility{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
-.visibility-option{border:1px solid var(--line);border-radius:12px;padding:12px;background:#fff}
-.visibility-option label{display:flex;gap:8px;align-items:flex-start}
-.visibility-option input{width:auto;margin-top:2px}
-.visibility-option p{margin:4px 0 0;color:#777;font-size:11px;line-height:1.4}
-.idea-summary{background:#171717;color:#fff;border-radius:18px;padding:18px;margin-top:12px}
-.idea-summary .code{display:inline-flex;background:var(--lime);color:#111;padding:7px 9px;border-radius:999px;font-weight:900;font-size:11px}
-.idea-summary h4{margin:12px 0 6px}.idea-summary p{color:#bdbdbd;margin:0;font-size:12px;line-height:1.5}
-.status-track{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-top:14px}
-.status-item{background:#252525;border:1px solid #343434;border-radius:11px;padding:9px;text-align:center;font-size:10px;color:#949494}
-.status-item.active{background:#2f3920;color:var(--lime);border-color:#4d5d2b}
-.save-row{display:flex;gap:9px;flex-wrap:wrap;margin-top:12px}
-.save-draft{border:1px solid var(--line);background:#fff;border-radius:12px;padding:12px 14px;font-weight:800}
-.privacy-note{display:flex;gap:10px;align-items:flex-start;background:#f7f7f2;border:1px solid #e6e6df;border-radius:12px;padding:12px;font-size:11px;color:#6c6c6c;line-height:1.45}
-.privacy-note strong{color:#333}
-@media(max-width:900px){.submit-shell{grid-template-columns:1fr}.member-row{grid-template-columns:1fr}.member-row button{width:100%;height:38px}}
-@media(max-width:620px){.check-grid,.idea-visibility,.status-track{grid-template-columns:1fr}}
-
-/* RESOURCES */
-.resource-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
-.resource{background:#fff;border:1px solid var(--line);border-radius:18px;padding:19px}
-.resource-top{display:flex;justify-content:space-between;gap:10px;align-items:start}
-.resource-icon{font-size:25px}.resource-type{font-size:10px;color:#777;text-transform:uppercase;letter-spacing:.09em;font-weight:900}
-.resource h3{font-size:17px;margin:12px 0 7px}.resource p{font-size:13px;line-height:1.45;color:#6a6a6a;margin:0}
-.resource a{display:inline-block;margin-top:13px;color:var(--ubp);font-weight:850;font-size:12px}
-
-/* EVENTS */
-.events{display:grid;gap:11px}
-.event{background:#fff;border:1px solid var(--line);border-radius:18px;padding:17px;display:grid;grid-template-columns:72px 1fr auto;gap:16px;align-items:center}
-.date{background:#fff0f3;border:1px solid #f2d7de;border-radius:14px;text-align:center;padding:10px;color:var(--ubp);font-weight:900;line-height:1.05}
-.date strong{font-size:25px;display:block}.date small{font-size:10px}
-.event h3{margin:0 0 5px;font-size:18px}.event p{margin:0;color:#6f6f6f;font-size:13px;line-height:1.45}
-.event button{border:1px solid var(--ubp);background:#fff;color:var(--ubp);border-radius:11px;padding:10px 12px;font-weight:850}
-
-/* CONTACT NETWORK */
-.network{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
-.actor{background:#fff;border:1px solid var(--line);border-radius:20px;padding:21px;display:flex;flex-direction:column;min-height:240px}
-.actor.highlight{border-top:4px solid var(--ubp);position:relative}
-.new{position:absolute;top:13px;right:13px;background:var(--lime);font-size:9px;font-weight:950;border-radius:999px;padding:6px 8px}
-.actor .aicon{font-size:31px;margin-bottom:16px}.actor h3{margin:0 0 7px}.actor p{margin:0;color:#6a6a6a;line-height:1.45;font-size:13px;flex:1}
-.actor button{margin-top:16px;border:none;border-radius:11px;padding:10px 12px;font-weight:850;background:#f4f4f1}
-.actor.highlight button{background:var(--ubp);color:#fff}
-
-/* NEWS */
-.news{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
-.news article{background:#fff;border:1px solid var(--line);border-radius:18px;padding:19px}
-.news .cat{font-size:10px;font-weight:900;color:var(--ubp);text-transform:uppercase;letter-spacing:.09em}
-.news h3{font-size:18px;margin:10px 0 8px}.news p{margin:0;color:#6b6b6b;font-size:13px;line-height:1.5}
+/* FAQ */
+.faq{max-width:760px;margin:0 auto}
+.faq details{background:#fff;border:1px solid var(--line);border-radius:16px;margin-bottom:10px}
+.faq summary{padding:18px 20px;font-weight:800;font-size:16px;cursor:pointer;list-style:none;display:flex;justify-content:space-between;gap:12px}
+.faq summary::-webkit-details-marker{display:none}
+.faq summary::after{content:"+";color:var(--ubp);font-size:22px;line-height:1}
+.faq details[open] summary::after{content:"–"}
+.faq details p{margin:0;padding:0 20px 18px;color:var(--muted)}
 
 /* FOOTER */
-.footer{background:#111;color:#fff;padding:48px 0}
-.footer-grid{display:grid;grid-template-columns:1.3fr 1fr 1fr;gap:32px}
-.footer p,.footer a{color:#aaa;font-size:13px;line-height:1.6}
-.footer h4{margin:0 0 12px;font-size:13px;text-transform:uppercase;letter-spacing:.08em}
-.footer ul{list-style:none;padding:0;margin:0;display:grid;gap:8px}
-.disclaimer{margin-top:34px;padding-top:22px;border-top:1px solid #2c2c2c;color:#777;font-size:11px}
+.footer{background:#111;color:#aaa;padding:40px 0;font-size:14px}
+.footer-inner{display:flex;justify-content:space-between;align-items:center;gap:20px;flex-wrap:wrap}
+.footer .logo{background:#fff;padding:8px 12px;border-radius:12px}
+.footer .logo img{height:34px}
+.footer p{margin:0}
 
-/* MODALS / TEST */
-.modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.46);z-index:200;display:none;align-items:center;justify-content:center;padding:20px}
-.modal-backdrop.show{display:flex}
-.modal{background:#fff;border-radius:22px;padding:24px;max-width:560px;width:100%;box-shadow:0 24px 70px rgba(0,0,0,.28)}
-.modal-head{display:flex;justify-content:space-between;gap:12px;align-items:center}
-.modal h3{margin:0}.modal-close{border:none;background:#f2f2ef;width:34px;height:34px;border-radius:10px}
-.modal p{color:#666;line-height:1.5}
-.testbar{position:fixed;left:50%;transform:translateX(-50%);bottom:18px;z-index:150;background:#111;color:#fff;border-radius:999px;padding:9px 12px;display:flex;align-items:center;gap:10px;box-shadow:0 12px 34px rgba(0,0,0,.22)}
-.testbar span{font-size:12px}.testbar button{border:none;background:var(--lime);border-radius:999px;padding:8px 11px;font-weight:900}
-.toast{position:fixed;right:20px;bottom:80px;background:#fff;border:1px solid var(--line);box-shadow:var(--shadow);border-radius:14px;padding:14px 16px;max-width:350px;display:none;z-index:160}
-.toast.show{display:block}.toast strong{display:block;margin-bottom:4px}
+/* TOAST */
+.toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:var(--ink);color:#fff;border-radius:12px;padding:12px 16px;font-size:14px;display:none;z-index:200;max-width:calc(100% - 32px)}
+.toast.show{display:block}
 
-/* responsive */
-@media(max-width:1050px){
-  .hero-grid{grid-template-columns:1fr}.mock-wrap{max-width:740px}
-  .hub-grid{grid-template-columns:repeat(3,1fr)}
-  .projects{grid-template-columns:repeat(2,1fr)}
-  .journey-grid{grid-template-columns:repeat(3,1fr)}
-  .resource-grid,.network{grid-template-columns:repeat(2,1fr)}
-  .program-top{grid-template-columns:1fr}
-  .program-modules{grid-template-columns:repeat(2,1fr)}
-  .nav-links{display:none}.mobile-btn{display:block}
+/* RESPONSIVE */
+@media(max-width:900px){
+  .stages,.actors{grid-template-columns:repeat(2,1fr)}
+  .cases{grid-template-columns:1fr}
+  .nav-links{display:none}
 }
-@media(max-width:760px){
-  .container{padding:0 16px}.hero-grid{min-height:auto;padding:55px 0}
-  h1{font-size:48px}.section{padding:54px 0}.section-head{flex-direction:column;align-items:start}
-  .hub-grid,.projects,.resource-grid,.network,.news,.footer-grid,.program-modules{grid-template-columns:1fr}
-  .demo{grid-template-columns:1fr}.form-grid{grid-template-columns:1fr}.field.full{grid-column:auto}
-  .event{grid-template-columns:62px 1fr}.event button{grid-column:1/-1}
-  .nav-actions .btn-light{display:none}
+@media(max-width:640px){
+  .container{padding:0 16px}
+  .hero{padding:56px 0 48px}
+  .section{padding:52px 0}
+  .steps,.stages,.actors,.form-grid{grid-template-columns:1fr}
+  .track{grid-template-columns:repeat(2,1fr)}
+  .panel,.result-card{padding:20px}
+  .hero-actions .btn{flex:1}
 }
 </style>
 </head>
@@ -380,872 +175,237 @@ textarea{min-height:96px;resize:vertical}
 
 <nav class="nav">
   <div class="container nav-inner">
-    <a class="logo" href="#inicio">
-      <img src="ubp-logo.png" alt="Universidad Blas Pascal">
-    </a>
+    <a class="logo" href="#inicio"><img src="ubp-logo.png" alt="Universidad Blas Pascal"></a>
     <div class="nav-links">
-      <a href="#innovacion">Innovación UBP</a>
-      <a href="#proyectos">Proyectos</a>
-      <a href="#recursos">Recursos</a>
-      <a href="#eventos">Eventos</a>
-      <a href="#red">Contactos</a>
-      <a href="#noticias">Noticias</a>
-      <a href="#recomendaciones">Próximo paso</a>
-      <a href="#presentar">Presentar idea</a>
+      <a href="#como-funciona">Cómo funciona</a>
+      <a href="#quien-ayuda">Quién ayuda</a>
+      <a href="#preguntas">Preguntas</a>
     </div>
-    <div class="nav-actions">
-      <button class="btn btn-light" onclick="openLogin()">Ingresar</button>
-      <button class="btn btn-red" onclick="go('#presentar')">Tengo una idea</button>
-      <button class="mobile-btn">☰</button>
-    </div>
+    <a class="btn btn-red" href="#empezar">Tengo una idea</a>
   </div>
 </nav>
 
 <header class="hero" id="inicio">
-  <div class="container hero-grid">
-    <div>
-      <div class="kicker"><span class="kicker-dot"></span> Innovación & Emprendimiento</div>
-      <h1>Ideas UBP: <em>un ecosistema de oportunidades</em> para tus ideas.</h1>
-      <p><strong>Ideas UBP</strong> es la solución digital propuesta para conectar a estudiantes con la estructura de innovación de la Universidad: permite presentar una idea, documentarla, recibir una primera orientación y vincularla con las áreas, personas y oportunidades adecuadas según su etapa de desarrollo.</p>
-      <div class="hero-actions">
-        <button class="btn btn-red" onclick="go('#presentar')">Presentar mi idea</button>
-        <button class="btn btn-light" onclick="go('#proyectos')">Explorar el ecosistema</button>
-      </div>
-      <div class="hero-note">Prototipo académico para validar experiencia, recorrido y utilidad de la propuesta.</div>
-    </div>
-    <div class="mock-wrap">
-      <div class="glow"></div>
-      <div class="browser">
-        <div class="browser-top"><span class="circle"></span><span class="circle"></span><span class="circle"></span></div>
-        <div class="screen">
-          <div class="screen-hero"><strong style="font-size:24px">Ideas UBP</strong><br><small>Conectá ideas, personas y oportunidades.</small></div>
-          <div class="screen-search">🔎 Buscar proyectos, eventos, recursos...</div>
-          <div class="screen-grid">
-            <div class="screen-card"><span>💡</span>Proyectos</div>
-            <div class="screen-card"><span>📅</span>Eventos</div>
-            <div class="screen-card"><span>🤝</span>Personas</div>
-            <div class="screen-card"><span>📚</span>Recursos</div>
-            <div class="screen-card"><span>📣</span>Convocatorias</div>
-            <div class="screen-card"><span>🧭</span>Próximo paso</div>
-          </div>
-        </div>
-      </div>
+  <div class="container">
+    <span class="kicker">Puente PreLab UBP</span>
+    <h1>Terminaste la materia. <em>Tu idea no tiene por qué terminar.</em></h1>
+    <p>Contanos en qué etapa está y te mostramos tu próximo paso dentro de la UBP.</p>
+    <div class="hero-actions">
+      <a class="btn btn-red" href="#empezar">Empezar (2 min)</a>
+      <a class="btn btn-light" href="#como-funciona">Cómo funciona</a>
     </div>
   </div>
 </header>
 
-<section class="section">
+<section class="section" id="como-funciona">
   <div class="container">
-    <div class="section-head">
-      <div><div class="mini-label">Puerta de entrada</div><h2>¿Qué necesitás hoy?</h2></div>
-      <p>La plataforma reúne en un mismo lugar contenidos que hoy pueden encontrarse dispersos. El estudiante puede explorar sin tener que saber previamente qué área de la Universidad necesita.</p>
-    </div>
-    <div class="hub-grid">
-      <a class="hub" href="#proyectos"><div class="hub-icon">💡</div><strong>Proyectos</strong><small>Inspirate y conectá</small></a>
-      <a class="hub" href="#noticias"><div class="hub-icon">📰</div><strong>Noticias</strong><small>Qué está pasando</small></a>
-      <a class="hub" href="#eventos"><div class="hub-icon">📅</div><strong>Eventos</strong><small>Participá</small></a>
-      <a class="hub" href="#red"><div class="hub-icon">🤝</div><strong>Contactos</strong><small>Encontrá apoyo</small></a>
-      <a class="hub" href="#recursos"><div class="hub-icon">📚</div><strong>Recursos</strong><small>Aprendé y validá</small></a>
-      <a class="hub" href="#convocatorias"><div class="hub-icon">📣</div><strong>Convocatorias</strong><small>Oportunidades</small></a>
-    </div>
+    <h2>Cómo funciona</h2>
+    <p class="lead">Tres pasos. Sin necesidad de tener una startup.</p>
+    <ol class="steps">
+      <li class="step"><div class="step-num">1</div><strong>Contanos tu idea</strong><span>Un formulario corto, en dos minutos.</span></li>
+      <li class="step"><div class="step-num">2</div><strong>Recibí tu próximo paso</strong><span>Según la etapa en la que está tu proyecto.</span></li>
+      <li class="step"><div class="step-num">3</div><strong>Te acompañamos</strong><span>Te escribimos a las 3 y a las 6 semanas.</span></li>
+    </ol>
   </div>
 </section>
 
-
-
-<section class="section white" id="innovacion">
+<section class="section white" id="empezar">
   <div class="container">
-    <div class="program-shell">
-      <div class="program-top">
-        <div>
-          <div class="program-badge">✦ Estructura institucional de innovación</div>
-          <h2>Innovación UBP</h2>
-          <p>Ideas UBP se plantea como una <strong style="color:#fff">puerta digital de entrada y articulación</strong> con la estructura de innovación de la Universidad. La web institucional vigente identifica a la <strong style="color:#fff">Secretaría de Pedagogía e Innovación Educativa</strong> y a la <strong style="color:#fff">Coordinación de Innovación Educativa</strong>. La propuesta del portal es facilitar que las ideas estudiantiles lleguen a esa estructura y, cuando corresponda, sean derivadas a otras áreas de la UBP.</p>
-        </div>
-        <div class="program-callout">
-          <strong>¿Qué funciones cumple la estructura de innovación?</strong>
-          <p>UBP ha organizado su trabajo innovador en líneas vinculadas con innovación educativa, infraestructura educativa, gestión y procesos, e innovación abierta y vinculación. Estas líneas sirven como criterio para clasificar y orientar las ideas que ingresen al portal.</p>
-          <a class="real-source" style="color:var(--lime)" target="_blank" rel="noopener" href="https://pedagogia.ubp.edu.ar/experiencias-de-aprendizaje-interactivas-innovacion-con-impacto-360/">Ver referencia institucional UBP ↗</a>
-        </div>
-      </div>
+    <h2>Empezá acá</h2>
+    <p class="lead">¿En qué punto está tu idea?</p>
 
-      <div class="program-modules">
-        <div class="pmodule"><div class="picon">🎓</div><h3>Innovación educativa</h3><p>Promueve proyectos que mejoran propuestas de formación y extensión desde lo metodológico, pedagógico, comunicacional, multimedial o tecnológico.</p></div>
-        <div class="pmodule"><div class="picon">🏫</div><h3>Infraestructura educativa</h3><p>Impulsa innovaciones edilicias o tecnológicas en aulas, laboratorios, espacios académicos y ámbitos de socialización.</p></div>
-        <div class="pmodule"><div class="picon">⚙️</div><h3>Gestión y procesos</h3><p>Aloja iniciativas que mejoran la gestión académica, administrativa y la relación entre áreas de la Universidad.</p></div>
-        <div class="pmodule"><div class="picon">🌐</div><h3>Innovación abierta y vinculación</h3><p>Conecta proyectos con el medio externo, incorpora innovaciones desarrolladas fuera de la UBP y facilita transferir capacidades propias hacia organizaciones.</p></div>
-        <div class="pmodule"><div class="picon">💡</div><h3>Recepción de ideas</h3><p><strong>Función propuesta para Ideas UBP:</strong> centralizar la presentación de ideas estudiantiles y reunir la información necesaria para una primera evaluación.</p></div>
-        <div class="pmodule"><div class="picon">🔗</div><h3>Orientación y derivación</h3><p><strong>Función propuesta para Ideas UBP:</strong> recomendar el siguiente paso y derivar hacia Innovación, doingLABS, Vinculación Tecnológica, Investigación, Extensión u otros actores.</p></div>
-      </div>
-
-      <div class="program-actions">
-        <button class="btn btn-lime" onclick="go('#presentar')">Presentar una idea</button>
-        <button class="btn btn-light" onclick="go('#red')">Ver red de apoyo</button>
-      </div>
-    </div>
-  </div>
-</section>
-
-<section class="section white" id="proyectos">
-  <div class="container">
-    <div class="section-head">
-      <div><div class="mini-label">Comunidad UBP · contenidos reales</div><h2>Proyectos e iniciativas en movimiento</h2></div>
-      <p>Esta sección incorpora experiencias publicadas oficialmente por la UBP para que el estudiante vea que ya existe actividad innovadora, interdisciplinaria y emprendedora dentro de la Universidad.</p>
-    </div>
-    <div class="toolbar">
-      <div class="searchbox">🔎 <input id="projectSearch" placeholder="Buscar por proyecto, tema o tipo de iniciativa..." oninput="filterProjects()"></div>
-      <div class="chips">
-        <button class="chip active" data-filter="all" onclick="setFilter(this,'all')">Todos</button>
-        <button class="chip" data-filter="estudiantes" onclick="setFilter(this,'estudiantes')">Estudiantes</button>
-        <button class="chip" data-filter="investigacion" onclick="setFilter(this,'investigacion')">Investigación</button>
-        <button class="chip" data-filter="innovacion" onclick="setFilter(this,'innovacion')">Innovación</button>
-        <button class="chip" data-filter="impacto" onclick="setFilter(this,'impacto')">Impacto</button>
-      </div>
+    <p class="label-step">Paso 1 · Elegí tu etapa</p>
+    <div class="stages" role="group" aria-label="Etapa de la idea">
+      <button type="button" class="stage" data-stage="idea" aria-pressed="false"><span class="emoji">💭</span><strong>Idea inicial</strong><small>Tengo un problema u oportunidad en mente.</small></button>
+      <button type="button" class="stage" data-stage="desarrollada" aria-pressed="false"><span class="emoji">🧩</span><strong>Idea desarrollada</strong><small>Ya puedo explicar la propuesta.</small></button>
+      <button type="button" class="stage" data-stage="prototipo" aria-pressed="false"><span class="emoji">🛠️</span><strong>Prototipo</strong><small>Hay una primera versión o un TP.</small></button>
+      <button type="button" class="stage" data-stage="continuidad" aria-pressed="false"><span class="emoji">🚀</span><strong>Quiero continuar</strong><small>Queremos seguir después de la materia.</small></button>
     </div>
 
-    <div class="projects" id="projectGrid">
-      <article class="project" data-cat="investigacion" data-text="workin 2026 investigacion aplicada tecnologia ambiente educacion comunicacion juridicas">
-        <div class="project-visual research">🔬</div>
-        <div class="project-body">
-          <span class="real-flag">✓ Real · UBP</span>
-          <h3>WorkIN 2026</h3>
-          <p>La UBP presentó 27 trabajos de investigación sobre tecnología, ambiente, educación, management, comunicación, ciencias jurídicas y otras áreas, con enfoque multi e interdisciplinario.</p>
-          <div class="project-meta"><span>Investigación aplicada</span><span>27 trabajos</span></div>
-          <a class="real-source" target="_blank" rel="noopener" href="https://www.ubp.edu.ar/workin-2026-el-enfoque-multidisciplinario-de-las-lineas-de-investigacion-en-la-ubp/">Fuente oficial UBP ↗</a>
-        </div>
-      </article>
-
-      <article class="project" data-cat="estudiantes" data-text="emprendedorismo administracion proyectos canvas lean startup estudiantes 2025">
-        <div class="project-visual tech">🧠</div>
-        <div class="project-body">
-          <span class="real-flag">✓ Real · UBP</span>
-          <h3>Proyectos de Emprendedorismo</h3>
-          <p>Estudiantes de Administración desarrollaron propuestas desde una idea inicial utilizando Canvas, Lean Startup, análisis de mercado y evaluación de viabilidad económica, comercial y operativa.</p>
-          <div class="project-meta"><span>Estudiantes</span><span>Emprendimiento</span></div>
-          <a class="real-source" target="_blank" rel="noopener" href="https://www.ubp.edu.ar/licenciatura-en-administracion-cierre-de-la-materia-emprendedorismo-con-proyectos-de-innovacion-y-trabajo-en-equipo/">Fuente oficial UBP ↗</a>
-        </div>
-      </article>
-
-      <article class="project" data-cat="innovacion" data-text="hackathon accenture prompts inteligencia artificial estudiantes interdisciplinario 2026">
-        <div class="project-visual tech">🤖</div>
-        <div class="project-body">
-          <span class="real-flag">✓ Real · UBP</span>
-          <h3>Hackathon UBP + Accenture</h3>
-          <p>Más de 70 estudiantes de distintas carreras trabajaron en grupos interdisciplinarios para diseñar propuestas educativas basadas en inteligencia artificial.</p>
-          <div class="project-meta"><span>Innovación abierta</span><span>+70 estudiantes</span></div>
-          <a class="real-source" target="_blank" rel="noopener" href="https://www.ubp.edu.ar/estudiantes-de-la-elaboraron-prompts-inteligentes-en-un-hackathon-organizado-por-la-ubp-y-accenture/">Fuente oficial UBP ↗</a>
-        </div>
-      </article>
-
-      <article class="project" data-cat="innovacion" data-text="doinglabs fintech bancor aws incubacion startups 2026">
-        <div class="project-visual tech">🚀</div>
-        <div class="project-body">
-          <span class="real-flag">✓ Real · UBP</span>
-          <h3>Incubación Fintech 2026</h3>
-          <p>doingLABS lanzó una convocatoria para startups fintech con BANCOR como socio estratégico y apoyo tecnológico de AWS para proyectos con mayor grado de madurez.</p>
-          <div class="project-meta"><span>doingLABS</span><span>Incubación</span></div>
-          <a class="real-source" target="_blank" rel="noopener" href="https://www.ubp.edu.ar/la-universidad-blas-pascal-lanza-una-convocatoria-de-incubacion-fintech-con-el-patrocinio-de-bancor/">Fuente oficial UBP ↗</a>
-        </div>
-      </article>
-
-      <article class="project" data-cat="impacto" data-text="extension 2026 proyectos comunidad organizaciones externas estudiantes impacto">
-        <div class="project-visual social">🌱</div>
-        <div class="project-body">
-          <span class="real-flag">✓ Real · UBP</span>
-          <h3>Proyectos de Extensión 2026</h3>
-          <p>La Secretaría de Extensión acompaña proyectos orientados a generar transformaciones en problemas concretos y requiere articulación con organizaciones extrauniversitarias.</p>
-          <div class="project-meta"><span>Impacto</span><span>Extensión</span></div>
-          <a class="real-source" target="_blank" rel="noopener" href="https://www.ubp.edu.ar/proyectos-de-extension/">Fuente oficial UBP ↗</a>
-        </div>
-      </article>
-
-      <article class="project" data-cat="innovacion" data-text="indie films realidad virtual aumentada audiovisual proyectos conjuntos estudiantes 2026">
-        <div class="project-visual research">🎬</div>
-        <div class="project-body">
-          <span class="real-flag">✓ Real · UBP</span>
-          <h3>UBP + Indie Films</h3>
-          <p>El convenio con la productora cordobesa prevé explorar pasantías, proyectos conjuntos y soluciones tecnológicas vinculadas con producción audiovisual, realidad virtual y aumentada.</p>
-          <div class="project-meta"><span>Vinculación</span><span>Audiovisual + tecnología</span></div>
-          <a class="real-source" target="_blank" rel="noopener" href="https://www.ubp.edu.ar/la-ubp-firmo-un-convenio-con-una-importante-productora-audiovisual-de-cordoba/">Fuente oficial UBP ↗</a>
-        </div>
-      </article>
-    </div>
-  </div>
-</section>
-
-
-
-<section class="section" id="recomendaciones">
-  <div class="container">
-    <div class="section-head">
-      <div>
-        <div class="mini-label">Orientación previa</div>
-        <h2>Recomendaciones / Próximos pasos</h2>
-      </div>
-      <p>Este bloque es independiente de la presentación formal de una idea. Sirve para que cualquier estudiante pueda ubicarse rápidamente según el grado de avance de su proyecto y saber qué le conviene hacer a continuación.</p>
+    <div class="route" id="route" aria-live="polite">
+      <h3>Lo que te ofrecemos: <span id="routeTitle"></span></h3>
+      <ul id="routeList"></ul>
     </div>
 
-    <div class="reco-shell">
-      <div class="reco-controls">
-        <h3>¿En qué punto está tu idea?</h3>
-        <p>Elegí la opción que mejor represente tu situación actual. No necesitás cargar un proyecto para usar esta orientación.</p>
-
-        <div class="stage-grid" id="recoStageGrid">
-          <button type="button" class="stage-choice active" data-stage="idea" onclick="chooseRecoStage(this)">
-            <strong>💭 Idea inicial</strong>
-            <small>Tengo una intuición, problema u oportunidad, pero todavía está poco definida.</small>
-          </button>
-
-          <button type="button" class="stage-choice" data-stage="desarrollada" onclick="chooseRecoStage(this)">
-            <strong>🧩 Idea desarrollada</strong>
-            <small>Ya puedo explicar la propuesta y tengo algunos supuestos o información inicial.</small>
-          </button>
-
-          <button type="button" class="stage-choice" data-stage="prototipo" onclick="chooseRecoStage(this)">
-            <strong>🛠️ Prototipo académico</strong>
-            <small>Ya existe una primera versión, trabajo práctico, prueba o desarrollo tangible.</small>
-          </button>
-
-          <button type="button" class="stage-choice" data-stage="continuidad" onclick="chooseRecoStage(this)">
-            <strong>🚀 Quiero continuar</strong>
-            <small>El equipo quiere avanzar más allá de la materia y necesita un camino concreto.</small>
-          </button>
-        </div>
-
-        <div class="reco-select">
-          <label for="recoNeed">¿Cuál es hoy tu principal necesidad?</label>
-          <select id="recoNeed">
-            <option value="orientacion">No sé por dónde empezar</option>
-            <option value="validacion">Validar con usuarios</option>
-            <option value="equipo">Encontrar equipo / perfiles complementarios</option>
-            <option value="mentoria">Recibir mentoría</option>
-            <option value="tecnologia">Acceder a recursos técnicos</option>
-            <option value="viabilidad">Analizar viabilidad económica/comercial</option>
-            <option value="financiamiento">Buscar financiamiento</option>
-            <option value="pi">Propiedad intelectual / confidencialidad</option>
-          </select>
-        </div>
-
-        <button class="reco-generate" type="button" onclick="generateRecommendation()">Ver mis recomendaciones →</button>
-
-        <div class="reco-note">
-          Esta orientación es exploratoria. No reemplaza la evaluación de una propuesta ni obliga al estudiante a convertir su idea en una startup.
-        </div>
-      </div>
-
-      <div class="reco-output">
-        <div class="reco-placeholder" id="recoPlaceholder">
-          <div>
-            <div style="font-size:44px">🧭</div>
-            <strong style="display:block;color:#333;margin:9px 0">Tu próximo paso aparecerá acá</strong>
-            <span>Seleccioná el nivel de avance y tu necesidad principal.</span>
-          </div>
-        </div>
-
-        <div class="reco-result" id="recoResult">
-          <div class="reco-topline">
-            <span class="reco-stage" id="recoStageLabel">Idea inicial</span>
-            <span class="reco-confidence">Orientación preliminar</span>
-          </div>
-
-          <h3 class="reco-headline" id="recoHeadline">Empezá por entender mejor el problema</h3>
-          <p class="reco-explain" id="recoExplain"></p>
-
-          <div class="reco-box dark">
-            <h4>Tus próximos 3 pasos</h4>
-            <ol class="reco-list" id="recoSteps"></ol>
-          </div>
-
-          <div class="reco-box soft">
-            <h4>Recursos y actores que podrían ayudarte</h4>
-            <div class="reco-resources" id="recoResources"></div>
-          </div>
-
-          <div class="reco-box soft">
-            <h4>Antes de avanzar, preguntate:</h4>
-            <ul class="reco-list" id="recoQuestions"></ul>
-          </div>
-
-          <div class="save-row">
-            <button class="save-draft" type="button" onclick="go('#recursos')">Explorar recursos</button>
-            <button class="btn btn-red" type="button" onclick="go('#presentar')">Ahora sí, presentar mi idea</button>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<section class="section white" id="presentar">
-  <div class="container">
-    <div class="section-head">
-      <div><div class="mini-label">Núcleo de la solución innovadora</div><h2>Presentá tu idea a Ideas UBP</h2></div>
-      <p>El portal concentra en un único punto la información necesaria para que la estructura de innovación pueda comprender la propuesta, detectar qué necesita y orientar al equipo sin exigir que llegue con un emprendimiento ya consolidado.</p>
-    </div>
-
-    <div class="submit-shell">
+    <div class="form-wrap" id="formWrap">
+      <p class="label-step">Paso 2 · Contanos lo básico</p>
       <div class="panel">
-        <h3>Ficha de presentación</h3>
-        <p>Podés guardar un borrador y completar la propuesta de forma progresiva. Los campos marcados con * son los mínimos para recibir una primera orientación.</p>
-
         <form id="ideaForm">
-          <div class="form-section">
-            <div class="form-section-head"><div class="n">1</div><div><h4>Identificación de la idea</h4><p>Qué es, de dónde surge y en qué etapa está.</p></div></div>
-            <div class="form-grid">
-              <div class="field full"><label for="title">Título de la idea *</label><input id="title" required placeholder="Ej.: Plataforma para compartir movilidad entre estudiantes"></div>
-              <div class="field"><label for="origin">¿Dónde surgió?</label><select id="origin"><option>Materia / trabajo práctico</option><option>Trabajo Final / Tesis</option><option>Hackathon / competencia</option><option>Investigación / Extensión</option><option>Experiencia laboral</option><option>Idea personal</option><option>Otro</option></select></div>
-              <div class="field"><label for="career">Carrera principal *</label><select id="career"><option>Administración</option><option>Ingeniería Informática</option><option>Marketing</option><option>Comunicación Audiovisual</option><option>Telecomunicaciones</option><option>Contaduría</option><option>Otra</option></select></div>
-              <div class="field"><label for="subject">Materia / espacio de origen</label><input id="subject" placeholder="Ej.: Innovación, Emprendedorismo..."></div>
-              <div class="field"><label for="stage">¿En qué etapa está? *</label><select id="stage"><option value="idea">Idea inicial</option><option value="desarrollada">Idea desarrollada</option><option value="prototipo">Prototipo académico</option><option value="continuidad">Quiero darle continuidad</option></select></div>
-              <div class="field full"><label for="problem">Problema u oportunidad que aborda *</label><textarea id="problem" required placeholder="¿Qué situación querés mejorar y para quién?"></textarea></div>
-              <div class="field full"><label for="solution">Descripción breve de la propuesta *</label><textarea id="solution" required placeholder="Explicá en pocas líneas qué proponés y cómo funcionaría."></textarea></div>
-              <div class="field"><label for="impact">Área de impacto</label><select id="impact"><option>Tecnología</option><option>Educación</option><option>Ambiente / Sustentabilidad</option><option>Salud / Bienestar</option><option>Gestión / Procesos</option><option>Impacto social</option><option>Comunicación / Diseño</option><option>Otro</option></select></div>
-              <div class="field"><label for="userTarget">Usuario / beneficiario</label><input id="userTarget" placeholder="Ej.: estudiantes universitarios"></div>
+          <div class="form-grid">
+            <div class="field full"><label for="title">Nombre de la idea</label><input id="title" required placeholder="Ej.: App para compartir viajes entre estudiantes"></div>
+            <div class="field"><label for="career">Tu carrera</label>
+              <select id="career" required>
+                <option value="">Elegí una opción</option>
+                <option>Administración</option><option>Comunicación Audiovisual</option><option>Contaduría</option>
+                <option>Ingeniería Informática</option><option>Marketing</option><option>Recursos Humanos</option>
+                <option>Telecomunicaciones</option><option>Otra</option>
+              </select>
             </div>
+            <div class="field"><label for="email">Email UBP</label><input id="email" type="email" required placeholder="nombre@ubp.edu.ar" autocomplete="email"></div>
+            <div class="field full"><label for="description">¿De qué se trata? <span class="hint">(2–3 líneas)</span></label><textarea id="description" required placeholder="¿Qué problema resuelve y para quién?"></textarea></div>
+            <div class="field full"><label for="team">¿Quiénes quieren seguir? <span class="hint">(opcional)</span></label><input id="team" placeholder="Ej.: Ana (Marketing), Juan (Informática)"></div>
+            <label class="check field full"><input id="consent" type="checkbox" required> La idea es mía o de mi equipo, y queda privada mientras la revisan.</label>
           </div>
-
-          <div class="form-section">
-            <div class="form-section-head"><div class="n">2</div><div><h4>Equipo e integrantes</h4><p>Quiénes participan hoy y qué perfiles faltan.</p></div></div>
-            <div class="member-list" id="memberList">
-              <div class="member-row"><input class="member-name" placeholder="Nombre y apellido"><input class="member-career" placeholder="Carrera / perfil"><input class="member-email" type="email" placeholder="Email"><button type="button" title="Quitar" onclick="removeMember(this)">✕</button></div>
-            </div>
-            <button type="button" class="add-member" onclick="addMember()">＋ Agregar integrante</button>
-            <div class="field" style="margin-top:13px"><label for="profiles">¿Qué perfiles o capacidades están buscando?</label><input id="profiles" placeholder="Ej.: programación, marketing, diseño, finanzas..."></div>
+          <div class="form-actions">
+            <button class="btn btn-light" type="button" id="saveDraft">Guardar borrador</button>
+            <button class="btn btn-red" type="submit">Enviar mi idea →</button>
           </div>
-
-          <div class="form-section">
-            <div class="form-section-head"><div class="n">3</div><div><h4>Evidencias y archivos</h4><p>Adjuntá material que ayude a comprender mejor la idea.</p></div></div>
-            <div class="form-grid">
-              <div class="field">
-                <div class="upload-zone"><label for="coverUpload"><span class="uicon">🖼️</span><strong>Imagen representativa</strong><small>JPG, PNG o WEBP. Se mostrará como portada si decidís publicar el proyecto.</small></label><input id="coverUpload" type="file" accept="image/*" onchange="previewCover(event)"></div>
-                <div class="preview-wrap" id="previewWrap"><img id="coverPreview" class="preview-img" alt="Vista previa de portada"></div>
-              </div>
-              <div class="field">
-                <div class="upload-zone"><label for="fileUpload"><span class="uicon">📎</span><strong>Documentos del proyecto</strong><small>PDF, presentación, documento, planilla, imagen u otro material de respaldo.</small></label><input id="fileUpload" type="file" multiple accept=".pdf,.ppt,.pptx,.doc,.docx,.xls,.xlsx,.png,.jpg,.jpeg,.webp,.zip" onchange="listFiles(event)"></div>
-                <div class="file-list" id="fileList"></div>
-              </div>
-              <div class="field full"><label for="prototypeLink">Link a prototipo, video o repositorio</label><input id="prototypeLink" type="url" placeholder="https://..."></div>
-            </div>
-          </div>
-
-          <div class="form-section">
-            <div class="form-section-head"><div class="n">4</div><div><h4>Necesidades y tipo de apoyo</h4><p>Esto permite orientar la propuesta hacia el actor adecuado.</p></div></div>
-            <div class="field full">
-              <label>¿Qué necesitás hoy? Podés elegir varias opciones.</label>
-              <div class="check-grid">
-                <label class="check-card"><input type="checkbox" name="needs" value="Ordenar la idea"> Ordenar la idea</label>
-                <label class="check-card"><input type="checkbox" name="needs" value="Validar con usuarios"> Validar con usuarios</label>
-                <label class="check-card"><input type="checkbox" name="needs" value="Encontrar equipo"> Encontrar equipo</label>
-                <label class="check-card"><input type="checkbox" name="needs" value="Mentoría"> Mentoría</label>
-                <label class="check-card"><input type="checkbox" name="needs" value="Recursos técnicos"> Recursos / tecnología</label>
-                <label class="check-card"><input type="checkbox" name="needs" value="Viabilidad económica"> Viabilidad económica</label>
-                <label class="check-card"><input type="checkbox" name="needs" value="Financiamiento"> Financiamiento</label>
-                <label class="check-card"><input type="checkbox" name="needs" value="Propiedad intelectual"> Propiedad intelectual</label>
-              </div>
-            </div>
-            <div class="field full" style="margin-top:12px"><label for="challenge">Principal duda o bloqueo actual</label><textarea id="challenge" placeholder="Ej.: no sabemos si existe demanda, nos falta un programador, necesitamos validar costos..."></textarea></div>
-          </div>
-
-          <div class="form-section">
-            <div class="form-section-head"><div class="n">5</div><div><h4>Visibilidad, autoría y contacto</h4><p>El equipo decide qué información puede mostrarse en la comunidad.</p></div></div>
-            <div class="idea-visibility">
-              <div class="visibility-option"><label><input type="radio" name="visibility" value="private" checked><span><strong>Privada durante la evaluación</strong><p>La ficha sólo sería visible para el equipo responsable de orientar la propuesta.</p></span></label></div>
-              <div class="visibility-option"><label><input type="radio" name="visibility" value="public"><span><strong>Publicable en la comunidad</strong><p>Luego de la revisión, el equipo autoriza que una ficha resumida pueda verse para buscar colaboradores.</p></span></label></div>
-            </div>
-            <div class="privacy-note" style="margin-top:12px"><span style="font-size:19px">🔐</span><div><strong>Autoría y confidencialidad.</strong> El prototipo diferencia la presentación de una idea de su publicación. Antes de hacer visible información sensible, el equipo puede solicitar orientación sobre autoría, propiedad intelectual o confidencialidad.</div></div>
-            <label class="check-card" style="margin-top:10px"><input id="declaration" type="checkbox" required> Declaro que la información cargada corresponde a un proyecto propio o del equipo y que cuento con autorización para compartirla.</label>
-          </div>
-
-          <div class="save-row"><button class="save-draft" type="button" onclick="saveDraft()">Guardar borrador</button><button class="submit" style="flex:1;margin-top:0" type="submit">Enviar idea para orientación →</button></div>
+          <p class="form-note">Prototipo de prueba: los datos no se envían a ningún servidor.</p>
         </form>
       </div>
+    </div>
 
-      <div class="panel result">
-        <div class="result-empty" id="emptyResult"><div><div style="font-size:42px">💡</div><strong style="display:block;color:#333;margin:8px 0">Tu idea todavía no fue enviada</strong><span>Completá la ficha para simular cómo la recibiría la estructura de innovación y qué próximo paso te recomendaría.</span></div></div>
-        <div class="result-card" id="resultCard">
-          <span class="badge" id="stageBadge">Idea inicial</span>
-          <h3 style="margin-top:10px" id="resultTitle">Tu idea fue recibida</h3>
-          <p id="resultText">Recomendación.</p>
-          <div class="idea-summary">
-            <span class="code" id="ideaCode">IDEA-UBP-0001</span>
-            <h4>Estado de la propuesta</h4>
-            <p id="ideaSummaryText">La idea quedó registrada para una primera orientación.</p>
-            <div class="status-track"><div class="status-item active">1 · Recibida</div><div class="status-item">2 · Revisión inicial</div><div class="status-item">3 · Orientación</div><div class="status-item">4 · Derivación</div></div>
-          </div>
-          <div class="next"><h4>Próximos pasos sugeridos</h4><ul id="resultList"></ul></div>
-          <div style="margin-top:16px;font-weight:800">Recursos / actores relacionados</div>
-          <div class="match-list" id="matches"></div>
-          <div style="margin-top:16px" class="privacy-note"><span style="font-size:18px">📬</span><div><strong>Seguimiento:</strong> en una implementación real, el estudiante recibiría confirmación por correo y podría volver a esta página para consultar el estado, responder observaciones y sumar documentación.</div></div>
-        </div>
+    <div class="result" id="result" aria-live="polite">
+      <div class="result-card">
+        <span class="code" id="ideaCode">PRELAB-2026-0000</span>
+        <h3 id="resultTitle">¡Recibimos tu idea!</h3>
+        <p id="resultText"></p>
+        <div class="next"><h4>Tu próximo paso</h4><ul id="resultList"></ul></div>
+        <ol class="track" aria-label="Estado">
+          <li class="done">✓ Recibida</li><li class="done">✓ Derivada</li><li>Check-in 3 sem.</li><li>Check-in 6 sem.</li>
+        </ol>
+        <div class="letter" id="letter"><span class="letter-title">✉️ Carta de presentación (generada automáticamente)</span><span id="letterText"></span></div>
       </div>
     </div>
   </div>
 </section>
 
-<section class="section" id="recursos">
+<section class="section" id="quien-ayuda">
   <div class="container">
-    <div class="section-head">
-      <div><div class="mini-label">Aprender sin sumar fricción</div><h2>Recursos para avanzar</h2></div>
-      <p>Contenidos cortos y accionables para que el estudiante pueda resolver una duda concreta sin ingresar necesariamente a un programa extenso.</p>
-    </div>
-    <div class="resource-grid">
-      <div class="resource"><div class="resource-top"><span class="resource-icon">🧪</span><span class="resource-type">Guía rápida</span></div><h3>Validá el problema</h3><p>Cómo conversar con usuarios y detectar si el problema realmente existe.</p><a href="#" onclick="demoAction(event,'Abrir guía')">Abrir guía →</a></div>
-      <div class="resource"><div class="resource-top"><span class="resource-icon">🧩</span><span class="resource-type">Herramienta</span></div><h3>Armá un equipo</h3><p>Identificá qué perfiles te faltan y publicá qué tipo de colaboración buscás.</p><a href="#" onclick="demoAction(event,'Buscar perfiles')">Buscar perfiles →</a></div>
-      <div class="resource"><div class="resource-top"><span class="resource-icon">🎯</span><span class="resource-type">Checklist</span></div><h3>¿Está lista para incubar?</h3><p>Chequeo breve para saber si tu proyecto necesita explorar, validar o derivarse.</p><a href="#" onclick="demoAction(event,'Hacer checklist')">Hacer checklist →</a></div>
-      <div class="resource"><div class="resource-top"><span class="resource-icon">🎤</span><span class="resource-type">Microtaller</span></div><h3>Contá tu idea en 3 minutos</h3><p>Guía práctica para presentar el problema, la propuesta y la evidencia reunida.</p><a href="#" onclick="demoAction(event,'Ver microtaller')">Ver microtaller →</a></div>
+    <h2>¿Quién te puede ayudar?</h2>
+    <p class="lead">No tenés que saber a quién escribir: nosotros te derivamos.</p>
+    <div class="actors">
+      <div class="actor main"><span class="icon">🌉</span><span class="when">Primer paso</span><h3>Puente PreLab</h3><p>Recibe tu idea y te conecta con quien corresponda.</p></div>
+      <div class="actor"><span class="icon">🚀</span><span class="when">Proyecto maduro</span><h3>doingLABS</h3><p>Incubadora de la UBP: mentorías, validación y redes.</p></div>
+      <div class="actor"><span class="icon">🔌</span><span class="when">Empresas y autoría</span><h3>Vinculación Tecnológica</h3><p>Convocatorias, financiamiento y propiedad intelectual.</p></div>
+      <div class="actor"><span class="icon">🌱</span><span class="when">Investigación o impacto</span><h3>Investigación y Extensión</h3><p>Para seguir como investigación aplicada o proyecto social.</p></div>
     </div>
   </div>
 </section>
 
-<section class="section white" id="eventos">
+<section class="section white" id="casos">
   <div class="container">
-    <div class="section-head">
-      <div><div class="mini-label">Programa de Innovación · agenda propuesta</div><h2>Actividades del programa</h2></div>
-      <p>Estas actividades forman parte de la solución propuesta y son demostrativas: sirven para testear si encuentros breves, mentorías y ferias ayudan a activar la continuidad de los proyectos.</p>
+    <h2>Ya pasa en la UBP</h2>
+    <p class="lead">Estudiantes que llevaron sus ideas más allá del aula.</p>
+    <div class="cases">
+      <article class="case"><span class="icon">🤖</span><h3>Hackathon UBP + Accenture</h3><p>Más de 70 estudiantes de distintas carreras diseñaron propuestas con inteligencia artificial.</p><a target="_blank" rel="noopener" href="https://www.ubp.edu.ar/estudiantes-de-la-elaboraron-prompts-inteligentes-en-un-hackathon-organizado-por-la-ubp-y-accenture/">Leer en UBP ↗</a></article>
+      <article class="case"><span class="icon">🧠</span><h3>Proyectos de Emprendedorismo</h3><p>Estudiantes de Administración pasaron de una idea a una propuesta concreta con Canvas y Lean Startup.</p><a target="_blank" rel="noopener" href="https://www.ubp.edu.ar/licenciatura-en-administracion-cierre-de-la-materia-emprendedorismo-con-proyectos-de-innovacion-y-trabajo-en-equipo/">Leer en UBP ↗</a></article>
+      <article class="case"><span class="icon">💳</span><h3>Incubación Fintech 2026</h3><p>doingLABS abrió una convocatoria para startups con BANCOR y AWS.</p><a target="_blank" rel="noopener" href="https://www.ubp.edu.ar/la-universidad-blas-pascal-lanza-una-convocatoria-de-incubacion-fintech-con-el-patrocinio-de-bancor/">Leer en UBP ↗</a></article>
     </div>
-    <div class="events">
-      <div class="event"><div class="date"><small>OCT</small><strong>15</strong></div><div><h3>Feria de Innovación UBP</h3><p>Presentación de ideas y proyectos, encuentro con estudiantes, docentes, mentores y organizaciones.</p></div><button onclick="eventAction('Feria de Innovación UBP')">Inscribirme</button></div>
-      <div class="event"><div class="date"><small>OCT</small><strong>22</strong></div><div><h3>Taller: cómo validar una idea</h3><p>Encuentro práctico para definir supuestos, conversar con usuarios y decidir qué probar primero.</p></div><button onclick="eventAction('Taller de validación')">Ver detalle</button></div>
-      <div class="event"><div class="date"><small>OCT</small><strong>29</strong></div><div><h3>Clínica de proyectos</h3><p>Mentorías breves con docentes y especialistas para resolver una pregunta concreta del proyecto.</p></div><button onclick="eventAction('Clínica de proyectos')">Reservar lugar</button></div>
-    </div>
+    <div class="center"><a class="more" target="_blank" rel="noopener" href="https://www.ubp.edu.ar/">Más novedades en ubp.edu.ar ↗</a></div>
   </div>
 </section>
 
-<section class="section" id="convocatorias">
+<section class="section" id="preguntas">
   <div class="container">
-    <div class="section-head">
-      <div><div class="mini-label">Oportunidades</div><h2>Convocatorias destacadas</h2></div>
-      <p>Una vista simple para que el estudiante identifique rápidamente qué oportunidades son pertinentes según la etapa del proyecto.</p>
-    </div>
-    <div class="resource-grid">
-      <div class="resource"><div class="resource-top"><span class="resource-icon">🌱</span><span class="resource-type">Etapa temprana</span></div><h3>Exploración de ideas</h3><p>Espacio demo para proyectos que todavía necesitan definir problema, usuario y oportunidad.</p><a href="#" onclick="demoAction(event,'Explorar convocatoria')">Ver requisitos →</a></div>
-      <div class="resource"><div class="resource-top"><span class="resource-icon">🧰</span><span class="resource-type">Prototipos</span></div><h3>Apoyo para prototipado</h3><p>Oportunidad demo para validar técnicamente una solución o construir una primera versión.</p><a href="#" onclick="demoAction(event,'Prototipado')">Ver requisitos →</a></div>
-      <div class="resource"><div class="resource-top"><span class="resource-icon">🚀</span><span class="resource-type">Mayor madurez</span></div><h3>Incubación / doingLABS</h3><p>Referencia para proyectos con equipo, propuesta más definida y voluntad de avanzar.</p><a href="#" onclick="demoAction(event,'Incubación')">Conocer instancia →</a></div>
-      <div class="resource"><div class="resource-top"><span class="resource-icon">🌎</span><span class="resource-type">Ecosistema externo</span></div><h3>Programas y alianzas</h3><p>Espacio para concentrar oportunidades de empresas, organizaciones y otras universidades.</p><a href="#" onclick="demoAction(event,'Alianzas')">Explorar →</a></div>
-    </div>
-  </div>
-</section>
-
-<section class="section white" id="red">
-  <div class="container">
-    <div class="section-head">
-      <div><div class="mini-label">Red de apoyo</div><h2>¿A quién puedo recurrir?</h2></div>
-      <p>La propuesta no reemplaza estructuras existentes: busca que el estudiante entienda cuándo y para qué puede recurrir a cada actor.</p>
-    </div>
-    <div class="network">
-      <div class="actor highlight"><span class="new">PUENTE PROPUESTO</span><div class="aicon">🌉</div><h3>Innovación UBP</h3><p>Primera instancia de recepción y orientación dentro del portal. Clasifica la idea según temática, madurez y necesidad, y facilita la derivación hacia el área correspondiente.</p><button onclick="go('#presentar')">Orientar mi idea</button></div>
-      <div class="actor"><div class="aicon">🚀</div><h3>doingLABS</h3><p>Referencia para proyectos con mayor madurez que requieren mentoría, validación comercial, redes y apoyo para crecer.</p><button onclick="actorAction('doingLABS')">Conocer rol</button></div>
-      <div class="actor"><div class="aicon">🔌</div><h3>Vinculación Tecnológica</h3><p>Conecta conocimiento universitario con organizaciones, convocatorias, transferencia y propiedad intelectual.</p><button onclick="actorAction('Vinculación Tecnológica')">Conocer rol</button></div>
-      <div class="actor"><div class="aicon">🌐</div><h3>Investigación y Extensión</h3><p>Alternativas para proyectos que pueden continuar como investigación aplicada, transferencia o iniciativas de impacto.</p><button onclick="actorAction('Investigación y Extensión')">Conocer rol</button></div>
-    </div>
-  </div>
-</section>
-
-<section class="section" id="noticias">
-  <div class="container">
-    <div class="section-head">
-      <div><div class="mini-label">Actualidad UBP · fuentes oficiales</div><h2>Noticias y novedades reales</h2></div>
-      <p>La plataforma también funcionaría como vidriera de experiencias ya existentes, ayudando a que los estudiantes descubran oportunidades y referentes cercanos.</p>
-    </div>
-    <div class="news">
-      <article>
-        <div class="cat">Tecnología · 8 sep 2026</div>
-        <h3>GitHub Dev Days Córdoba 2026 en la UBP</h3>
-        <p>Estudiantes, docentes y profesionales participaron de una jornada sobre IA, GitHub Copilot, ciberseguridad y desarrollo de software con demostraciones prácticas.</p>
-        <a class="real-source" target="_blank" rel="noopener" href="https://www.ubp.edu.ar/github-dev-days-cordoba-2026-en-la-ubp-inteligencia-artificial-y-el-futuro-del-desarrollo-de-software/">Leer en UBP ↗</a>
-      </article>
-
-      <article>
-        <div class="cat">Experiencia profesional · 27 ago 2026</div>
-        <h3>Estudiantes UBP en Accenture</h3>
-        <p>Alumnos de Administración y Marketing visitaron Accenture para conocer gestión de proyectos, finanzas, cambio e innovación en una empresa global.</p>
-        <a class="real-source" target="_blank" rel="noopener" href="https://www.ubp.edu.ar/saber-hacer-estudiantes-de-la-ubp-formaron-parte-de-una-experiencia-profesional-en-accenture/">Leer en UBP ↗</a>
-      </article>
-
-      <article>
-        <div class="cat">Vinculación · 29 jun 2026</div>
-        <h3>UBP + EPSE: proyectos y formación en energía</h3>
-        <p>La Universidad y la empresa energética de San Juan acordaron impulsar capacitación, estudios, investigaciones, prácticas profesionales e intercambio de recursos técnicos.</p>
-        <a class="real-source" target="_blank" rel="noopener" href="https://www.ubp.edu.ar/la-ubp-firmo-un-convenio-con-la-empresa-de-energia-provincial-sociedad-del-estado/">Leer en UBP ↗</a>
-      </article>
-
-      <article>
-        <div class="cat">Incubación · 20 may 2026</div>
-        <h3>Convocatoria Fintech de doingLABS</h3>
-        <p>La incubadora UBP lanzó una convocatoria para startups financieras con BANCOR, AWS y articulación con el ecosistema fintech.</p>
-        <a class="real-source" target="_blank" rel="noopener" href="https://www.ubp.edu.ar/la-universidad-blas-pascal-lanza-una-convocatoria-de-incubacion-fintech-con-el-patrocinio-de-bancor/">Leer en UBP ↗</a>
-      </article>
-
-      <article>
-        <div class="cat">Investigación · 7 may 2026</div>
-        <h3>WorkIN 2026 reunió 27 trabajos</h3>
-        <p>La jornada mostró avances y resultados de proyectos de investigación en tecnología, ambiente, derechos humanos, educación, management, comunicación y otras áreas.</p>
-        <a class="real-source" target="_blank" rel="noopener" href="https://www.ubp.edu.ar/workin-2026-el-enfoque-multidisciplinario-de-las-lineas-de-investigacion-en-la-ubp/">Leer en UBP ↗</a>
-      </article>
-
-      <article>
-        <div class="cat">Innovación abierta · 5 may 2026</div>
-        <h3>Hackathon UBP + Accenture</h3>
-        <p>Más de 70 estudiantes de Marketing, Contador Público, RRHH, Informática, Telecomunicaciones y Administración diseñaron propuestas con IA.</p>
-        <a class="real-source" target="_blank" rel="noopener" href="https://www.ubp.edu.ar/estudiantes-de-la-elaboraron-prompts-inteligentes-en-un-hackathon-organizado-por-la-ubp-y-accenture/">Leer en UBP ↗</a>
-      </article>
-
-      <article>
-        <div class="cat">Sustentabilidad · 23 abr 2026</div>
-        <h3>Convenio UBP + HINS Energía</h3>
-        <p>La alianza busca impulsar programas, proyectos y eventos de interés común vinculados con energías renovables, sustentabilidad y acción climática.</p>
-        <a class="real-source" target="_blank" rel="noopener" href="https://www.ubp.edu.ar/la-ubp-firmo-un-convenio-con-la-empresa-hins-energia-s-a/">Leer en UBP ↗</a>
-      </article>
-
-      <article>
-        <div class="cat">Audiovisual · 5 feb 2026</div>
-        <h3>Convenio UBP + Indie Films</h3>
-        <p>El acuerdo abre posibilidades de pasantías, proyectos conjuntos y soluciones tecnológicas en producción audiovisual, realidad virtual y aumentada.</p>
-        <a class="real-source" target="_blank" rel="noopener" href="https://www.ubp.edu.ar/la-ubp-firmo-un-convenio-con-una-importante-productora-audiovisual-de-cordoba/">Leer en UBP ↗</a>
-      </article>
-
-      <article>
-        <div class="cat">Emprendedorismo · 19 nov 2025</div>
-        <h3>Estudiantes transformaron ideas en propuestas concretas</h3>
-        <p>La materia Emprendedorismo cerró con proyectos desarrollados con Canvas, Lean Startup, análisis de mercado y validación de propuesta de valor.</p>
-        <a class="real-source" target="_blank" rel="noopener" href="https://www.ubp.edu.ar/licenciatura-en-administracion-cierre-de-la-materia-emprendedorismo-con-proyectos-de-innovacion-y-trabajo-en-equipo/">Leer en UBP ↗</a>
-      </article>
+    <h2 class="center">Preguntas frecuentes</h2>
+    <p class="lead center">Lo que más nos preguntan.</p>
+    <div class="faq">
+      <details><summary>¿La idea sigue siendo mía?</summary><p>Sí. Tu idea queda privada mientras la revisan. Si tenés dudas sobre autoría, te conectamos con Vinculación Tecnológica.</p></details>
+      <details><summary>¿Necesito tener una startup o financiamiento?</summary><p>No. Podés empezar con una idea suelta. El recorrido se adapta a tu etapa.</p></details>
+      <details><summary>¿Cuánto tiempo me lleva?</summary><p>El formulario, dos minutos. Si te asignamos un mentor, son 3 encuentros de 30 minutos en 6 semanas.</p></details>
+      <details><summary>¿Y si mi equipo se separó?</summary><p>No hay problema: alcanza con que siga una parte del grupo, o incluso vos solo.</p></details>
+      <details><summary>¿Es solo para emprendimientos?</summary><p>No. También sirve para proyectos sociales, tecnológicos, de investigación o de mejora dentro de la UBP.</p></details>
     </div>
   </div>
 </section>
 
 <footer class="footer">
-  <div class="container">
-    <div class="footer-grid">
-      <div>
-        <div class="logo"><img src="ubp-logo.png" alt="Universidad Blas Pascal"></div>
-        <p style="margin-top:15px;max-width:390px">Ideas UBP es la solución digital propuesta para vincular ideas estudiantiles con la estructura de innovación y con los recursos, personas y oportunidades existentes en la Universidad.</p>
-      </div>
-      <div><h4>Plataforma</h4><ul><li><a href="#innovacion">Innovación UBP</a></li><li><a href="#proyectos">Proyectos</a></li><li><a href="#eventos">Actividades</a></li><li><a href="#recursos">Recursos</a></li><li><a href="#recomendaciones">Próximo paso</a>
-      <a href="#presentar">Presentar idea</a></li></ul></div>
-      <div><h4>Recorrido</h4><ul><li><a href="#red">Red de apoyo</a></li><li><a href="#convocatorias">Convocatorias</a></li><li><a href="#noticias">Noticias</a></li></ul></div>
-    </div>
-    <div class="disclaimer">Prototipo conceptual — Grupo 4 · Innovación UBP · 2026. Los eventos, oportunidades y contenidos señalados como demo son ilustrativos y sirven exclusivamente para testeo de la propuesta.</div>
+  <div class="container footer-inner">
+    <div class="logo"><img src="ubp-logo.png" alt="Universidad Blas Pascal"></div>
+    <p>Prototipo académico — Grupo 4 · Innovación UBP · 2026</p>
   </div>
 </footer>
 
-<div class="testbar"><span>🧪 Modo testeo</span><button onclick="openFeedback()">Dar feedback</button></div>
-<div class="toast" id="toast"><strong id="toastTitle">Acción simulada</strong><span id="toastText">Esta interacción forma parte del prototipo.</span></div>
-
-<div class="modal-backdrop" id="loginModal">
-  <div class="modal">
-    <div class="modal-head"><h3>Ingresar a Ideas UBP</h3><button class="modal-close" onclick="closeModal('loginModal')">✕</button></div>
-    <p>Simulación de acceso con credenciales institucionales.</p>
-    <div class="field"><label>Email UBP</label><input placeholder="nombre@ubp.edu.ar"></div>
-    <div class="field" style="margin-top:10px"><label>Contraseña</label><input type="password" placeholder="••••••••"></div>
-    <button class="submit" onclick="fakeLogin()">Ingresar</button>
-  </div>
-</div>
-
-<div class="modal-backdrop" id="projectModal">
-  <div class="modal">
-    <div class="modal-head"><h3 id="pmTitle">Proyecto</h3><button class="modal-close" onclick="closeModal('projectModal')">✕</button></div>
-    <p id="pmText"></p>
-    <div class="next"><h4>¿Qué permitiría esta ficha?</h4><ul><li>Conocer el estado del proyecto.</li><li>Identificar qué perfiles busca.</li><li>Contactar al equipo o guardar el proyecto.</li></ul></div>
-  </div>
-</div>
-
-<div class="modal-backdrop" id="feedbackModal">
-  <div class="modal">
-    <div class="modal-head"><h3>Feedback de testeo</h3><button class="modal-close" onclick="closeModal('feedbackModal')">✕</button></div>
-    <p>Preguntas sugeridas para registrar una reacción real del usuario.</p>
-    <div class="field"><label>¿Qué entendés que ofrece esta página?</label><textarea placeholder="Respuesta del usuario..."></textarea></div>
-    <div class="field" style="margin-top:10px"><label>¿Sabrías qué hacer si hoy tuvieras una idea?</label><select><option>Sí, claramente</option><option>Más o menos</option><option>No</option></select></div>
-    <div class="field" style="margin-top:10px"><label>¿Qué parte te genera dudas o falta?</label><textarea placeholder="Observaciones..."></textarea></div>
-    <button class="submit" onclick="saveFeedback()">Guardar observación</button>
-  </div>
-</div>
+<div class="toast" id="toast" role="status"></div>
 
 <script>
-function go(sel){document.querySelector(sel).scrollIntoView({behavior:'smooth'})}
-function showToast(title,text){
-  document.getElementById('toastTitle').textContent=title;
-  document.getElementById('toastText').textContent=text;
-  const t=document.getElementById('toast');t.classList.add('show');
-  clearTimeout(window.toastTimer);window.toastTimer=setTimeout(()=>t.classList.remove('show'),3500);
-}
-function demoAction(e,label){e.preventDefault();showToast(label,'Función simulada para el testeo del prototipo.')}
-function eventAction(name){showToast(name,'En una versión real, acá se abriría la inscripción o el detalle del evento.')}
-function actorAction(name){showToast(name,'Esta tarjeta explicaría cuándo conviene recurrir a este actor y cómo contactarlo.')}
-function openLogin(){document.getElementById('loginModal').classList.add('show')}
-function openFeedback(){document.getElementById('feedbackModal').classList.add('show')}
-function closeModal(id){document.getElementById(id).classList.remove('show')}
-function fakeLogin(){closeModal('loginModal');showToast('Ingreso simulado','El acceso institucional queda representado para validar el flujo.')}
-function saveFeedback(){closeModal('feedbackModal');showToast('Feedback guardado','En este prototipo la respuesta no se envía a un servidor.')}
-function openProject(title,text){
-  document.getElementById('pmTitle').textContent=title;
-  document.getElementById('pmText').textContent=text;
-  document.getElementById('projectModal').classList.add('show');
-}
-document.querySelectorAll('.modal-backdrop').forEach(m=>m.addEventListener('click',e=>{if(e.target===m)m.classList.remove('show')}));
-
-let projectFilter='all';
-function setFilter(btn,filter){
-  projectFilter=filter;
-  document.querySelectorAll('.chip').forEach(x=>x.classList.remove('active'));
-  btn.classList.add('active');filterProjects();
-}
-function filterProjects(){
-  const q=document.getElementById('projectSearch').value.toLowerCase().trim();
-  document.querySelectorAll('.project').forEach(card=>{
-    const cat=card.dataset.cat,txt=card.dataset.text.toLowerCase();
-    const okCat=projectFilter==='all'||cat===projectFilter;
-    const okText=!q||txt.includes(q)||card.innerText.toLowerCase().includes(q);
-    card.style.display=(okCat&&okText)?'block':'none';
-  });
-}
-
-
-
-let selectedRecoStage='idea';
-
-function chooseRecoStage(btn){
-  selectedRecoStage=btn.dataset.stage;
-  document.querySelectorAll('.stage-choice').forEach(x=>x.classList.remove('active'));
-  btn.classList.add('active');
-}
-
-const recoData={
+const routes={
   idea:{
     label:'Idea inicial',
-    headline:'Empezá por entender mejor el problema',
-    explain:'Todavía no necesitás una incubadora ni un plan de negocios completo. En esta etapa conviene reducir incertidumbre y comprobar que el problema que imaginás realmente existe.',
-    steps:[
-      'Definí en una frase qué problema observaste y quién lo vive.',
-      'Conversá con 3–5 personas relacionadas con ese problema sin intentar venderles tu solución.',
-      'Registrá patrones y reformulá la idea antes de invertir más tiempo o dinero.'
-    ],
-    resources:[
-      ['Innovación UBP','Orientación inicial para ordenar la oportunidad y detectar qué recurso puede servirte.'],
-      ['Guías de validación','Herramientas breves para entrevistas, problema–usuario e hipótesis.']
-    ],
-    questions:[
-      '¿Estoy resolviendo un problema real o sólo una idea que me entusiasma?',
-      '¿Para quién sería valiosa esta propuesta?',
-      '¿Qué tendría que aprender antes de diseñar una solución?'
-    ]
+    offer:['Una guía corta para autoevaluar tu idea.','Una charla grupal mensual con estudiantes que ya pasaron por esto.'],
+    next:['Escribí en una frase qué problema viste y a quién le pasa.','Hablá con 3 a 5 personas que tengan ese problema.','Sumate a la próxima charla grupal: te mandamos la invitación por mail.']
   },
   desarrollada:{
     label:'Idea desarrollada',
-    headline:'Convertí tus supuestos en evidencia',
-    explain:'Ya existe una propuesta más clara. Ahora el riesgo principal es seguir desarrollándola sin comprobar qué partes son verdaderamente valiosas para el usuario.',
-    steps:[
-      'Identificá los 2 supuestos que, si fueran falsos, harían caer el proyecto.',
-      'Diseñá una prueba simple para validar esos supuestos con usuarios reales.',
-      'Pedí feedback a un mentor o perfil externo al equipo y ajustá la propuesta.'
-    ],
-    resources:[
-      ['Mentorías / clínicas','Feedback puntual sobre problema, solución, modelo de valor o viabilidad.'],
-      ['Comunidad interdisciplinaria','Perfiles complementarios que pueden detectar puntos ciegos del proyecto.']
-    ],
-    questions:[
-      '¿Qué evidencia tengo de que alguien necesita esta solución?',
-      '¿Qué parte del proyecto todavía estoy dando por supuesta?',
-      '¿Puedo probar algo importante sin construir el producto completo?'
-    ]
+    offer:['Un mentor (docente o alumno avanzado) asignado a tu proyecto.','3 encuentros de 30 minutos durante 6 semanas.'],
+    next:['En los próximos días te presentamos a tu mentor.','Antes del primer encuentro, anotá las 2 dudas que más te frenan.','Definan juntos qué probar con usuarios reales.']
   },
   prototipo:{
-    label:'Prototipo académico',
-    headline:'Probalo fuera del aula',
-    explain:'Tener un prototipo no significa que la solución esté validada. El siguiente paso es observar cómo responde una persona real y documentar qué funciona, qué no y qué debería cambiar.',
-    steps:[
-      'Definí qué comportamiento o aprendizaje querés observar en el test.',
-      'Probá el prototipo con usuarios reales y registrá resultados concretos.',
-      'Revisá factibilidad técnica, recursos necesarios y posibles actores institucionales para continuar.'
-    ],
-    resources:[
-      ['Vinculación Tecnológica','Puede resultar pertinente para transferencia, articulación externa o propiedad intelectual.'],
-      ['Investigación / Extensión','Alternativas si el proyecto continúa como investigación aplicada o iniciativa de impacto.']
-    ],
-    questions:[
-      '¿El usuario entiende la propuesta sin que yo se la explique?',
-      '¿Qué cambió después del test?',
-      '¿La principal incertidumbre es de deseabilidad, factibilidad o viabilidad?'
-    ]
+    label:'Prototipo',
+    offer:['Un mentor para probar tu prototipo fuera del aula.','3 encuentros de 30 minutos durante 6 semanas.'],
+    next:['En los próximos días te presentamos a tu mentor.','Probá el prototipo con usuarios reales y anotá qué pasó.','Revisen juntos si conviene derivarlo a otra área de la UBP.']
   },
   continuidad:{
-    label:'Intención de continuidad',
-    headline:'Definí la instancia adecuada para seguir creciendo',
-    explain:'Si el equipo realmente quiere continuar, el desafío ya no es sólo mejorar la idea: es identificar qué tipo de acompañamiento necesita y evitar entrar demasiado pronto a una instancia para la que todavía no está preparado.',
-    steps:[
-      'Prepará una síntesis del problema, solución, equipo, evidencia obtenida y necesidades actuales.',
-      'Solicitá una orientación para identificar el actor o programa más adecuado.',
-      'Definí un objetivo concreto para los próximos 60–90 días y un responsable dentro del equipo.'
-    ],
-    resources:[
-      ['Innovación UBP','Recepción, orientación y derivación según madurez y tipo de proyecto.'],
-      ['doingLABS / otras áreas','Para proyectos con mayor madurez o necesidades específicas de incubación, transferencia, investigación o impacto.']
-    ],
-    questions:[
-      '¿El equipo está dispuesto a seguir trabajando cuando ya no exista una nota académica?',
-      '¿Qué evidencia tenemos de valor, factibilidad y viabilidad?',
-      '¿Qué recurso necesitamos ahora y cuál podría esperar?'
-    ]
+    label:'Quiero continuar',
+    offer:['Derivación directa a doingLABS o a Vinculación Tecnológica.','Una carta de presentación armada con tus datos, lista para enviar.'],
+    next:['Revisá la carta de presentación de abajo.','La enviamos al área que mejor encaja con tu proyecto.','Definan un objetivo concreto para los próximos 60 días.']
   }
 };
 
-const needExtras={
-  orientacion:['Priorizá primero una conversación de orientación para no recorrer programas que todavía no necesitás.','Innovación UBP','Recepción y orientación inicial'],
-  validacion:['Sumá al próximo paso una prueba concreta con usuarios reales.','Recursos de validación','Entrevistas, test de concepto y prototipado'],
-  equipo:['Publicá qué capacidades faltan en el equipo y buscá perfiles complementarios.','Comunidad / contactos','Estudiantes, docentes y mentores'],
-  mentoria:['Prepará una pregunta concreta antes de solicitar mentoría para aprovechar mejor el encuentro.','Mentorías','Feedback breve y específico'],
-  tecnologia:['Identificá exactamente qué recurso técnico necesitás antes de buscar infraestructura o especialistas.','Recursos técnicos','Laboratorios, especialistas o aliados'],
-  viabilidad:['Definí costos, usuario pagador, alternativas y supuestos económicos básicos.','Viabilidad','Herramientas de mercado y modelo de negocio'],
-  financiamiento:['Antes de buscar fondos, verificá qué vas a financiar y qué evidencia respalda la propuesta.','Convocatorias / financiamiento','Según etapa y tipo de proyecto'],
-  pi:['Evitá publicar información sensible hasta recibir orientación específica.','Vinculación / PI','Autoría, confidencialidad y protección']
-};
-
-function generateRecommendation(){
-  const base=recoData[selectedRecoStage];
-  const need=document.getElementById('recoNeed').value;
-  const extra=needExtras[need];
-
-  document.getElementById('recoPlaceholder').style.display='none';
-  document.getElementById('recoResult').classList.add('active');
-  document.getElementById('recoStageLabel').textContent=base.label;
-  document.getElementById('recoHeadline').textContent=base.headline;
-  document.getElementById('recoExplain').textContent=base.explain+' '+extra[0];
-
-  document.getElementById('recoSteps').innerHTML=base.steps.map(x=>`<li>${x}</li>`).join('');
-
-  const resources=[...base.resources,[extra[1],extra[2]]];
-  document.getElementById('recoResources').innerHTML=
-    resources.map(x=>`<div class="reco-resource"><b>${x[0]}</b><span>${x[1]}</span></div>`).join('');
-
-  document.getElementById('recoQuestions').innerHTML=base.questions.map(x=>`<li>${x}</li>`).join('');
-
-  document.getElementById('recoResult').scrollIntoView({behavior:'smooth',block:'nearest'});
+let stage=null;
+const $=id=>document.getElementById(id);
+function fillList(el,items){
+  el.replaceChildren(...items.map(t=>{const li=document.createElement('li');li.textContent=t;return li}));
+}
+function showToast(text){
+  const t=$('toast');t.textContent=text;t.classList.add('show');
+  clearTimeout(window.toastTimer);window.toastTimer=setTimeout(()=>t.classList.remove('show'),3000);
 }
 
-function addMember(){
-  const list=document.getElementById('memberList');
-  const row=document.createElement('div');
-  row.className='member-row';
-  row.innerHTML=`<input class="member-name" placeholder="Nombre y apellido">
-                 <input class="member-career" placeholder="Carrera / perfil">
-                 <input class="member-email" type="email" placeholder="Email">
-                 <button type="button" title="Quitar" onclick="removeMember(this)">✕</button>`;
-  list.appendChild(row);
+function selectStage(key,scroll){
+  stage=key;
+  document.querySelectorAll('.stage').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.stage===key)));
+  $('routeTitle').textContent=routes[key].label;
+  fillList($('routeList'),routes[key].offer);
+  $('route').classList.add('show');
+  $('formWrap').classList.add('show');
+  if(scroll)$('route').scrollIntoView({behavior:'smooth',block:'nearest'});
 }
-function removeMember(btn){
-  const rows=document.querySelectorAll('.member-row');
-  if(rows.length===1){
-    rows[0].querySelectorAll('input').forEach(x=>x.value='');
-    return;
-  }
-  btn.closest('.member-row').remove();
-}
-function previewCover(event){
-  const file=event.target.files?.[0];
-  const wrap=document.getElementById('previewWrap');
-  const img=document.getElementById('coverPreview');
-  if(!file){wrap.classList.remove('show');return}
-  const reader=new FileReader();
-  reader.onload=e=>{img.src=e.target.result;wrap.classList.add('show')};
-  reader.readAsDataURL(file);
-}
-function listFiles(event){
-  const list=document.getElementById('fileList');
-  const files=[...(event.target.files||[])];
-  if(!files.length){list.innerHTML='';return}
-  list.innerHTML=files.map(f=>{
-    const kb=Math.max(1,Math.round(f.size/1024));
-    return `<div class="file-pill"><span>📄 ${f.name}</span><span>${kb} KB</span></div>`;
-  }).join('');
-}
-function saveDraft(){
-  const draft={
-    title:document.getElementById('title').value,
-    career:document.getElementById('career').value,
-    stage:document.getElementById('stage').value,
-    problem:document.getElementById('problem').value,
-    solution:document.getElementById('solution').value,
-    savedAt:new Date().toISOString()
-  };
-  localStorage.setItem('ideasUBPDraft',JSON.stringify(draft));
-  showToast('Borrador guardado','El prototipo guardó los campos principales en este navegador.');
-}
-function restoreDraft(){
+document.querySelectorAll('.stage').forEach(b=>b.addEventListener('click',()=>selectStage(b.dataset.stage,true)));
+
+const fields=['title','career','email','description','team'];
+$('saveDraft').addEventListener('click',()=>{
+  const draft={stage};
+  fields.forEach(id=>draft[id]=$(id).value);
+  try{localStorage.setItem('prelabDraft',JSON.stringify(draft));showToast('Borrador guardado en este navegador.')}
+  catch(e){showToast('No se pudo guardar el borrador en este navegador.')}
+});
+(function restoreDraft(){
   try{
-    const d=JSON.parse(localStorage.getItem('ideasUBPDraft')||'null');
+    const d=JSON.parse(localStorage.getItem('prelabDraft')||'null');
     if(!d)return;
-    ['title','career','stage','problem','solution'].forEach(id=>{
-      if(d[id]!==undefined && document.getElementById(id))document.getElementById(id).value=d[id];
-    });
+    fields.forEach(id=>{if(d[id])$(id).value=d[id]});
+    if(d.stage&&routes[d.stage])selectStage(d.stage,false);
   }catch(e){}
-}
-restoreDraft();
+})();
 
-/* FORM / NEXT STEP — preserved logic */
-const form=document.getElementById('ideaForm');
-const emptyResult=document.getElementById('emptyResult');
-const resultCard=document.getElementById('resultCard');
-const stageBadge=document.getElementById('stageBadge');
-const resultTitle=document.getElementById('resultTitle');
-const resultText=document.getElementById('resultText');
-const resultList=document.getElementById('resultList');
-const matches=document.getElementById('matches');
-
-const routes={
-  idea:{
-    badge:'Idea inicial',
-    text:'La propuesta fue recibida para una primera orientación. En esta etapa conviene comprender mejor el problema antes de invertir demasiados recursos.',
-    list:['Revisar problema, usuario y propuesta de valor.','Hablar con 3–5 personas afectadas por el problema.','Participar de una clínica o taller breve de validación.'],
-    matches:[['Innovación UBP','Primera orientación y clasificación'],['Recursos de validación','Guías y microtalleres']]
-  },
-  desarrollada:{
-    badge:'Idea desarrollada',
-    text:'La propuesta ya tiene una forma inicial. El foco debería estar en desafiar supuestos, validar la necesidad y mejorar la definición del proyecto.',
-    list:['Solicitar una mentoría breve.','Definir 1–2 hipótesis críticas.','Preparar un prototipo simple o evidencia de validación.'],
-    matches:[['Innovación UBP','Orientación y seguimiento'],['Mentoría interdisciplinaria','Feedback específico']]
-  },
-  prototipo:{
-    badge:'Prototipo académico',
-    text:'El proyecto ya puede ser probado fuera del aula. La prioridad es generar evidencia real de utilidad, factibilidad y potencial de continuidad.',
-    list:['Testear con usuarios reales.','Documentar aprendizajes y métricas.','Evaluar derivación a Vinculación Tecnológica, Investigación, Extensión u otro actor según la naturaleza del proyecto.'],
-    matches:[['Vinculación Tecnológica','Articulación y transferencia'],['Clínica de proyectos','Validación especializada']]
-  },
-  continuidad:{
-    badge:'Intención de continuidad',
-    text:'El equipo manifiesta intención de continuar. El objetivo es identificar la instancia institucional o externa más adecuada según madurez, temática y necesidad.',
-    list:['Realizar una revisión inicial de la ficha y documentos.','Definir el tipo de acompañamiento requerido.','Evaluar derivación a doingLABS, Vinculación Tecnológica, Investigación, Extensión u otras oportunidades.'],
-    matches:[['Innovación UBP','Recepción y derivación'],['doingLABS / otras áreas','Según madurez y tipo de proyecto']]
-  }
-};
-form.addEventListener('submit',e=>{
+$('ideaForm').addEventListener('submit',e=>{
   e.preventDefault();
-  const stage=document.getElementById('stage').value;
-  const title=document.getElementById('title').value.trim()||'Tu proyecto';
-  const career=document.getElementById('career').value;
-  const impact=document.getElementById('impact').value;
-  const visibility=document.querySelector('input[name="visibility"]:checked')?.value||'private';
-  const needs=[...document.querySelectorAll('input[name="needs"]:checked')].map(x=>x.value);
-  const members=[...document.querySelectorAll('.member-row')].filter(r=>r.querySelector('.member-name').value.trim()).length;
-  const files=document.getElementById('fileUpload').files.length;
-  const cover=document.getElementById('coverUpload').files.length;
   const r=routes[stage];
+  const title=$('title').value.trim();
+  $('ideaCode').textContent='PRELAB-'+new Date().getFullYear()+'-'+(Math.floor(Math.random()*9000)+1000);
+  $('resultTitle').textContent='¡Recibimos “'+title+'”!';
+  $('resultText').textContent='Etapa: '+r.label+'. Te escribimos a '+$('email').value.trim()+' a las 3 y a las 6 semanas para ver cómo vas.';
+  fillList($('resultList'),r.next);
 
-  emptyResult.style.display='none';
-  resultCard.classList.add('active');
-  stageBadge.textContent=r.badge;
-  resultTitle.textContent=title+': idea recibida';
-  resultText.textContent=r.text;
-  resultList.innerHTML=r.list.map(x=>'<li>'+x+'</li>').join('');
-  matches.innerHTML=r.matches.map(x=>`<div class="match"><b>${x[0]}</b><span>${x[1]}</span></div>`).join('');
+  const isContinuity=stage==='continuidad';
+  $('letter').classList.toggle('show',isContinuity);
+  if(isContinuity){
+    const team=$('team').value.trim();
+    $('letterText').textContent=
+      'Hola, equipo de doingLABS / Vinculación Tecnológica:\n\n'+
+      'Les presentamos el proyecto “'+title+'”, de estudiantes de '+$('career').value+'.\n\n'+
+      $('description').value.trim()+'\n\n'+
+      (team?'Equipo que continúa: '+team+'.\n':'')+
+      'Contacto: '+$('email').value.trim()+'\n\n'+
+      'El equipo quiere seguir desarrollando la idea más allá de la materia y busca orientación sobre el próximo paso.\n\n'+
+      '— Puente PreLab UBP';
+  }
 
-  const code='IDEA-UBP-'+new Date().getFullYear()+'-'+String(Math.floor(Math.random()*9000)+1000);
-  document.getElementById('ideaCode').textContent=code;
-  document.getElementById('ideaSummaryText').textContent=
-    `Carrera: ${career} · Área: ${impact} · Integrantes cargados: ${members||1} · Archivos: ${files+cover} · Visibilidad: ${visibility==='public'?'publicable luego de revisión':'privada'}`+
-    (needs.length?` · Necesidades: ${needs.join(', ')}`:'');
-
-  localStorage.removeItem('ideasUBPDraft');
-  resultCard.scrollIntoView({behavior:'smooth',block:'nearest'});
+  try{localStorage.removeItem('prelabDraft')}catch(e){}
+  $('result').classList.add('show');
+  $('result').scrollIntoView({behavior:'smooth',block:'start'});
 });
 </script>
 </body>
