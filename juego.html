@@ -71,6 +71,25 @@ button{cursor:pointer}
 .dnext::after{content:" ▶";color:var(--ubp);animation:blink 1s steps(1) infinite}
 @keyframes blink{50%{opacity:0}}
 
+/* CLIPBOARD (notes from the validation and prototype rounds) */
+.board{position:absolute;left:12px;top:12px;width:min(290px,calc(100% - 24px));background:#b9814a;border:4px solid var(--ink);border-radius:6px;padding:16px 8px 8px;z-index:4;box-shadow:5px 5px 0 rgba(0,0,0,.3)}
+.board::before{content:"";position:absolute;left:50%;top:-10px;transform:translateX(-50%);width:64px;height:18px;background:#c9ccd3;border:4px solid var(--ink);border-radius:4px;box-shadow:inset 0 -4px 0 #9a9ea8}
+.board-head{display:flex;justify-content:space-between;align-items:center;gap:8px;width:100%;background:#fffdf6;border:3px solid var(--ink);border-bottom:none;border-radius:3px 3px 0 0;padding:6px 10px;font-size:16px;color:var(--ink);text-align:left}
+.board-head span{color:var(--ubp);font-weight:700}
+.board-head span::after{content:" ▾"}
+.board.closed .board-head{border-bottom:3px solid var(--ink);border-radius:3px}
+.board.closed .board-head span::after{content:" ▸"}
+.board.closed .board-list{display:none}
+.board-list{list-style:none;margin:0;padding:4px 10px 8px;background:#fffdf6 repeating-linear-gradient(#fffdf6 0 25px,#e3ecf6 25px 27px);border:3px solid var(--ink);border-top:2px dashed #b9b6aa;border-radius:0 0 3px 3px;max-height:40vh;overflow:auto}
+.board-list li{display:flex;gap:8px;align-items:flex-start;padding:6px 0;font-size:15px;line-height:1.3}
+.board-list li+li{border-top:2px dotted #d6d3c8}
+.board-list canvas{width:36px;height:26px;flex:0 0 auto;image-rendering:pixelated;background:#e9e7df;border:2px solid var(--ink);border-radius:3px}
+.board-list li div{flex:1;min-width:0}
+.board-list li b{display:block;font-size:13px;color:var(--muted)}
+.board-list .empty{color:var(--muted);font-style:italic}
+.board-list li.new{animation:note .5s steps(4)}
+@keyframes note{from{background:var(--lime)}to{background:transparent}}
+
 /* TOASTS */
 .toast{position:absolute;left:50%;top:14px;transform:translateX(-50%);background:var(--ink);color:#fff;border:3px solid #fff;border-radius:3px;padding:8px 14px;font-size:16px;z-index:7;max-width:calc(100% - 24px);text-align:center;pointer-events:none}
 .badge-toast{position:absolute;left:50%;top:20%;transform:translateX(-50%);background:#fffdf6;border:4px solid var(--ink);border-radius:4px;padding:18px 28px;text-align:center;z-index:8;box-shadow:6px 6px 0 rgba(0,0,0,.35);pointer-events:none;animation:pop .3s steps(4)}
@@ -114,6 +133,10 @@ button{cursor:pointer}
   .portrait canvas{width:36px;height:36px}
   .dtext{font-size:18px}
   .card{padding:20px}
+  .board{width:min(240px,calc(100% - 24px))}
+  .board-list li{font-size:14px}
+  /* keep the dialogue readable on small screens */
+  .world:has(.dialog:not([hidden])) .board-list{display:none}
 }
 @media(prefers-reduced-motion:reduce){*{animation:none!important}}
 </style>
@@ -137,6 +160,10 @@ button{cursor:pointer}
         <span class="dnext" id="dNext">Tocá para seguir</span>
       </div>
     </div>
+    <aside class="board" id="board" hidden aria-label="Portapapeles">
+      <button class="board-head" id="boardHead" type="button" aria-expanded="true" aria-controls="boardList"><b id="boardTitle"></b><span id="boardCount"></span></button>
+      <ol class="board-list" id="boardList"></ol>
+    </aside>
     <div class="badge-toast" id="badgeToast" hidden><span class="big" id="btIcon"></span><strong id="btTitle"></strong><small id="btText"></small></div>
     <div class="toast" id="toast" hidden role="status"></div>
   </div>
@@ -181,9 +208,12 @@ button{cursor:pointer}
 
 <script>
 /* ===== CONFIG ===== */
-const TW=32,TH=16,W=24,H=20;           // tile size in art pixels; x runs west→east, y north→south
+const TW=32,TH=16;                     // tile size in art pixels; x runs west→east, y north→south
+const CW=30,CH=26;                     // the campus and its two-lane streets
+const M=4;                             // neighbourhood around it, where the streets keep going
+const W=CW+2*M,H=CH+2*M;
 const COLORS=['#A3223A','#2f6fed','#2f8f5b','#6b4bd6','#ef7d00'];
-const START={x:9,y:13};
+const START={x:15,y:22};
 const OUTLINE='#1d1b1f';
 const STAGES=[
   {emoji:'💭',name:'Idea inicial',badge:'Explorador'},
@@ -191,75 +221,92 @@ const STAGES=[
   {emoji:'🛠️',name:'Prototipo',badge:'Prototipista'},
   {emoji:'🚀',name:'Quiero continuar',badge:'Lanzador'}
 ];
-/* Layout based on the UBP campus map (mapa.png): Jorge Descotte to the north,
-   Av. Donato Álvarez to the west, the south road with the entrances, the
-   sports field in the north-east and the park with the pond in the middle. */
+/* Campus layout. Streets on all four sides (Jorge Descotte to the north,
+   Av. Donato Álvarez to the west). You arrive through the main entrance in the
+   south, next to the parking lot; a central walkway runs north past PreLab and
+   the Taller, and three cross paths lead to every door. */
 const BUILDINGS=[
-  {id:'doing',name:'doingLABS',x0:4,y0:3,x1:6,y1:4,h:34,wall:'#f4e6c8',roof:'#e3a83a',npc:'doing'},
-  {id:'amarillo',x0:3,y0:6,x1:6,y1:7,h:30,wall:'#f0dfbf',roof:'#d99a2b'},
-  {id:'verde',x0:4,y0:9,x1:8,y1:9,h:24,wall:'#efe8dc',roof:'#2f7a3e'},
-  {id:'torre',x0:8,y0:10,x1:9,y1:11,h:56,wall:'#f4e4d2',roof:'#cdb08e'},
-  {id:'aula',name:'Aula',x0:3,y0:10,x1:7,y1:13,h:44,wall:'#f2d2bc',roof:'#b9532f',npc:'profe'},
-  {id:'prelab',name:'Puente PreLab',x0:10,y0:10,x1:13,y1:12,h:34,wall:'#f7e4d8',roof:'#e2775a',npc:'coord',accent:'#D9FF43'},
-  {id:'biblio',name:'Biblioteca',x0:10,y0:6,x1:16,y1:7,h:42,wall:'#e6e2f0',roof:'#6f5a9e',npc:'mentor'},
-  {id:'vinc',name:'Vinculación',x0:17,y0:6,x1:19,y1:7,h:36,wall:'#ffffff',roof:'#a3223a',npc:'asesora'},
-  {id:'taller',name:'Taller',x0:20,y0:9,x1:21,y1:13,h:38,wall:'#dfe3ea',roof:'#7d7f86',npc:'tec'},
-  {id:'cochera1',x0:4,y0:16,x1:7,y1:16,h:12,roof:'#454952',carport:true},
-  {id:'cochera2',x0:9,y0:16,x1:12,y1:16,h:12,roof:'#454952',carport:true}
+  {id:'doing',name:'doingLABS',x0:3,y0:4,x1:6,y1:6,h:34,wall:'#f4e6c8',roof:'#e3a83a',npc:'doing'},
+  {id:'amarillo',x0:8,y0:3,x1:11,y1:6,h:30,wall:'#f0dfbf',roof:'#d99a2b'},
+  {id:'torre',x0:12,y0:3,x1:13,y1:4,h:56,wall:'#f4e4d2',roof:'#cdb08e'},
+  {id:'aula',name:'Aula',x0:3,y0:10,x1:8,y1:12,h:44,wall:'#f2d2bc',roof:'#b9532f',npc:'profe'},
+  {id:'prelab',name:'Puente PreLab',x0:11,y0:10,x1:13,y1:12,h:34,wall:'#f7e4d8',roof:'#e2775a',npc:'coord',accent:'#D9FF43'},
+  {id:'biblio',name:'Biblioteca',x0:18,y0:10,x1:24,y1:12,h:42,wall:'#e6e2f0',roof:'#6f5a9e',npc:'mentor'},
+  {id:'vinc',name:'Vinculación',x0:3,y0:15,x1:6,y1:17,h:36,wall:'#ffffff',roof:'#a3223a',npc:'asesora'},
+  {id:'verde',x0:8,y0:16,x1:9,y1:17,h:24,wall:'#efe8dc',roof:'#2f7a3e'},
+  {id:'taller',name:'Taller',x0:11,y0:15,x1:13,y1:17,h:38,wall:'#dfe3ea',roof:'#7d7f86',npc:'tec'},
+  {id:'comedor',name:'Comedor',x0:20,y0:21,x1:25,y1:22,h:26,wall:'#fdf3e3',roof:'#3a8fb7'},
+  {id:'cochera1',x0:3,y0:21,x1:6,y1:21,h:12,roof:'#454952',carport:true},
+  {id:'cochera2',x0:8,y0:21,x1:11,y1:21,h:12,roof:'#454952',carport:true}
 ];
-const TREES=[[7,3],[10,3],[11,2],[20,6],[21,7],[15,15],[17,16],[19,16],[21,16],[16,17],[18,17],[20,17],[3,17],[5,17],[7,17],[9,17],[11,17],[13,17]];
-const CYPRESSES=[[2,2],[3,2],[2,3],[2,16],[2,17],[9,4],[12,4]];
-const BIG_TREE=[16,10];
-const BENCHES=[[15,13],[18,9]];
-const POND=[[16,12],[17,12],[16,13],[17,13]];
-const PARK={x0:15,y0:9,x1:18,y1:13};
-const FIELD={x0:13,y0:2,x1:21,y1:4};
-const ROAD_LABELS=[{name:'Jorge Descotte',x:10,y:1},{name:'Av. Donato Álvarez',x:1,y:11}];
-const ENTRANCES=[{n:'1',x:14,y:18},{n:'2',x:0,y:8},{n:'3',x:1,y:18}];
+const TREES=[[7,3],[12,6],[17,7],[27,3],[27,6],[9,10],[10,12],[16,10],[17,12],[26,11],[7,15],[10,15],[16,16],[12,20],[19,21],[21,23],[25,23],[27,21],[18,23]];
+const CYPRESSES=[[14,3],[14,5],[16,3],[16,5],[2,3],[2,5],[2,10],[2,12],[2,16],[2,18],[27,10],[27,12]];
+const BIG_TREE=[24,16];
+const BENCHES=[[9,13],[19,18],[23,15]];
+const POND=[[21,16],[22,16],[21,17],[22,17]];
+const GATE=[[13,23],[17,23]];
+const PARK={x0:17,y0:15,x1:26,y1:18};
+const FIELD={x0:18,y0:3,x1:26,y1:6};
+const LOT={x0:3,y0:20,x1:11,y1:23};
+const PLAZA={x0:13,y0:20,x1:17,y1:23};
+const ROAD_LABELS=[{name:'Jorge Descotte',x:9,y:.5},{name:'Av. Donato Álvarez',x:.5,y:11},{name:'Entrada principal',x:19,y:24.5},{name:'Estacionamiento',x:7,y:24.5}];
 
 const NPC_DEFS=[
-  {id:'profe',name:'Profe Lucía',role:'Docente',emoji:'👩‍🏫',x:8,y:12,color:'#6b4bd6',hair:'#3b2a20',skin:'#f1c7a5',long:true},
+  {id:'profe',name:'Profe Lucía',role:'Docente',emoji:'👩‍🏫',x:5,y:13,color:'#6b4bd6',hair:'#3b2a20',skin:'#f1c7a5',long:true},
   {id:'coord',name:'Martín',role:'Puente PreLab',emoji:'🌉',x:14,y:11,color:'#3a3a3a',hair:'#1c1c1c',skin:'#c98e66'},
-  {id:'mentor',name:'Vale',role:'Mentora',emoji:'📚',x:13,y:8,color:'#2f8f5b',hair:'#7a3b1c',skin:'#f3d0b0',long:true},
-  {id:'tec',name:'Nico',role:'Taller',emoji:'🛠️',x:20,y:14,color:'#2f6fed',hair:'#e0b04a',skin:'#e8b892'},
-  {id:'asesora',name:'Paula',role:'Vinculación Tecnológica',emoji:'🔌',x:18,y:8,color:'#A3223A',hair:'#2b1b12',skin:'#a9714f',long:true},
-  {id:'doing',name:'Equipo doingLABS',role:'Incubadora',emoji:'🚀',x:5,y:5,color:'#ef7d00',hair:'#333333',skin:'#d9a27c'}
+  {id:'mentor',name:'Vale',role:'Mentora',emoji:'📚',x:20,y:13,color:'#2f8f5b',hair:'#7a3b1c',skin:'#f3d0b0',long:true},
+  {id:'tec',name:'Nico',role:'Taller',emoji:'🛠️',x:14,y:16,color:'#2f6fed',hair:'#e0b04a',skin:'#e8b892'},
+  {id:'asesora',name:'Paula',role:'Vinculación Tecnológica',emoji:'🔌',x:4,y:18,color:'#A3223A',hair:'#2b1b12',skin:'#a9714f',long:true},
+  {id:'doing',name:'Equipo doingLABS',role:'Incubadora',emoji:'🚀',x:4,y:7,color:'#ef7d00',hair:'#333333',skin:'#d9a27c'}
 ];
 const STUDENT_DEFS=[
-  {name:'Juli',color:'#e05a7a',hair:'#2b1b12',skin:'#f1c7a5',x:15,y:9,long:true},
-  {name:'Tomi',color:'#3aa0c8',hair:'#111111',skin:'#c98e66',x:17,y:9},
-  {name:'Cami',color:'#9b59d0',hair:'#a0522d',skin:'#f3d0b0',x:17,y:11,long:true},
-  {name:'Fran',color:'#d4a017',hair:'#3b2a20',skin:'#a9714f',x:15,y:12},
-  {name:'Sol',color:'#27ae60',hair:'#e0b04a',skin:'#e8b892',x:18,y:12}
+  {name:'Juli',color:'#e05a7a',hair:'#2b1b12',skin:'#f1c7a5',x:18,y:15,long:true},
+  {name:'Tomi',color:'#3aa0c8',hair:'#111111',skin:'#c98e66',x:20,y:15},
+  {name:'Cami',color:'#9b59d0',hair:'#a0522d',skin:'#f3d0b0',x:19,y:17,long:true},
+  {name:'Fran',color:'#d4a017',hair:'#3b2a20',skin:'#a9714f',x:25,y:17},
+  {name:'Sol',color:'#27ae60',hair:'#e0b04a',skin:'#e8b892',x:26,y:15}
 ];
 
-/* Story content */
+/* The neighbourhood outside the streets: low houses behind the campus (north
+   and west, so they never hide it) and street trees on the near sides. */
+[[3,-3,6,-2],[9,-4,12,-2],[17,-3,19,-2],[22,-4,25,-2],[-3,4,-2,7],[-4,10,-2,12],[-3,16,-2,20]].forEach(([x0,y0,x1,y1],i)=>
+  BUILDINGS.push({id:'casa'+i,x0,y0,x1,y1,h:20+(i%3)*5,wall:['#f3e3cf','#e9eef2','#f6dcd2','#efe6c9'][i%4],roof:['#b9532f','#5d6b7a','#8a4b3a','#a68a3a'][i%4]}))
+;TREES.push([1,-2],[8,-2],[15,-2],[21,-1],[28,-2],[-2,2],[-2,9],[-1,15],[-2,23],[-2,27],
+  [3,27],[7,28],[11,27],[19,27],[23,28],[27,27],[31,2],[30,7],[31,12],[30,17],[31,22],[31,27]);
+
+/* Everything above is in campus coordinates; move it into the middle of the world. */
+BUILDINGS.forEach(b=>{b.x0+=M;b.x1+=M;b.y0+=M;b.y1+=M});
+[PARK,FIELD,LOT,PLAZA].forEach(r=>{r.x0+=M;r.x1+=M;r.y0+=M;r.y1+=M});
+[...TREES,...CYPRESSES,BIG_TREE,...BENCHES,...POND,...GATE].forEach(p=>{p[0]+=M;p[1]+=M});
+[START,...ROAD_LABELS,...NPC_DEFS,...STUDENT_DEFS].forEach(p=>{p.x+=M;p.y+=M});
+
+/* Story content. Every line an NPC says comes in 3 versions; say() picks one. */
 const INSIGHTS=[
-  ['A mí me pasa seguido. Lo resuelvo como puedo, pero pierdo un montón de tiempo.','les pasa seguido y pierden tiempo'],
-  ['Probé algo parecido y lo dejé: era muy complicado de usar.','lo que existe hoy es complicado'],
-  ['Si fuera simple y gratis, lo usaría seguro.','lo usarían si es simple'],
-  ['Nunca lo vi como un problema… aunque ahora que lo decís, sí.','el problema está, aunque no siempre se nota'],
-  ['A mi hermano le pasa lo mismo en el trabajo. ¡No es solo de estudiantes!','también le pasa a gente fuera de la facultad']
+  {sum:'les pasa seguido y pierden tiempo',q:['A mí me pasa seguido. Lo resuelvo como puedo, pero pierdo un montón de tiempo.','Me pasa casi todas las semanas, y cada vez pierdo tiempo.','¡Uf, sí! Me pasa todo el tiempo y nunca encontré una buena solución.']},
+  {sum:'lo que existe hoy es complicado',q:['Probé algo parecido y lo dejé: era muy complicado de usar.','Hay una app para eso, pero es tan complicada que nadie la usa.','Intenté con otra herramienta, pero me cansé: demasiados pasos.']},
+  {sum:'lo usarían si es simple',q:['Si fuera simple y gratis, lo usaría seguro.','Si me ahorra tiempo y es fácil, lo uso mañana.','Mientras no tenga que aprender nada nuevo, me sumo.']},
+  {sum:'el problema está, aunque no siempre se nota',q:['Nunca lo vi como un problema… aunque ahora que lo decís, sí.','Mmm, no lo había pensado, pero sí, me pasa.','Nunca me quejé, pero ahora que me preguntás… sí, es molesto.']},
+  {sum:'también le pasa a gente fuera de la facultad',q:['A mi hermano le pasa lo mismo en el trabajo. ¡No es solo de estudiantes!','En mi trabajo pasa lo mismo: no es solo cosa de la facu.','Mi vieja también se queja de eso. ¡Le pasa a todo el mundo!']}
 ];
 const REACTIONS=[
-  ['Lo entendí sin que me expliques. Pero no supe por dónde empezar.','se entiende, pero el inicio confunde'],
-  ['¿Lo puedo usar desde el celu? Ahí sí lo usaría todos los días.','piden una versión para celular'],
-  ['Me gusta, pero por ahora no pagaría.','lo usarían, pero dudan en pagar'],
-  ['Tardé un rato en entender para qué sirve.','la propuesta no se entiende al primer vistazo'],
-  ['¡Está buenísimo! Avisame cuando salga.','generó entusiasmo real']
+  {sum:'se entiende, pero el inicio confunde',q:['Lo entendí sin que me expliques. Pero no supe por dónde empezar.','Está clarísimo qué hace, pero me perdí en el primer paso.','Se entiende, aunque al principio no sabía dónde tocar.']},
+  {sum:'piden una versión para celular',q:['¿Lo puedo usar desde el celu? Ahí sí lo usaría todos los días.','Si estuviera en el celular, lo usaría un montón.','¿Hay versión para el teléfono? Así lo llevo a todos lados.']},
+  {sum:'lo usarían, pero dudan en pagar',q:['Me gusta, pero por ahora no pagaría.','Lo usaría, pero si es pago lo pienso dos veces.','Está bueno… mientras sea gratis.']},
+  {sum:'la propuesta no se entiende al primer vistazo',q:['Tardé un rato en entender para qué sirve.','Al principio no entendí bien qué hacía.','Lindo, pero ¿para qué era? Me costó darme cuenta.']},
+  {sum:'generó entusiasmo real',q:['¡Está buenísimo! Avisame cuando salga.','¡Lo quiero ya! ¿Cuándo lo lanzás?','¡Qué bueno! Pasame el link cuando esté.']}
 ];
 const CHATTER=[
-  '¿Viste que este mes hay Feria de Innovación?',
-  'Tengo parcial mañana… ¡deseame suerte!',
-  'Dicen que en el Taller hay una impresora 3D.',
-  'Yo también tengo una idea, pero no sé a quién contarle.',
-  'El café de la Biblioteca es el mejor del campus.'
+  ['¿Viste que este mes hay Feria de Innovación?','Me anoté en la Feria de Innovación, ¿vos vas?','En la Feria de Innovación se presentan proyectos de estudiantes. ¡Está buenísima!'],
+  ['Tengo parcial mañana… ¡deseame suerte!','Vengo de rendir… creo que me fue bien.','Estoy repasando para el final, ¡no me desconcentres!'],
+  ['Dicen que en el Taller hay una impresora 3D.','En el Taller imprimieron una pieza en 3D, ¡re loco!','Nico, el del Taller, sabe arreglar de todo.'],
+  ['Yo también tengo una idea, pero no sé a quién contarle.','Tengo una idea dando vueltas hace meses…','¿Al Puente PreLab puede ir cualquiera? Tengo una idea.'],
+  ['El café de la Biblioteca es el mejor del campus.','¿Pasaste por el Comedor? Hoy hay milanesas.','Me encanta estudiar en el parque cuando hay sol.']
 ];
 const DOUBTS=[
-  ['¿Alguien pagaría por esto?','Clásica. No hace falta adivinar: se puede probar antes de construir.'],
-  ['¿Podemos construirlo nosotros?','Buena. Quizás falte alguien técnico en el equipo, y eso también se resuelve.'],
-  ['¿Cuánto cuesta hacerlo?','Importante. Empecemos por la versión más barata posible.'],
-  ['¿Ya existe algo igual?','Siempre hay algo parecido. La clave es en qué te diferenciás.']
+  ['¿Alguien pagaría por esto?',['Clásica. No hace falta adivinar: se puede probar antes de construir.','Muy buena. Eso se puede averiguar antes de construir nada.','La duda de oro. Se responde preguntando y probando, no suponiendo.']],
+  ['¿Podemos construirlo nosotros?',['Buena. Quizás falte alguien técnico en el equipo, y eso también se resuelve.','Importante. Si falta alguien técnico, se puede sumar al equipo.','Sincera. No hace falta saber todo: se puede sumar gente.']],
+  ['¿Cuánto cuesta hacerlo?',['Importante. Empecemos por la versión más barata posible.','Clave. La primera versión puede costar casi nada.','Bien. Primero probamos barato; después vemos cuánto invertir.']],
+  ['¿Ya existe algo igual?',['Siempre hay algo parecido. La clave es en qué te diferenciás.','Seguro hay algo similar. Lo importante es qué hacés distinto.','Que exista algo parecido no es malo: confirma que el problema es real.']]
 ];
 const PROTOS=[['Un boceto en papel','un boceto en papel'],['Una maqueta en Figma o Canva','una maqueta en Figma'],['Una landing page simple','una landing page'],['Un video corto que muestre la idea','un video demo']];
 const GOALS=['Conseguir 20 personas probándolo','Sumar a alguien técnico al equipo','Presentarnos a una convocatoria','Tener la primera versión funcionando'];
@@ -285,7 +332,7 @@ const STEPS={
 
 /* ===== STATE / SAVE ===== */
 const STORE='prelabIsoGame';
-function fresh(name,color){return {v:2,name,color,idea:'',step:'intro',badges:0,talked:[],insights:[],doubts:[],proto:'',reactions:[],dest:'',goal:'',x:START.x,y:START.y}}
+function fresh(name,color){return {v:2,name,color,idea:'',step:'intro',badges:0,talked:[],insights:[],doubts:[],proto:'',reactions:[],board1:[],board2:[],dest:'',goal:'',x:START.x,y:START.y}}
 function load(){try{return JSON.parse(localStorage.getItem(STORE)||'null')}catch(e){return null}}
 function save(){if(!S)return;S.x=Math.round(player.x);S.y=Math.round(player.y);try{localStorage.setItem(STORE,JSON.stringify(S))}catch(e){}}
 let S=null;
@@ -300,20 +347,25 @@ const lerpP=(a,b,t)=>({x:a.x+(b.x-a.x)*t,y:a.y+(b.y-a.y)*t});
 /* ===== MAP ===== */
 const blocked=[...Array(H)].map(()=>Array(W).fill(false));
 BUILDINGS.forEach(b=>{for(let y=b.y0;y<=b.y1;y++)for(let x=b.x0;x<=b.x1;x++)blocked[y][x]=true});
-[...TREES,...CYPRESSES,BIG_TREE,...BENCHES,...POND].forEach(([x,y])=>blocked[y][x]=true);
+[...TREES,...CYPRESSES,BIG_TREE,...BENCHES,...POND,...GATE].forEach(([x,y])=>blocked[y][x]=true);
 NPC_DEFS.forEach(n=>blocked[n.y][n.x]=true);
 const inRect=(r,x,y)=>x>=r.x0&&x<=r.x1&&y>=r.y0&&y<=r.y1;
-const isOutside=(x,y)=>x===0||y===0||x===W-1||y===H-1;
-const isRoad=(x,y)=>!isOutside(x,y)&&(x===1||y===1||x===W-2||y===H-2);
-const isParking=(x,y)=>y===15&&x>=3&&x<=13;
-const isPath=(x,y)=>((y===5||y===8||y===14)&&x>=2&&x<=21)||(x===14&&y>=8&&y<=17)||(x===8&&y>=5&&y<=8)||(x===2&&y>=5&&y<=14);
+// Street helpers take campus coordinates (a,b); the two-lane streets run past the campus to the world edge.
+const hRoad=b=>b===0||b===1||b===CH-2||b===CH-1,vRoad=a=>a===0||a===1||a===CW-2||a===CW-1;
+const isRoad=(x,y)=>hRoad(y-M)||vRoad(x-M);
+const isOutside=(x,y)=>x<M||y<M||x>=M+CW||y>=M+CH;
+const isDrive=(x,y)=>x===LOT.x0+4&&y>=LOT.y0&&y<=LOT.y1;
+const isPath=(x,y)=>{const a=x-M,b=y-M;return ((b===8||b===19)&&a>=3&&a<=26)||(b===14&&a>=2&&a<=27)||(a===15&&b>=2&&b<=23)};
+// zebra crossings where the campus paths meet the streets
+const isCrossing=(x,y)=>{const a=x-M,b=y-M;return (a===15&&hRoad(b))||(b===14&&vRoad(a))};
 const walkable=(x,y)=>x>=0&&y>=0&&x<W&&y<H&&!blocked[y][x];
 const DIRS=[[1,0],[-1,0],[0,1],[0,-1],[1,1],[1,-1],[-1,1],[-1,-1]];
 function canStep(x,y,dx,dy){
   if(!walkable(x+dx,y+dy))return false;
   return !(dx&&dy)||(walkable(x+dx,y)&&walkable(x,y+dy));
 }
-function bfs(sx,sy,isGoal){
+// avoid(x,y): extra tiles to route around, e.g. the ones other people are standing on
+function bfs(sx,sy,isGoal,avoid){
   const prev=new Map(),key=(x,y)=>y*W+x,q=[[sx,sy]];
   prev.set(key(sx,sy),null);
   while(q.length){
@@ -325,7 +377,7 @@ function bfs(sx,sy,isGoal){
     }
     for(const [dx,dy] of DIRS){
       const nx=x+dx,ny=y+dy;
-      if(!prev.has(key(nx,ny))&&canStep(x,y,dx,dy)){prev.set(key(nx,ny),key(x,y));q.push([nx,ny])}
+      if(!prev.has(key(nx,ny))&&canStep(x,y,dx,dy)&&!(avoid&&avoid(nx,ny))){prev.set(key(nx,ny),key(x,y));q.push([nx,ny])}
     }
   }
   return null;
@@ -338,24 +390,48 @@ const students=STUDENT_DEFS.map((d,i)=>({...d,id:'s'+i,i,role:'Estudiante',emoji
 const people=[...npcs,...students];
 const byId=id=>people.find(p=>p.id===id);
 
+/* Tile reservations, so two people never share a tile. Everyone holds the tile
+   they stand on, plus the next one while they are stepping into it (and, on a
+   diagonal step, the two corner tiles, so nobody crosses paths). The NPCs at
+   the doors never move: their tiles are already in the blocked grid. */
+const movers=[player,...students];
+const stepTiles=(a,b)=>a.x!==b.x&&a.y!==b.y?[b,{x:b.x,y:a.y},{x:a.x,y:b.y}]:[b];
+function holds(e,x,y){
+  const at=e.stepping?e.from:{x:Math.round(e.x),y:Math.round(e.y)};
+  if(at.x===x&&at.y===y)return true;
+  return e.stepping&&e.path.length>0&&stepTiles(at,e.path[0]).some(t=>t.x===x&&t.y===y);
+}
+const takenBy=(self,x,y)=>movers.some(e=>e!==self&&holds(e,x,y));
+
 function moveAlong(e,dt,speed){
-  if(!e.path.length){e.moving=false;return false}
-  const t=e.path[0],dx=t.x-e.x,dy=t.y-e.y,d=Math.hypot(dx,dy),step=speed*dt;
+  if(!e.path.length){e.moving=false;e.stepping=false;return false}
+  const t=e.path[0];
+  if(!e.stepping){
+    // wait while someone else holds the next tile; callers re-route after a moment
+    const from={x:Math.round(e.x),y:Math.round(e.y)};
+    if(stepTiles(from,t).some(c=>takenBy(e,c.x,c.y))){e.moving=false;e.blockedT=(e.blockedT||0)+dt;return false}
+    e.stepping=true;e.blockedT=0;e.from=from;
+  }
+  const dx=t.x-e.x,dy=t.y-e.y,d=Math.hypot(dx,dy),step=speed*dt;
   e.moving=true;e.walkT+=dt;
   if(dx-dy)e.face=dx-dy>0?1:-1;
-  if(d<=step){e.x=t.x;e.y=t.y;e.path.shift();return !e.path.length}
+  if(d<=step){e.x=t.x;e.y=t.y;e.path.shift();e.stepping=false;return !e.path.length}
   e.x+=dx/d*step;e.y+=dy/d*step;return false;
 }
 function wander(st,dt){
-  if(st.frozen||talkingTo===st){st.moving=false;return}
+  // a frozen student still finishes the step it started, so it never stops between tiles
+  if(talkingTo===st||st.frozen&&!st.stepping){st.moving=false;return}
   moveAlong(st,dt,1.3);
+  if(st.frozen)return;
+  if(st.blockedT>.5){st.path=[];st.blockedT=0;st.timer=.3+Math.random()}
   if(st.path.length)return;
   st.timer-=dt;
   if(st.timer>0)return;
   st.timer=2+Math.random()*4;
   const tx=PARK.x0+Math.floor(Math.random()*(PARK.x1-PARK.x0+1)),ty=PARK.y0+Math.floor(Math.random()*(PARK.y1-PARK.y0+1));
-  if(!walkable(tx,ty))return;
-  st.path=bfs(Math.round(st.x),Math.round(st.y),(x,y)=>x===tx&&y===ty)||[];
+  // skip tiles someone stands on or is already heading to
+  if(!walkable(tx,ty)||takenBy(st,tx,ty)||students.some(o=>o!==st&&o.path.length&&o.path[o.path.length-1].x===tx&&o.path[o.path.length-1].y===ty))return;
+  st.path=bfs(Math.round(st.x),Math.round(st.y),(x,y)=>x===tx&&y===ty,(x,y)=>takenBy(st,x,y))||[];
 }
 
 /* ===== PIXEL PRIMITIVES (crisp, no anti-aliasing) ===== */
@@ -497,6 +573,16 @@ function makeTree(r,trunk){
   return c;
 }
 const treeSprite=makeTree(8,10),bigTreeSprite=makeTree(13,12);
+// Entrance pillar: brick column with a stone cap and a UBP-red band.
+const gateSprite=(()=>{
+  const c=makeCanvas(8,24),g=c.getContext('2d');
+  g.fillStyle=OUTLINE;g.fillRect(1,3,6,21);g.fillRect(0,0,8,4);
+  g.fillStyle='#b3542f';g.fillRect(2,4,4,19);
+  g.fillStyle='#8f3f22';for(let y=6;y<23;y+=3)g.fillRect(2,y,4,1);
+  g.fillStyle='#A3223A';g.fillRect(2,8,4,4);
+  g.fillStyle='#e8e2d4';g.fillRect(1,1,6,2);
+  return c;
+})();
 const cypressSprite=(()=>{
   const c=makeCanvas(9,27),g=c.getContext('2d');
   g.fillStyle='#3a2414';g.fillRect(3,22,3,5);
@@ -508,8 +594,7 @@ const cypressSprite=(()=>{
   }
   return c;
 })();
-const GLYPHS={'!':['1','1','1','1','0','1'],'?':['01110','10001','00010','00100','00000','00100'],
-  '1':['010','110','010','010','111'],'2':['111','001','111','100','111'],'3':['111','001','111','001','111']};
+const GLYPHS={'!':['1','1','1','1','0','1'],'?':['01110','10001','00010','00100','00000','00100']};
 function drawBubble(g,x,y,ch){
   const gl=GLYPHS[ch],w=gl[0].length+6,h=gl.length+6;
   g.fillStyle=OUTLINE;g.fillRect(x-(w>>1)-1,y-h-1,w+2,h+2);
@@ -526,11 +611,6 @@ function pixelLine(g,a,b,color){
   g.fillStyle=color;
   for(let i=0;i<=n;i++){const t=n?i/n:0;g.fillRect(Math.round(a.x+(b.x-a.x)*t),Math.round(a.y+(b.y-a.y)*t),1,1)}
 }
-function drawDisk(g,x,y,ch){
-  fillEllipse(g,x,y,6,6,OUTLINE);fillEllipse(g,x,y,5,5,'#ffffff');
-  g.fillStyle=OUTLINE;
-  GLYPHS[ch].forEach((row,ry)=>row.split('').forEach((v,rx)=>{if(v==='1')g.fillRect(x-1+rx,y-2+ry,1,1)}));
-}
 const GROUND_OFF={x:H*TW/2+1,y:2};
 const ground=(()=>{
   const c=makeCanvas((W+H)*TW/2+2,(W+H)*TH/2+14),g=c.getContext('2d');
@@ -541,10 +621,12 @@ const ground=(()=>{
   fillPoly(g,[o(iso(W,H)),o(iso(W,0)),o(up(iso(W,0),-s)),o(up(iso(W,H),-s))],'#946c48');
   for(let y=0;y<H;y++)for(let x=0;x<W;x++){
     let c1=(x+y)%2?'#8fcf6e':'#86c766',spots=['#6fb257','#a6dd85'],flowers=true;
-    if(isOutside(x,y)){c1=(x+y)%2?'#7bbd60':'#74b459';spots=['#5f9e48']}
-    else if(isRoad(x,y)){c1=(x+y)%2?'#8e9096':'#898b91';spots=['#7d7f85','#a3a5aa'];flowers=false}
+    if(isRoad(x,y)){c1=(x+y)%2?'#8e9096':'#898b91';spots=['#7d7f85','#a3a5aa'];flowers=false}
     else if(inRect(FIELD,x,y)){c1=x%2?'#46a24a':'#3f9a45';spots=['#3a8f40'];flowers=false}
-    else if(isParking(x,y)){c1='#cdb88f';spots=['#b59f74','#ddcaa3'];flowers=false}
+    else if(isOutside(x,y)){c1=(x+y)%2?'#7bbd60':'#74b459';spots=['#5f9e48']}
+    else if(isDrive(x,y)){c1=(x+y)%2?'#8e9096':'#898b91';spots=['#7d7f85','#a3a5aa'];flowers=false}
+    else if(inRect(LOT,x,y)){c1='#a7a9ae';spots=['#9a9ca1','#b4b6ba'];flowers=false}
+    else if(inRect(PLAZA,x,y)){c1=(x+y)%2?'#e6d9c3':'#ddd0b8';spots=['#cbbda3','#efe5d3'];flowers=false}
     else if(isPath(x,y)){c1='#d4d2ca';spots=['#bdbab0','#e4e2da'];flowers=false}
     const d=[o(iso(x,y)),o(iso(x+1,y)),o(iso(x+1,y+1)),o(iso(x,y+1))];
     fillPoly(g,d,c1);
@@ -556,8 +638,16 @@ const ground=(()=>{
     if(flowers&&rnd()<.12){g.fillStyle=rnd()<.5?'#fff6c8':'#ffd1dc';g.fillRect(Math.round(cc.x+(rnd()-.5)*12),Math.round(cc.y+(rnd()-.5)*5),1,1)}
     // dashed centre line on straight road stretches
     if(isRoad(x,y)){
-      const alongX=(y===1||y===H-2)&&x!==1&&x!==W-2,alongY=(x===1||x===W-2)&&y!==1&&y!==H-2;
-      if(alongX||alongY)for(let k=-2;k<2;k++){g.fillStyle='#ece6c6';g.fillRect(Math.round(cc.x)+(alongX?2*k:-2*k),Math.round(cc.y)+k,2,1)}
+      const a=x-M,b=y-M,h=hRoad(b),v=vRoad(a);
+      if(isCrossing(x,y))for(let t=.15;t<.9;t+=.23){
+        const p=h?[iso(x+.18,y+t),iso(x+.82,y+t)]:[iso(x+t,y+.18),iso(x+t,y+.82)];
+        pixelLine(g,o(p[0]),o(p[1]),'#f2f2ea');pixelLine(g,o({x:p[0].x,y:p[0].y+1}),o({x:p[1].x,y:p[1].y+1}),'#f2f2ea');
+      }
+      // dashed centre line on the edge between the two lanes, skipped at junctions
+      else if(h!==v){
+        const line=h?(b===1||b===CH-1)&&[iso(x+.3,y),iso(x+.7,y)]:(a===1||a===CW-1)&&[iso(x,y+.3),iso(x,y+.7)];
+        if(line)pixelLine(g,o(line[0]),o(line[1]),'#ece6c6');
+      }
     }
   }
   // sports field lines
@@ -566,15 +656,8 @@ const ground=(()=>{
   const mx=(F.x0+F.x1+1)/2;
   pixelLine(g,o(iso(mx,F.y0+.3)),o(iso(mx,F.y1+.7)),'#f2f2ea');
   {const m=o(iso(mx,(F.y0+F.y1+1)/2));fillEllipse(g,m.x,m.y,9,4,'#f2f2ea');fillEllipse(g,m.x,m.y,8,3,'#43a047')}
-  // roundabouts with the entrance numbers from the campus map
-  ENTRANCES.forEach(e=>{
-    const m=o(iso(e.x+.5,e.y+.5));
-    if(isRoad(e.x,e.y)){
-      fillEllipse(g,m.x,m.y,31,15,'#6f7177');fillEllipse(g,m.x,m.y,30,14,'#8c8e94');
-      fillEllipse(g,m.x,m.y,13,6,'#5f9e48');fillEllipse(g,m.x,m.y,12,5,'#86c766');
-    }
-    drawDisk(g,m.x,m.y-5,e.n);
-  });
+  // parking stalls
+  for(let y=LOT.y0;y<=LOT.y1;y++)for(let x=LOT.x0;x<=LOT.x1+1;x++)pixelLine(g,o(iso(x,y+.15)),o(iso(x,y+.85)),'#eeeeea');
   // pond
   // The ellipse is measured in tile space, so on screen it follows the
   // diagonal of its two tiles and stays off the path next to it.
@@ -729,6 +812,7 @@ function sceneItems(){
   TREES.forEach(([x,y])=>plant(x,y,treeSprite,7));
   CYPRESSES.forEach(([x,y])=>plant(x,y,cypressSprite,4));
   plant(BIG_TREE[0],BIG_TREE[1],bigTreeSprite,12);
+  GATE.forEach(([x,y])=>plant(x,y,gateSprite,4));
   BENCHES.forEach(([x,y])=>{const f=foot({x,y});items.push({x0:x+.15,y0:y+.4,x1:x+.85,y1:y+.6,sx0:f.x-12,sy0:f.y-10,sx1:f.x+12,sy1:f.y+6,draw:g=>drawBench(g,x,y)})});
   [...people,player].forEach(p=>{const f=foot(p);items.push({isPlayer:p===player,x0:p.x+.3,y0:p.y+.3,x1:p.x+.7,y1:p.y+.7,sx0:f.x-6,sy0:f.y-14,sx1:f.x+6,sy1:f.y+2,draw:g=>drawPerson(g,p)})});
   return items;
@@ -843,6 +927,17 @@ function updatePlayer(dt){
   }
   const arrived=moveAlong(player,dt,3.6);
   if(arrived&&player.goal){const g=player.goal;player.goal=null;if(near(g))talk(g)}
+  if(player.blockedT>.35)reroute();
+}
+// Someone is standing in the way: find a path around them to the same place.
+function reroute(){
+  player.blockedT=0;
+  const g=player.goal,d=player.dest;
+  const goal=g?(x,y)=>{const nx=Math.round(g.x),ny=Math.round(g.y);return Math.max(Math.abs(x-nx),Math.abs(y-ny))<=1&&!(x===nx&&y===ny)}
+    :d?(x,y)=>x===d.x&&y===d.y:null;
+  const p=goal&&bfs(Math.round(player.x),Math.round(player.y),goal,(x,y)=>takenBy(player,x,y));
+  player.path=p||[];
+  if(p&&!p.length&&g){player.goal=null;if(near(g))talk(g)}
 }
 const near=e=>Math.hypot(e.x-player.x,e.y-player.y)<=1.6;
 
@@ -862,7 +957,7 @@ document.addEventListener('keydown',e=>{
     return;
   }
   if(!S||!document.getElementById('titleScreen').hidden)return;
-  if(KEYMAP[k]){e.preventDefault();keys.add(k);player.goal=null;unfreeze()}
+  if(KEYMAP[k]){e.preventDefault();keys.add(k);player.goal=null;player.dest=null;unfreeze()}
   if(k==='e'||k===' '||k==='Enter'){
     e.preventDefault();
     const n=[...people].filter(near).sort((a,b)=>Math.hypot(a.x-player.x,a.y-player.y)-Math.hypot(b.x-player.x,b.y-player.y))[0];
@@ -893,15 +988,18 @@ cv.addEventListener('pointerdown',e=>{
   if(b)return goTalk(byId(b.npc));
   const t=toTile(w.x,w.y);
   if(!walkable(t.x,t.y))return;
-  player.goal=null;
-  const p=bfs(Math.round(player.x),Math.round(player.y),(x,y)=>x===t.x&&y===t.y);
+  player.goal=null;player.dest={x:t.x,y:t.y};
+  const p=bfs(Math.round(player.x),Math.round(player.y),(x,y)=>x===t.x&&y===t.y,(x,y)=>takenBy(player,x,y))
+    ||bfs(Math.round(player.x),Math.round(player.y),(x,y)=>x===t.x&&y===t.y);
   if(p){player.path=p;tapMark={x:t.x,y:t.y,t:0}}
 });
 function goTalk(n){
-  if(n.student){n.frozen=true;n.path=n.path.slice(0,1)}
+  if(n.student){n.frozen=true;n.path=n.stepping?n.path.slice(0,1):[]}
   const nx=n.path.length?n.path[0].x:Math.round(n.x),ny=n.path.length?n.path[0].y:Math.round(n.y);
   if(near(n)&&!player.path.length)return talk(n);
-  const p=bfs(Math.round(player.x),Math.round(player.y),(x,y)=>Math.max(Math.abs(x-nx),Math.abs(y-ny))<=1&&!(x===nx&&y===ny));
+  player.dest=null;
+  const goal=(x,y)=>Math.max(Math.abs(x-nx),Math.abs(y-ny))<=1&&!(x===nx&&y===ny);
+  const p=bfs(Math.round(player.x),Math.round(player.y),goal,(x,y)=>takenBy(player,x,y))||bfs(Math.round(player.x),Math.round(player.y),goal);
   if(!p){toast('No encuentro cómo llegar ahí.');return}
   player.path=p;player.goal=n;
   if(!p.length)talk(n);
@@ -919,7 +1017,18 @@ function speaker(sp){
   $('dName').textContent=sp.name;$('dRole').textContent=sp.role?'· '+sp.role:'';
   $('dChoices').replaceChildren();$('dInput').hidden=true;$('dNext').hidden=true;
 }
+// Picks one of a line's versions, never the same one twice in a row.
+const lastPick=new Map();
+function pickLine(t){
+  if(!Array.isArray(t))return t;
+  const prev=lastPick.get(t[0]);
+  let i=Math.floor(Math.random()*t.length);
+  if(t.length>1&&i===prev)i=(i+1)%t.length;
+  lastPick.set(t[0],i);
+  return t[i];
+}
 function typeText(text,done){
+  text=pickLine(text);
   clearInterval(typer);
   const el=$('dText');
   if(reduce){el.textContent=text;typer=null;done();return}
@@ -980,7 +1089,34 @@ function updateHud(){
     return li;
   }));
   $('objective').textContent=STEPS[S.step].obj();
+  renderBoard();
 }
+// Head-only crop of the dialogue portrait, for the clipboard notes.
+function headCanvas(sp){
+  const c=makeCanvas(18,13);c.getContext('2d').drawImage(portraitSprite(sp),0,0,18,13,0,0,18,13);
+  return c;
+}
+let noteAt=-1e9;
+function renderBoard(){
+  const round=['talk1','report1'].includes(S.step)?1:['test','report3'].includes(S.step)?2:0;
+  $('board').hidden=!round;
+  if(!round)return;
+  const notes=(round===1?S.board1:S.board2)||[];
+  $('boardTitle').textContent=round===1?'📋 Validación':'📋 Prototipo';
+  $('boardCount').textContent=notes.length+'/3';
+  const fresh=performance.now()-noteAt<800;
+  $('boardList').replaceChildren(...(notes.length?notes.map((n,k)=>{
+    const st=students[n.i],li=document.createElement('li'),txt=document.createElement('div'),who=document.createElement('b'),q=document.createElement('q');
+    who.textContent=st.name;q.textContent=n.q;txt.append(who,q);
+    li.append(headCanvas(st),txt);
+    if(fresh&&k===notes.length-1)li.className='new';
+    return li;
+  }):[Object.assign(document.createElement('li'),{className:'empty',textContent:round===1?'Hablá con estudiantes del parque: acá van sus respuestas.':'Mostrales tu prototipo a estudiantes del parque: acá van sus reacciones.'})]));
+}
+$('boardHead').addEventListener('click',()=>{
+  const b=$('board'),closed=b.classList.toggle('closed');
+  $('boardHead').setAttribute('aria-expanded',String(!closed));
+});
 function setStep(step){S.step=step;updateHud();save()}
 function badge(n){
   S.badges=n;updateHud();
@@ -1000,122 +1136,134 @@ async function talk(n){
 }
 const phone={name:'Puente PreLab',role:'Mensaje',emoji:'📱',color:'#3a3a3a'};
 async function checkin(week){
-  const c=await choice(phone,'📅 Semana '+week+': ¿“'+S.idea+'” sigue en marcha?',['¡Sí, sigo con todo!','Voy lento, pero sigo']);
-  await say(phone,c?'Está perfecto ir a tu ritmo. Lo importante es no frenar del todo.':'¡Genial! Te volvemos a escribir en unas semanas.');
+  const c=await choice(phone,['📅 Semana '+week+': ¿“'+S.idea+'” sigue en marcha?','📅 Semana '+week+': ¿cómo viene “'+S.idea+'”?','📅 Semana '+week+': pasamos a saludar. ¿Seguís con “'+S.idea+'”?'],['¡Sí, sigo con todo!','Voy lento, pero sigo']);
+  await say(phone,c?['Está perfecto ir a tu ritmo. Lo importante es no frenar del todo.','Ir lento también es avanzar. Seguimos en contacto.','Cada proyecto tiene su ritmo. Lo importante es no soltarlo.']
+    :['¡Genial! Te volvemos a escribir en unas semanas.','¡Bien ahí! Seguimos en contacto.','¡Eso! Nos volvemos a hablar pronto.']);
 }
-const objective=()=>'Tu próximo paso: '+STEPS[S.step].obj().replace(/ · \d\/3/,'')+'.';
+const objective=()=>{
+  const o=STEPS[S.step].obj().replace(/ · \d\/3/,'');
+  return ['Tu próximo paso: '+o+'.','¿Cómo va todo? Lo que sigue: '+o+'.','¡Vas muy bien! Ahora te toca: '+o+'.'];
+};
 const SCENES={
   async profe(n){
     if(S.step==='intro'){
-      await say(n,'¡'+S.name+'! Terminó la cursada y tu proyecto quedó muy bien.');
-      await say(n,'Muchos guardan el TP en un cajón y ahí queda. Pero tu idea no tiene por qué terminar.');
-      await say(n,'Andá al Puente PreLab, acá al lado. Ahí te orientan sobre el próximo paso.');
+      await say(n,['¡'+S.name+'! Terminó la cursada y tu proyecto quedó muy bien.','¡Hola, '+S.name+'! Cerramos la materia y tu proyecto fue de los mejores.','¡'+S.name+', qué bueno cruzarte! Tu proyecto de la materia me encantó.']);
+      await say(n,['Muchos guardan el TP en un cajón y ahí queda. Pero tu idea no tiene por qué terminar.','La mayoría de los TPs mueren cuando termina el cuatrimestre. El tuyo no tiene por qué.','Sería una pena que quede en una carpeta. Las buenas ideas se merecen una segunda vida.']);
+      await say(n,['Andá al Puente PreLab, acá cerca. Ahí te orientan sobre el próximo paso.','Pasá por el Puente PreLab, a unos pasos: te dicen exactamente qué hacer ahora.','El Puente PreLab está sobre el camino central. Contales tu idea y te van a orientar.']);
       setStep('prelab');
     }else if(S.step==='deliver'&&S.dest==='inv'){
-      await say(n,'¡Qué bueno verte de nuevo! Recibí tu carta.');
-      await say(n,'Se la paso hoy a Investigación y Extensión. Con esta evidencia, seguro les interesa.');
+      await say(n,['¡Qué bueno verte de nuevo! Recibí tu carta.','¡Volviste! Ya tengo tu carta en la mano.','¡'+S.name+'! Me llegó tu carta y la leí completa.']);
+      await say(n,['Se la paso hoy a Investigación y Extensión. Con esta evidencia, seguro les interesa.','Hoy mismo se la acerco a Investigación y Extensión. Con estos datos tienen todo para evaluarla.','La llevo a Investigación y Extensión esta semana. Tenés evidencia de sobra para que la tomen en serio.']);
       finish();
-    }else await say(n,'¿Cómo va tu idea? '+objective());
+    }else await say(n,objective());
   },
   async coord(n){
     if(S.step==='prelab'){
-      await say(n,'¡Hola, '+S.name+'! Este es el Puente PreLab: conectamos tu idea con la gente indicada de la UBP.');
-      S.idea=(await ask(n,'¿Cómo se llama tu idea?','Ej.: App para compartir viajes'))||'Mi idea';
-      await say(n,'“'+S.idea+'”, ¡me encanta! Trabajamos en 4 etapas: idea inicial, idea desarrollada, prototipo y continuidad.');
-      await say(n,'Primera misión: confirmá que el problema existe. Hablá con 3 estudiantes en el parque. Escuchá, no vendas.');
-      S.talked=[];setStep('talk1');
+      await say(n,['¡Hola, '+S.name+'! Este es el Puente PreLab: conectamos tu idea con la gente indicada de la UBP.','¡Hola, '+S.name+'! Te damos la bienvenida al Puente PreLab: unimos tu idea con quien te puede ayudar.','¡'+S.name+'! En el Puente PreLab ayudamos a que las ideas de clase sigan después de la materia.']);
+      S.idea=(await ask(n,['¿Cómo se llama tu idea?','Contame, ¿cómo se llama tu idea?','Primero lo primero: ¿qué nombre tiene tu idea?'],'Ej.: App para compartir viajes'))||'Mi idea';
+      await say(n,['“'+S.idea+'”, ¡me encanta! Trabajamos en 4 etapas: idea inicial, idea desarrollada, prototipo y continuidad.','“'+S.idea+'”, ¡suena muy bien! El recorrido tiene 4 etapas: idea inicial, idea desarrollada, prototipo y continuidad.','¡“'+S.idea+'”! Buen nombre. Vamos por 4 etapas: idea inicial, idea desarrollada, prototipo y continuidad.']);
+      await say(n,['Primera misión: confirmá que el problema existe. Hablá con 3 estudiantes en el parque. Escuchá, no vendas.','Arrancamos por validar: andá al parque y hablá con 3 estudiantes. Preguntá y escuchá, no vendas.','Antes de construir nada, confirmemos que el problema es real. Hablá con 3 estudiantes del parque y escuchalos.']);
+      await say(n,['Tomá este portapapeles 📋: anotá ahí lo que te cuenten.','Te doy un portapapeles 📋 para que anotes cada respuesta.','Llevate este portapapeles 📋. Lo que te digan, va ahí.']);
+      S.talked=[];S.board1=[];setStep('talk1');
     }else if(S.step==='report1'){
-      await say(n,'¿Y? ¿Qué te dijeron?');
-      await say(n,'Esto aprendiste:\n• '+S.insights.join('\n• '));
-      await say(n,'¡Eso es validar! Ahora sabés que el problema es real.');
+      await say(n,['¿Y? ¿Qué te dijeron?','¡Volviste! ¿Qué te contaron?','A ver ese portapapeles… ¿qué anotaste?']);
+      const learned='\n• '+S.insights.join('\n• ');
+      await say(n,['Esto aprendiste:'+learned,'Lo que anotaste:'+learned,'Mirá todo lo que descubriste:'+learned]);
+      await say(n,['¡Eso es validar! Ahora sabés que el problema es real.','Eso es validar: ya no es una suposición, es algo que escuchaste.','¡Perfecto! Ahora tenés evidencia de que el problema existe.']);
       badge(1);
-      await say(n,'Tu idea pasó a la etapa 2. Te asignamos a Vale, tu mentora: está en la Biblioteca.');
-      await say(n,'Son solo 3 encuentros de 30 minutos en 6 semanas. Compatible con la cursada.');
+      await say(n,['Tu idea pasó a la etapa 2. Te asignamos a Vale, tu mentora: está en la Biblioteca.','¡Pasaste a la etapa 2! Tu mentora es Vale y te espera en la Biblioteca.','Etapa 2 desbloqueada. Vale va a ser tu mentora: la encontrás en la Biblioteca.']);
+      await say(n,['Son solo 3 encuentros de 30 minutos en 6 semanas. Compatible con la cursada.','Son 3 encuentros de media hora en 6 semanas: se puede con la cursada.','No te va a quitar tiempo: 3 charlas de 30 minutos repartidas en 6 semanas.']);
       await checkin(3);
       setStep('mentor');
     }else if(S.step==='decide'){
-      await say(n,'¡Mirá todo lo que avanzaste con “'+S.idea+'”!');
+      await say(n,['¡Mirá todo lo que avanzaste con “'+S.idea+'”!','¡Qué recorrido hiciste con “'+S.idea+'”!','“'+S.idea+'” ya no es la misma idea que trajiste al principio. ¡Felicitaciones!']);
       const keys=Object.keys(DEST);
-      S.dest=keys[await choice(n,'Último paso: ¿a dónde querés llevarla?',keys.map(k=>DEST[k].label))];
-      S.goal=GOALS[await choice(n,'¿Y tu objetivo para los próximos 60 días?',GOALS)];
+      S.dest=keys[await choice(n,['Último paso: ¿a dónde querés llevarla?','Ahora elegí: ¿a dónde la llevamos?','Llegó el momento de decidir: ¿a dónde va tu idea?'],keys.map(k=>DEST[k].label))];
+      S.goal=GOALS[await choice(n,['¿Y tu objetivo para los próximos 60 días?','¿Qué querés lograr en los próximos 60 días?','Poné una meta concreta para los próximos 60 días:'],GOALS)];
       badge(4);
-      await say(n,'Con todo lo que hiciste te armé una carta de presentación. Llevala a '+DEST[S.dest].place+'.');
+      const p=DEST[S.dest].place;
+      await say(n,['Con todo lo que hiciste te armé una carta de presentación. Llevala a '+p+'.','Te preparé una carta de presentación con todo lo que hiciste. Entregala a '+p+'.','Acá tenés tu carta de presentación, con tus pruebas y resultados. Llevala a '+p+'.']);
       setStep('deliver');
-    }else if(S.step==='intro')await say(n,'¡Hola! Pasá primero por el Aula: la profe te está buscando.');
+    }else if(S.step==='intro')await say(n,['¡Hola! Pasá primero por el Aula: la profe te está buscando.','¡Hola! La profe te anda buscando: pasá primero por el Aula.','Antes de venir acá, andá al Aula: la profe quiere hablar con vos.']);
     else await say(n,objective());
   },
   async mentor(n){
     if(S.step==='mentor'){
-      await say(n,'¡Hola, '+S.name+'! Soy Vale, tu mentora. Contame de “'+S.idea+'”.');
-      await say(n,'Lo más útil que podemos hacer: encontrar las dudas que, si salen mal, hacen caer el proyecto.');
-      const a=await choice(n,'¿Cuál es la duda que más te frena?',DOUBTS.map(d=>d[0]));
+      await say(n,['¡Hola, '+S.name+'! Soy Vale, tu mentora. Contame de “'+S.idea+'”.','¡'+S.name+'! Soy Vale y voy a ser tu mentora. ¿Así que “'+S.idea+'”? Contame más.','Hola, soy Vale. Me pasaron tu caso: “'+S.idea+'”. ¡Qué bueno conocerte!']);
+      await say(n,['Lo más útil que podemos hacer: encontrar las dudas que, si salen mal, hacen caer el proyecto.','Vamos a buscar las dudas más peligrosas: las que, si salen mal, tiran abajo todo.','Primero identifiquemos qué tiene más riesgo. Esas son las dudas que hay que probar.']);
+      const a=await choice(n,['¿Cuál es la duda que más te frena?','¿Qué es lo que más te preocupa?','¿Cuál es tu duda número uno?'],DOUBTS.map(d=>d[0]));
       await say(n,DOUBTS[a][1]);
       const rest=DOUBTS.filter((_,i)=>i!==a);
-      const b=await choice(n,'¿Y la segunda?',rest.map(d=>d[0]));
+      const b=await choice(n,['¿Y la segunda?','¿Y otra que te quite el sueño?','Elegí una más:'],rest.map(d=>d[0]));
       await say(n,rest[b][1]);
       S.doubts=[DOUBTS[a][0],rest[b][0]];
-      await say(n,'Esas dos son tus hipótesis. Para responderlas no hay que pensar más: hay que probar.');
+      await say(n,['Esas dos son tus hipótesis. Para responderlas no hay que pensar más: hay que probar.','Ya tenés tus dos hipótesis. La forma de responderlas no es pensar más, es probar.','Esas dudas son hipótesis: no se resuelven discutiendo, se resuelven probando.']);
       badge(2);
-      await say(n,'Pasá por el Taller. Nico te ayuda a armar un prototipo simple, sin gastar de más.');
+      await say(n,['Pasá por el Taller. Nico te ayuda a armar un prototipo simple, sin gastar de más.','Andá al Taller: Nico te ayuda a armar un prototipo barato y rápido.','Tu próxima parada es el Taller. Nico sabe cómo prototipar sin gastar casi nada.']);
       setStep('lab');
     }else if(S.step==='report3'){
-      await say(n,'¡Volviste! ¿Cómo te fue con las pruebas?');
-      await say(n,'Esto pasó:\n• '+S.reactions.join('\n• '));
-      await say(n,'Eso es evidencia real, mucho mejor que cualquier suposición. Ajustá lo que no funcionó y seguí.');
+      await say(n,['¡Volviste! ¿Cómo te fue con las pruebas?','¿Y? ¿Cómo reaccionó la gente con tu prototipo?','¡Hola de nuevo! Mostrame qué anotaste en las pruebas.']);
+      const seen='\n• '+S.reactions.join('\n• ');
+      await say(n,['Esto pasó:'+seen,'Esto es lo que viste:'+seen,'Tus resultados:'+seen]);
+      await say(n,['Eso es evidencia real, mucho mejor que cualquier suposición. Ajustá lo que no funcionó y seguí.','Esto vale oro: es evidencia real. Corregí lo que falló y seguí adelante.','Ahora no estás adivinando: tenés datos. Ajustá lo que no anduvo y seguí.']);
       badge(3);
       await checkin(6);
-      await say(n,'Antes del gran paso, pasá por Vinculación Tecnológica. Te van a aclarar algo importante.');
+      await say(n,['Antes del gran paso, pasá por Vinculación Tecnológica. Te van a aclarar algo importante.','Antes de seguir, visitá Vinculación Tecnológica: hay algo que conviene que sepas.','Una parada más antes del gran paso: Vinculación Tecnológica. Te van a responder una duda clave.']);
       setStep('vinc');
-    }else if(S.badges<1)await say(n,'Hola, soy Vale, mentora del Puente PreLab. Cuando tu idea llegue a la etapa 2, te espero acá.');
+    }else if(S.badges<1)await say(n,['Hola, soy Vale, mentora del Puente PreLab. Cuando tu idea llegue a la etapa 2, te espero acá.','¡Hola! Soy mentora del Puente PreLab. Cuando pases a la etapa 2, nos vemos.','Hola, soy Vale. Primero validá tu idea con el PreLab; después trabajamos en equipo.']);
     else await say(n,objective());
   },
   async tec(n){
     if(S.step==='lab'){
-      await say(n,'¡Hola! Este es el Taller. Acá se prueban ideas sin gastar de más.');
-      const p=await choice(n,'No hace falta construir todo. ¿Qué armamos primero?',PROTOS.map(p=>p[0]));
+      await say(n,['¡Hola! Este es el Taller. Acá se prueban ideas sin gastar de más.','¡Hola! Pasá, este es el Taller: acá las ideas se prueban rápido y barato.','¡Hola, '+S.name+'! Vale me avisó que venías. Este es el Taller.']);
+      const p=await choice(n,['No hace falta construir todo. ¿Qué armamos primero?','No construyas el producto entero. ¿Qué probamos primero?','Empecemos por algo chico. ¿Qué armamos?'],PROTOS.map(p=>p[0]));
       S.proto=PROTOS[p][1];
-      await say(n,'¡Buena elección! En una tarde lo tenés.');
-      await say(n,'Ahora probalo con 3 personas en el parque. Mirá qué hacen y no expliques: si hay que explicar, es una pista.');
-      S.talked=[];setStep('test');
-    }else if(S.badges<2)await say(n,'El Taller está abierto para prototipar. ¡Volvé cuando tengas tus hipótesis!');
+      await say(n,['¡Buena elección! En una tarde lo tenés.','¡Perfecto! Eso se arma en una tarde.','Muy bien: rápido, barato y suficiente para probar.']);
+      await say(n,['Ahora probalo con 3 personas en el parque. Mirá qué hacen y no expliques: si hay que explicar, es una pista.','Llevalo al parque y mostráselo a 3 personas. No expliques nada: mirá qué hacen.','Probalo con 3 estudiantes en el parque. Si tenés que explicarlo, eso ya es un dato.']);
+      await say(n,['Anotá cada reacción en tu portapapeles 📋.','Usá el portapapeles 📋: anotá todo, hasta lo que no te guste.','Cada reacción, al portapapeles 📋. Después la revisás con Vale.']);
+      S.talked=[];S.board2=[];setStep('test');
+    }else if(S.badges<2)await say(n,['El Taller está abierto para prototipar. ¡Volvé cuando tengas tus hipótesis!','Acá armamos prototipos. Pasá primero por tu mentora y volvé con tus hipótesis.','¡Hola! Cuando tengas claras las dudas a probar, te ayudo a armar algo.']);
     else await say(n,objective());
   },
   async asesora(n){
     if(S.step==='vinc'){
-      await say(n,'¡Hola, '+S.name+'! Soy Paula, de Vinculación Tecnológica.');
-      await choice(n,'Muchos estudiantes llegan con una duda que no se animan a preguntar…',['¿La idea es mía, del equipo o de la UBP?','¿Puedo contarla sin que me la copien?']);
-      await say(n,'Buena pregunta. La idea es tuya y de tu equipo. Si hubo aportes de docentes o empresas, lo dejamos por escrito antes de avanzar.');
-      await say(n,'Y antes de mostrarla en público, te ayudamos a cuidar lo sensible. Para eso estamos.');
-      await say(n,'También te conectamos con convocatorias, financiamiento y empresas. Ahora volvé al Puente PreLab para elegir tu destino.');
+      await say(n,['¡Hola, '+S.name+'! Soy Paula, de Vinculación Tecnológica.','¡Hola! Soy Paula, de Vinculación Tecnológica. Vale me contó de vos.','¡'+S.name+'! Te esperaba. Soy Paula, de Vinculación Tecnológica.']);
+      await choice(n,['Muchos estudiantes llegan con una duda que no se animan a preguntar…','Hay una pregunta que casi todos tienen y pocos hacen…','Contame, ¿qué duda tenés sobre tu idea?'],['¿La idea es mía, del equipo o de la UBP?','¿Puedo contarla sin que me la copien?']);
+      await say(n,['Buena pregunta. La idea es tuya y de tu equipo. Si hubo aportes de docentes o empresas, lo dejamos por escrito antes de avanzar.','Tranqui: la idea es tuya y de tu equipo. Si alguien más aportó, lo dejamos por escrito.','Es la pregunta más común. La idea es de quienes la crearon; si hubo aportes externos, lo documentamos.']);
+      await say(n,['Y antes de mostrarla en público, te ayudamos a cuidar lo sensible. Para eso estamos.','Antes de presentarla en público, revisamos juntos qué conviene proteger.','Y si vas a mostrarla afuera, te ayudamos a cuidar lo que haga falta.']);
+      await say(n,['También te conectamos con convocatorias, financiamiento y empresas. Ahora volvé al Puente PreLab para elegir tu destino.','Además te acercamos convocatorias, financiamiento y empresas. Volvé al PreLab para decidir el próximo paso.','También conocemos convocatorias y empresas que buscan ideas. Volvé al Puente PreLab a elegir tu destino.']);
       setStep('decide');
     }else if(S.step==='deliver'&&S.dest==='vinc'){
-      await say(n,'¡Llegó tu carta! Con esta evidencia ya podemos buscarte una convocatoria o una empresa aliada.');
+      await say(n,['¡Llegó tu carta! Con esta evidencia ya podemos buscarte una convocatoria o una empresa aliada.','¡Tu carta! Con problema validado y prototipo probado, podemos buscarte una convocatoria.','Leí tu carta. Con esta evidencia ya te puedo presentar a una empresa aliada.']);
       finish();
-    }else await say(n,'Acá ayudamos con propiedad intelectual, convocatorias y vínculos con empresas.');
+    }else await say(n,['Acá ayudamos con propiedad intelectual, convocatorias y vínculos con empresas.','Vinculación Tecnológica: propiedad intelectual, convocatorias y empresas. ¡Cuando quieras!','Si tenés dudas sobre de quién es la idea, o buscás financiamiento, este es el lugar.']);
   },
   async doing(n){
     if(S.step==='deliver'&&S.dest==='doing'){
-      await say(n,'¡Hola! Nos llegó tu carta desde el Puente PreLab.');
-      await say(n,'Con problema validado, prototipo probado y un objetivo claro, ya podemos hablar en serio. ¡Coordinemos una reunión!');
+      await say(n,['¡Hola! Nos llegó tu carta desde el Puente PreLab.','¡Así que '+S.name+' eras vos! Ya leímos tu carta.','¡Hola, '+S.name+'! El PreLab nos mandó tu carta.']);
+      await say(n,['Con problema validado, prototipo probado y un objetivo claro, ya podemos hablar en serio. ¡Coordinemos una reunión!','Tenés lo que buscamos: evidencia, prototipo y un objetivo. ¡Agendemos una reunión!','Esto ya es un proyecto en serio. Coordinemos una reunión para ver cómo seguimos.']);
       finish();
     }else{
-      await say(n,'¡Hola! Somos doingLABS, la incubadora de la UBP. Trabajamos con proyectos más avanzados.');
-      await say(n,'Primero recorré el Puente PreLab. Cuando tu idea esté lista, te esperamos.');
+      await say(n,['¡Hola! Somos doingLABS, la incubadora de la UBP. Trabajamos con proyectos más avanzados.','Esto es doingLABS, la incubadora de la UBP. Acompañamos proyectos que ya dieron sus primeros pasos.','¡Hola! En doingLABS incubamos proyectos que ya pasaron por la validación.']);
+      await say(n,['Primero recorré el Puente PreLab. Cuando tu idea esté lista, te esperamos.','El camino empieza en el Puente PreLab. Cuando estés, te esperamos.','Pasá primero por el Puente PreLab; después, la puerta está abierta.']);
     }
   }
 };
 async function studentScene(st){
   const round=S.step==='talk1'?INSIGHTS:S.step==='test'?REACTIONS:null;
   if(round&&!S.talked.includes(st.i)){
-    if(S.step==='test')await say(st,'(Le mostrás '+S.proto+' sin explicar nada…)');
-    else await say(st,'¿Un problema con “'+S.idea+'”? A ver, contame…');
-    await say(st,round[st.i][0]);
+    if(S.step==='test')await say(st,['(Le mostrás '+S.proto+' sin explicar nada…)','(Le pasás '+S.proto+' y mirás qué hace…)','(Sin decir nada, le mostrás '+S.proto+'…)']);
+    else await say(st,['¿Un problema con “'+S.idea+'”? A ver, contame…','¿Una pregunta? Dale, te escucho.','¿Sobre “'+S.idea+'”? Mmm, a ver…']);
+    const q=pickLine(round[st.i].q);
+    await say(st,q);
     S.talked.push(st.i);
-    (S.step==='talk1'?S.insights:S.reactions).push(round[st.i][1]);
-    toast('📝 Anotado · '+S.talked.length+'/3');
+    (S.step==='talk1'?S.insights:S.reactions).push(round[st.i].sum);
+    const key=S.step==='talk1'?'board1':'board2';
+    (S[key]=S[key]||[]).push({i:st.i,q});noteAt=performance.now();
+    toast('📋 Anotado · '+S.talked.length+'/3');
     if(S.talked.length>=3)setStep(S.step==='talk1'?'report1':'report3');
     else updateHud();
-  }else if(round)await say(st,'Ya te conté lo que pienso. ¡Suerte con tu idea!');
+  }else if(round)await say(st,['Ya te conté lo que pienso. ¡Suerte con tu idea!','Ya te dije lo mío, ¡pero suerte!','Creo que ya te conté todo. ¡Éxitos!']);
   else await say(st,CHATTER[st.i]);
 }
 
@@ -1165,6 +1313,8 @@ function openTitle(){
 }
 function begin(state){
   S=state;
+  // saves from an older map may point at a tile that is now blocked
+  if(!walkable(S.x,S.y)){S.x=START.x;S.y=START.y}
   Object.assign(player,{x:S.x,y:S.y,path:[],goal:null,color:S.color});
   const f=foot(player);cam.x=f.x;cam.y=f.y;
   $('titleScreen').hidden=true;
