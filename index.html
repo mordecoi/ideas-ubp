@@ -173,6 +173,41 @@ textarea{min-height:92px;resize:vertical}
   .panel,.result-card{padding:20px}
   .hero-actions .btn{flex:1}
 }
+
+/* GUÍA PRELAB (scripted assistant, no AI) */
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.guide-face{width:36px;height:36px;image-rendering:pixelated;border-radius:8px;background:var(--ubp-soft);flex:0 0 auto}
+.guide-fab{position:fixed;right:20px;bottom:20px;z-index:150;display:flex;align-items:center;gap:10px;height:58px;padding:0 18px 0 11px;border:none;border-radius:999px;background:var(--ink);color:#fff;font-weight:800;font-size:15px;box-shadow:var(--shadow)}
+.guide-fab:hover{background:#000}
+.guide-fab .guide-face{background:var(--lime)}
+.guide{position:fixed;right:20px;bottom:92px;z-index:150;width:380px;height:min(580px,calc(100vh - 120px));display:flex;flex-direction:column;background:var(--bg);border:1px solid var(--line);border-radius:20px;box-shadow:0 24px 60px rgba(0,0,0,.22);overflow:hidden}
+.guide[hidden]{display:none}
+.guide-head{display:flex;align-items:center;gap:10px;padding:12px 12px 12px 14px;background:#fff;border-bottom:1px solid var(--line)}
+.guide-head div{flex:1;min-width:0;display:flex;flex-direction:column;line-height:1.25}
+.guide-head small{color:var(--muted);font-size:12px}
+.guide-close{width:44px;height:44px;border:none;border-radius:12px;background:transparent;font-size:18px;color:var(--muted)}
+.guide-close:hover{background:#f4f4f1;color:var(--ink)}
+.guide-log{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:8px}
+.msg{max-width:88%;padding:10px 13px;border-radius:16px;font-size:14.5px;white-space:pre-line;overflow-wrap:anywhere}
+.msg.bot{align-self:flex-start;background:#fff;border:1px solid var(--line);border-bottom-left-radius:4px}
+.msg.user{align-self:flex-end;background:var(--ubp);color:#fff;border-bottom-right-radius:4px}
+.msg.typing{color:var(--muted);letter-spacing:2px}
+.guide-quick{display:flex;flex-wrap:wrap;gap:6px;padding:0 14px 10px}
+.guide-quick:empty{display:none}
+.quick{min-height:44px;padding:8px 13px;border:1.5px solid var(--ubp);border-radius:999px;background:#fff;color:var(--ubp);font-weight:700;font-size:14px;text-align:left}
+.quick:hover{background:var(--ubp-soft)}
+.guide-form{display:flex;gap:8px;padding:10px 12px;background:#fff;border-top:1px solid var(--line)}
+.guide-form input{flex:1;min-width:0}
+.guide-form .btn{padding:12px 16px}
+@media(max-width:640px){
+  .toast{bottom:90px}
+  .guide{left:0;right:0;bottom:0;width:auto;height:82vh;height:82dvh;border-radius:20px 20px 0 0}
+  .guide-fab.open{display:none}
+}
+@media(max-width:480px){
+  .guide-fab{right:16px;bottom:16px;width:58px;padding:0;justify-content:center}
+  .guide-fab span{display:none}
+}
 </style>
 </head>
 <body>
@@ -323,6 +358,22 @@ textarea{min-height:92px;resize:vertical}
   </div>
 </footer>
 
+<button class="guide-fab" id="guideFab" type="button" aria-controls="guide" aria-expanded="false"><canvas class="guide-face" width="18" height="18" aria-hidden="true"></canvas><span>¿Te ayudo?</span></button>
+<section class="guide" id="guide" role="dialog" aria-labelledby="guideName" hidden>
+  <header class="guide-head">
+    <canvas class="guide-face" width="18" height="18" aria-hidden="true"></canvas>
+    <div><strong id="guideName">Guía PreLab</strong><small>Asistente automático · no es IA</small></div>
+    <button class="guide-close" id="guideClose" type="button" aria-label="Cerrar la guía">✕</button>
+  </header>
+  <div class="guide-log" id="guideLog" aria-live="polite"></div>
+  <div class="guide-quick" id="guideQuick"></div>
+  <form class="guide-form" id="guideForm">
+    <label class="sr-only" for="guideInput">Escribí tu duda</label>
+    <input id="guideInput" autocomplete="off" placeholder="Escribí tu duda…">
+    <button class="btn btn-red" type="submit">Enviar</button>
+  </form>
+</section>
+
 <div class="toast" id="toast" role="status"></div>
 
 <script>
@@ -413,6 +464,222 @@ $('ideaForm').addEventListener('submit',e=>{
   $('result').classList.add('show');
   $('result').scrollIntoView({behavior:'smooth',block:'start'});
 });
+</script>
+<script>
+/* Guía PreLab: scripted answers and a small keyword matcher. No AI, no network calls. */
+(()=>{
+  // Pixel-art face, same style as the portraits in juego.html
+  const BUST=[
+    '.....kkkkkkkk.....','...kkhhhhhhhhkk...','..khhhhhhhhhhhhk..','.khhhhhhhhhhhhhhk.',
+    '.khhhhhhhhhhhhhhk.','.khhhsshhhhhsshhk.','.khsssssssssssshk.','.khssewssssewsshk.',
+    '.khsseesssseesshk.','.kssrrssssssrrssk.','.ksssssmssmsssssk.','..ksssssmmsssssk..',
+    '...kssssssssssk...','....kkkSSSSkkk....','..kkbbbBSSBbbbkk..','.kbbbbbBBBBbbbbbk.',
+    'kbbbbbbbBBbbbbbbbk','kbbbbbbbbbbbbbbbbk'
+  ];
+  const PAL={k:'#1d1b1f',e:'#1d1b1f',h:'#2b1b12',s:'#e8b892',S:'#c99c79',r:'#e39a8a',w:'#fff',m:'#7a5240',b:'#A3223A',B:'#751528'};
+  document.querySelectorAll('.guide-face').forEach(c=>{
+    const g=c.getContext('2d');
+    BUST.forEach((row,y)=>[...row].forEach((ch,x)=>{if(PAL[ch]){g.fillStyle=PAL[ch];g.fillRect(x,y,1,1)}}));
+  });
+
+  const fab=$('guideFab'),panel=$('guide'),log=$('guideLog'),quick=$('guideQuick'),input=$('guideInput');
+  const reduce=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const wait=ms=>new Promise(r=>setTimeout(r,reduce?0:ms));
+  let started=false,busy=false,pending=null;
+
+  function add(cls,text){
+    const m=document.createElement('div');m.className='msg '+cls;m.textContent=text;
+    log.append(m);log.scrollTop=log.scrollHeight;return m;
+  }
+  async function bot(...texts){
+    for(const t of texts){
+      const dots=add('bot typing','• • •');
+      await wait(Math.min(900,250+t.length*4));
+      dots.remove();add('bot',t);
+    }
+  }
+  // Quick replies: [label, handler]. Every set ends with a way back to the menu.
+  function opts(list,withMenu=true){
+    if(withMenu)list=[...list,['↩ Volver al menú',menu]];
+    quick.replaceChildren(...list.map(([label,fn])=>{
+      const b=document.createElement('button');b.type='button';b.className='quick';b.textContent=label;
+      b.addEventListener('click',()=>run(fn,label));
+      return b;
+    }));
+    log.scrollTop=log.scrollHeight;
+  }
+  async function run(fn,label){
+    if(busy)return;
+    busy=true;pending=null;quick.replaceChildren();
+    if(label)add('user',label);
+    try{await fn()}finally{busy=false}
+  }
+  // Next typed message goes to fn instead of the keyword matcher
+  function askText(fn){pending=fn;opts([],true);input.focus()}
+
+  function goTo(id,after){
+    close();
+    const el=$(id);if(el)el.scrollIntoView({behavior:'smooth',block:'start'});
+    if(after)setTimeout(after,reduce?0:500);
+  }
+  const toForm=['📝 Ir al formulario',()=>goTo('empezar')];
+  const toGame=['🎮 Probalo en el juego',()=>{location.href='juego.html'}];
+
+  async function menu(){
+    await bot('¿En qué te ayudo?');
+    opts([
+      ['🧭 ¿En qué etapa está mi idea?',stageQuiz],
+      ['✍️ Describir mi idea en una frase',pitch],
+      ['🗣️ Validar con usuarios',validate],
+      ['🛠️ Armar un prototipo',prototype],
+      ['🔒 ¿La idea es mía?',owner],
+      ['🤝 ¿A quién acudo?',who]
+    ],false);
+  }
+
+  // Inline choice used inside a flow: resolves with the index picked, or -1 for "menu"
+  function choose(labels){
+    return new Promise(res=>{
+      quick.replaceChildren(...[...labels,'↩ Volver al menú'].map((l,i)=>{
+        const b=document.createElement('button');b.type='button';b.className='quick';b.textContent=l;
+        b.addEventListener('click',()=>{quick.replaceChildren();add('user',l);res(i<labels.length?i:-1)});
+        return b;
+      }));
+      log.scrollTop=log.scrollHeight;
+    });
+  }
+  async function stageQuiz(){
+    const answers=[];
+    await bot('Te hago 3 preguntas rápidas.');
+    for(const q of ['1/3 · ¿Ya hablaste con posibles usuarios sobre el problema?','2/3 · ¿Tenés una primera versión, maqueta o TP para mostrar?','3/3 · ¿Quieren seguir con la idea después de la materia?']){
+      await bot(q);
+      const i=await choose(['Sí','Todavía no']);
+      if(i<0)return menu();
+      answers.push(i===0);
+    }
+    const [users,proto,cont]=answers;
+    const key=proto&&cont?'continuidad':proto?'prototipo':users?'desarrollada':'idea';
+    const r=routes[key];
+    await bot('Tu idea está en la etapa «'+r.label+'».','Lo que te ofrecemos:\n• '+r.offer.join('\n• '));
+    if(cont&&!proto)await bot('Para derivarte a doingLABS conviene tener algo para mostrar. Con un mentor llegás más rápido.');
+    opts([['✅ Elegir «'+r.label+'» en el formulario',()=>{selectStage(key,false);goTo('empezar')}],toGame]);
+  }
+
+  const clean=t=>t.trim().replace(/[.!?¡¿\s]+$/,'');
+  async function pitch(){
+    const a={};
+    await bot('Vamos a escribir tu idea en una frase. Son 3 respuestas cortas.','1/3 · ¿Qué problema viste?\n(Ej.: «perder tiempo buscando un aula libre»)');
+    askText(async t=>{
+      a.problem=clean(t);
+      await bot('2/3 · ¿A quién le pasa?\n(Ej.: «estudiantes que cursan de noche»)');
+      askText(async t=>{
+        a.who=clean(t);
+        await bot('3/3 · ¿Qué proponés?\n(Ej.: «una app que muestra las aulas libres»)');
+        askText(async t=>{
+          a.solution=clean(t);
+          const s='Para '+a.who+', que hoy tienen este problema: '+a.problem+', proponemos '+a.solution+'.';
+          await bot('Tu idea en una frase:',s,'Tip: leésela a alguien que no te conoce. Si la entiende sin preguntar, está lista.');
+          opts([
+            ['📝 Usar en el formulario',()=>useInForm(s)],
+            ['📋 Copiar',()=>copy(s)],
+            ['🔁 Escribirla de nuevo',pitch]
+          ]);
+        });
+      });
+    });
+  }
+  async function useInForm(s){
+    $('description').value=s;
+    if(stage){goTo('formWrap',()=>$('description').focus());showToast('Listo: cargamos la frase en «¿De qué se trata?».');}
+    else{await bot('Listo, la frase quedó cargada. Elegí tu etapa en «Empezá acá» y vas a ver el formulario.');opts([toForm])}
+  }
+  async function copy(s){
+    try{await navigator.clipboard.writeText(s);await bot('Copiada ✅')}
+    catch(e){await bot('No pude copiarla en este navegador. Seleccioná el texto de arriba y copialo a mano.')}
+    opts([['📝 Usar en el formulario',()=>useInForm(s)]]);
+  }
+
+  async function validate(){
+    await bot(
+      'Validar es confirmar que el problema existe antes de construir nada.',
+      'Claves:\n• Hablá con 3 a 5 personas que tengan el problema.\n• Escuchá, no vendas: no cuentes tu idea al principio.\n• Preguntá por la última vez que les pasó, no por el futuro.\n• Anotá sus frases tal cual las dicen.',
+      'Preguntas que funcionan:\n• «¿Cuándo fue la última vez que te pasó?»\n• «¿Qué hiciste para resolverlo?»\n• «¿Qué es lo más molesto de eso?»'
+    );
+    opts([['🛠️ Armar un prototipo',prototype],['🧭 ¿En qué etapa está mi idea?',stageQuiz]]);
+  }
+  async function prototype(){
+    await bot(
+      'Un prototipo es lo más chico que se puede probar. No hace falta programar.',
+      'Ideas:\n• Bocetos en papel o en Figma, para una app.\n• Una landing page para medir interés.\n• Una planilla o un formulario que haga el trabajo «a mano».\n• Una prueba piloto de un día.',
+      'Probalo con 3 personas: miralas usarlo sin ayudar y anotá qué pasó. Si ya tenés uno, elegí la etapa «Prototipo» y te asignamos un mentor para probarlo fuera del aula.'
+    );
+    opts([['✅ Elegir «Prototipo»',()=>{selectStage('prototipo',false);goTo('empezar')}],['🤝 ¿A quién acudo?',who]]);
+  }
+  async function owner(){
+    await bot(
+      'Sí: la idea es tuya o de tu equipo, y queda privada mientras la revisan.',
+      'Si tenés dudas sobre autoría, patentes o qué pasa si se suma una empresa, Vinculación Tecnológica te asesora.',
+      'Tip: anotá desde ahora quién aportó qué, con fecha. Un documento compartido con historial alcanza.'
+    );
+    opts([['🤝 ¿A quién acudo?',who],toForm]);
+  }
+  async function who(){
+    await bot(
+      '• Puente PreLab: el primer paso. Recibe tu idea y te deriva.\n• Mentor/a: docente o alumno avanzado. 3 encuentros de 30 minutos en 6 semanas.\n• doingLABS: la incubadora de la UBP, para proyectos maduros.\n• Vinculación Tecnológica: empresas, financiamiento y propiedad intelectual.\n• Investigación y Extensión: investigación aplicada o proyectos sociales.',
+      'No hace falta saber a quién escribir: cargás tu idea y PreLab te conecta.'
+    );
+    opts([['👀 Ver «Quién ayuda»',()=>goTo('quien-ayuda')],toForm]);
+  }
+  async function time(){await bot('El formulario lleva dos minutos. Con mentor son 3 encuentros de 30 minutos en 6 semanas: compatible con la cursada.');opts([toForm])}
+  async function team(){await bot('No hay problema: alcanza con que siga una parte del grupo, o incluso una sola persona.');opts([toForm])}
+  async function money(){await bot('No necesitás una startup ni financiamiento para empezar. Si el proyecto avanza, Vinculación Tecnológica y doingLABS te cuentan qué convocatorias hay.');opts([['🤝 ¿A quién acudo?',who]])}
+  async function game(){await bot('Hay un juego corto donde recorrés la UBP con tu idea, etapa por etapa.');opts([toGame])}
+  async function thanks(){await bot('¡De nada! Mucha suerte con tu idea 🙌');opts([toForm])}
+
+  const KEYWORDS=[
+    [/etapa|empez|arranc|por donde|nivel/,stageQuiz],
+    [/frase|describ|explic|pitch|resum|redact/,pitch],
+    [/valid|usuario|entrevist|encuesta|cliente/,validate],
+    [/prototip|mvp|maqueta|figma|probar|testear/,prototype],
+    [/\bmi[ao]\b|propiedad|autor|patent|robe|copien|privad|registr|duen/,owner],
+    [/quien|mentor|doing|vincul|incub|investig|extension|contact|ayud/,who],
+    [/tiempo|hora|cuanto (dura|lleva|tarda)|semana/,time],
+    [/equipo|grupo|\bsol[oa]\b|separ/,team],
+    [/plata|dinero|financ|invers|costo|pagar|gratis|beca/,money],
+    [/juego|jugar/,game],
+    [/gracias/,thanks],
+    [/^(hola|buenas|hey|menu)/,menu]
+  ];
+  async function fallback(){await bot('No estoy seguro de entenderte 🙂 Soy una guía con respuestas armadas, no una IA. Elegí una opción:');await menu()}
+
+  $('guideForm').addEventListener('submit',e=>{
+    e.preventDefault();
+    const text=input.value.trim();
+    if(!text||busy)return;
+    input.value='';
+    const fn=pending;
+    if(fn)return run(()=>fn(text),text);
+    const n=text.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');
+    const hit=KEYWORDS.find(([re])=>re.test(n));
+    run(hit?hit[1]:fallback,text);
+  });
+
+  function open(){
+    panel.hidden=false;fab.classList.add('open');fab.setAttribute('aria-expanded','true');
+    $('guideClose').focus();
+    if(!started){
+      started=true;
+      run(async()=>{await bot('¡Hola! 👋 Soy la guía de Puente PreLab. Te ayudo a ordenar tu idea y a saber cuál es tu próximo paso.');await menu()});
+    }
+  }
+  function close(){
+    if(panel.hidden)return;
+    panel.hidden=true;fab.classList.remove('open');fab.setAttribute('aria-expanded','false');fab.focus();
+  }
+  fab.addEventListener('click',()=>panel.hidden?open():close());
+  $('guideClose').addEventListener('click',close);
+  document.addEventListener('keydown',e=>{if(e.key==='Escape')close()});
+})();
 </script>
 </body>
 </html>

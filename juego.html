@@ -50,11 +50,12 @@ button{cursor:pointer}
 
 /* WORLD */
 .world{position:relative;flex:1;min-height:0;overflow:hidden}
-canvas{display:block;width:100%;height:100%;touch-action:none;cursor:pointer}
+#cv{display:block;width:100%;height:100%;touch-action:none;cursor:pointer}
 
 /* DIALOGUE */
 .dialog{position:absolute;left:50%;bottom:14px;transform:translateX(-50%);width:min(720px,calc(100% - 20px));background:#fffdf6;border:4px solid var(--ink);border-radius:4px;padding:14px 16px;display:flex;gap:14px;box-shadow:6px 6px 0 rgba(0,0,0,.35);z-index:6;max-height:62%;overflow:auto}
-.portrait{width:60px;height:60px;flex:0 0 auto;border:3px solid var(--ink);border-radius:3px;display:grid;place-items:center;font-size:30px;background:var(--ubp-soft)}
+.portrait{width:60px;height:60px;flex:0 0 auto;border:3px solid var(--ink);border-radius:3px;display:grid;place-items:center;background:var(--ubp-soft)}
+.portrait canvas{width:54px;height:54px;image-rendering:pixelated}
 .dmain{flex:1;min-width:0}
 .dname{margin:0 0 4px;font-size:17px;font-weight:700}
 .dname span{color:var(--muted);font-weight:400;font-size:15px;margin-left:4px}
@@ -109,7 +110,8 @@ canvas{display:block;width:100%;height:100%;touch-action:none;cursor:pointer}
   .objective{flex-basis:100%;order:3;font-size:16px}
   .chip{width:32px;height:32px;font-size:16px}
   .dialog{padding:12px;gap:10px;bottom:10px}
-  .portrait{width:46px;height:46px;font-size:24px}
+  .portrait{width:46px;height:46px}
+  .portrait canvas{width:36px;height:36px}
   .dtext{font-size:18px}
   .card{padding:20px}
 }
@@ -209,7 +211,7 @@ const TREES=[[7,3],[10,3],[11,2],[20,6],[21,7],[15,15],[17,16],[19,16],[21,16],[
 const CYPRESSES=[[2,2],[3,2],[2,3],[2,16],[2,17],[9,4],[12,4]];
 const BIG_TREE=[16,10];
 const BENCHES=[[15,13],[18,9]];
-const POND=[[17,13],[18,13]];
+const POND=[[16,12],[17,12],[16,13],[17,13]];
 const PARK={x0:15,y0:9,x1:18,y1:13};
 const FIELD={x0:13,y0:2,x1:21,y1:4};
 const ROAD_LABELS=[{name:'Jorge Descotte',x:10,y:1},{name:'Av. Donato Álvarez',x:1,y:11}];
@@ -417,6 +419,70 @@ function personSprite(e,frame){
   spriteCache.set(key,c);
   return c;
 }
+// Dialogue portraits: an 18×18 bust in the same palette as the walking sprite.
+const BUST=[
+  '.....kkkkkkkk.....',
+  '...kkhhhhhhhhkk...',
+  '..khhhhhhhhhhhhk..',
+  '.khhhhhhhhhhhhhhk.',
+  '.khhhhhhhhhhhhhhk.',
+  '.khhhsshhhhhsshhk.',
+  '.khsssssssssssshk.',
+  '.khssewssssewsshk.',
+  '.khsseesssseesshk.',
+  '.kssrrssssssrrssk.',
+  '.ksssssmssmsssssk.',
+  '..ksssssmmsssssk..',
+  '...kssssssssssk...',
+  '....kkkSSSSkkk....',
+  '..kkbbbBSSBbbbkk..',
+  '.kbbbbbBBBBbbbbbk.',
+  'kbbbbbbbBBbbbbbbbk',
+  'kbbbbbbbbbbbbbbbbk'
+];
+const PHONE=[
+  '..................',
+  '....kkkkkkkkkk....',
+  '....kddddddddk....',
+  '....kdaaaaaadk....',
+  '....kdaggggadk....',
+  '....kdaaaaaadk....',
+  '....kdaggaaadk....',
+  '....kdaaaaaadk....',
+  '....kdagggaadk....',
+  '....kdaaaaaadk....',
+  '....kdaaaaaadk....',
+  '....kdaaaaaadk....',
+  '....kddddddddk....',
+  '....kdddwwdddk....',
+  '....kddddddddk....',
+  '....kkkkkkkkkk....',
+  '..................',
+  '..................'
+];
+function portraitSprite(sp){
+  const key='portrait'+[sp.hair,sp.skin,sp.color,sp.long].join();
+  if(spriteCache.has(key))return spriteCache.get(key);
+  let rows,pal;
+  if(sp.hair){
+    rows=BUST.map(r=>r.split(''));
+    if(sp.long)for(let r=6;r<=14;r++){
+      rows[r][0]=rows[r][17]='k';rows[r][1]=rows[r][16]='h';
+      if(rows[r][2]==='.')rows[r][2]='h';
+      if(rows[r][15]==='.')rows[r][15]='h';
+    }
+    pal={k:OUTLINE,h:sp.hair,s:sp.skin,S:shade(sp.skin,.85),r:shade(sp.skin,.86),e:OUTLINE,w:'#ffffff',m:shade(sp.skin,.55),b:sp.color,B:shade(sp.color,.72)};
+  }else{
+    rows=PHONE.map(r=>r.split(''));
+    pal={k:OUTLINE,d:'#3a3a3a',a:'#D9FF43',g:'#8aa82a',w:'#9a9a9a'};
+  }
+  const c=makeCanvas(18,18),g=c.getContext('2d');
+  rows.forEach((r,y)=>r.forEach((ch,x)=>{if(pal[ch]){g.fillStyle=pal[ch];g.fillRect(x,y,1,1)}}));
+  // a pinker tint over the cheeks
+  if(sp.hair){g.fillStyle='rgba(235,90,100,.28)';rows.forEach((r,y)=>r.forEach((ch,x)=>{if(ch==='r')g.fillRect(x,y,1,1)}))}
+  spriteCache.set(key,c);
+  return c;
+}
 // Round tree: canopy of radius r over a trunk; the sprite's bottom centre is the tree's foot.
 function makeTree(r,trunk){
   const s=r*2+1,c=makeCanvas(s,s+trunk-4),g=c.getContext('2d');
@@ -510,11 +576,22 @@ const ground=(()=>{
     drawDisk(g,m.x,m.y-5,e.n);
   });
   // pond
-  {const m=o(iso(18,13.5));
-    fillEllipse(g,m.x,m.y,23,10,'#5f6b4a');fillEllipse(g,m.x,m.y,22,9,'#3f8fc4');
-    fillEllipse(g,m.x-3,m.y-1,16,6,'#4fa7d6');
+  // The ellipse is measured in tile space, so on screen it follows the
+  // diagonal of its two tiles and stays off the path next to it.
+  {const xs=POND.map(p=>p[0]),ys=POND.map(p=>p[1]),x0=Math.min(...xs),x1=Math.max(...xs)+1,y0=Math.min(...ys),y1=Math.max(...ys)+1;
+    const cx=(x0+x1)/2,cy=(y0+y1)/2,rx=(x1-x0)/2-.1,ry=(y1-y0)/2-.1;
+    const a=o(iso(x0,y1)),b=o(iso(x1,y0)),t=o(iso(x0,y0)),d=o(iso(x1,y1));
+    for(let Y=t.y;Y<d.y;Y++)for(let X=a.x;X<b.x;X++){
+      const sx=X+.5-GROUND_OFF.x,sy=Y+.5-GROUND_OFF.y;
+      const gx=(sx/16+sy/8)/2,gy=(sy/8-sx/16)/2;
+      const r=((gx-cx)/rx)**2+((gy-cy)/ry)**2;
+      if(r>1)continue;
+      g.fillStyle=r>.8?'#5f6b4a':r<.35&&gx<cx+.2?'#4fa7d6':'#3f8fc4';
+      g.fillRect(X,Y,1,1);
+    }
+    const m=o(iso(cx,cy));
     g.fillStyle='#d6f0ff';g.fillRect(m.x-8,m.y-3,4,1);g.fillRect(m.x+5,m.y+1,3,1);
-    g.fillStyle='#2f7a3e';[[-20,-2],[-18,-3],[19,1],[17,3]].forEach(([dx,dy])=>g.fillRect(m.x+dx,m.y+dy-3,1,4));
+    g.fillStyle='#2f7a3e';[[-19,0],[-17,-1],[18,1],[16,2]].forEach(([dx,dy])=>g.fillRect(m.x+dx,m.y+dy-3,1,4));
   }
   return c;
 })();
@@ -837,7 +914,7 @@ const reduce=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 let dlg=null,talkingTo=null,typer=null;
 function speaker(sp){
   $('dialog').hidden=false;
-  $('dPortrait').textContent=sp.emoji;
+  $('dPortrait').replaceChildren(portraitSprite(sp));
   $('dPortrait').style.background=sp.color?shade(sp.color,1.8):'var(--ubp-soft)';
   $('dName').textContent=sp.name;$('dRole').textContent=sp.role?'· '+sp.role:'';
   $('dChoices').replaceChildren();$('dInput').hidden=true;$('dNext').hidden=true;
