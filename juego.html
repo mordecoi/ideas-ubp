@@ -1,0 +1,1007 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Puente PreLab · El juego</title>
+<meta name="description" content="Recorré la UBP con tu idea: hablá con estudiantes, mentores y áreas de la universidad hasta llevarla al siguiente nivel.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ubp:#A3223A;
+  --ubp-dark:#751528;
+  --ubp-soft:#fff2f4;
+  --ink:#1d1b1f;
+  --muted:#5f5f5f;
+  --line:#e8e8e3;
+  --lime:#D9FF43;
+  --ok:#3c5a10;
+  --ok-soft:#eef8d6;
+  --pixel:"Pixelify Sans",ui-monospace,system-ui,sans-serif;
+}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{color:var(--ink);background:#5e9e6e;overflow:hidden;line-height:1.4;font-family:var(--pixel)}
+button,input{font:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--ubp);outline-offset:2px}
+[hidden]{display:none!important}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;border:3px solid var(--ink);border-radius:3px;padding:10px 16px;font-weight:700;font-size:17px;text-decoration:none;min-height:48px;box-shadow:3px 3px 0 var(--ink)}
+.btn:active{transform:translate(2px,2px);box-shadow:1px 1px 0 var(--ink)}
+.btn-red{background:var(--ubp);color:#fff}
+.btn-red:hover{background:var(--ubp-dark)}
+.btn-light{background:#fff;color:var(--ink)}
+.btn-dark{background:var(--ink);color:#fff}
+
+#app{display:flex;flex-direction:column;height:100vh;height:100dvh}
+
+/* HUD */
+.hud{display:flex;align-items:center;gap:8px 14px;flex-wrap:wrap;background:#fffdf6;border-bottom:4px solid var(--ink);padding:8px 14px;z-index:5}
+.back{font-weight:700;font-size:16px;color:var(--ink);text-decoration:none;padding:6px 10px;border:3px solid var(--ink);border-radius:3px;background:#fff;white-space:nowrap}
+.back:hover{background:var(--ubp-soft)}
+.chips{display:flex;gap:6px;list-style:none;margin:0;padding:0}
+.chip{width:36px;height:36px;border-radius:3px;display:grid;place-items:center;font-size:18px;background:#e9e7df;border:3px solid #b9b6aa;filter:grayscale(1);opacity:.6}
+.chip.now{filter:none;opacity:1;border-color:var(--ubp);background:var(--ubp-soft)}
+.chip.done{filter:none;opacity:1;border-color:var(--ok);background:var(--ok-soft)}
+.objective{flex:1;min-width:200px;font-weight:600;font-size:17px;display:flex;gap:8px;align-items:center}
+.objective span{color:var(--ubp)}
+
+/* WORLD */
+.world{position:relative;flex:1;min-height:0;overflow:hidden}
+canvas{display:block;width:100%;height:100%;touch-action:none;cursor:pointer}
+
+/* DIALOGUE */
+.dialog{position:absolute;left:50%;bottom:14px;transform:translateX(-50%);width:min(720px,calc(100% - 20px));background:#fffdf6;border:4px solid var(--ink);border-radius:4px;padding:14px 16px;display:flex;gap:14px;box-shadow:6px 6px 0 rgba(0,0,0,.35);z-index:6;max-height:62%;overflow:auto}
+.portrait{width:60px;height:60px;flex:0 0 auto;border:3px solid var(--ink);border-radius:3px;display:grid;place-items:center;font-size:30px;background:var(--ubp-soft)}
+.dmain{flex:1;min-width:0}
+.dname{margin:0 0 4px;font-size:17px;font-weight:700}
+.dname span{color:var(--muted);font-weight:400;font-size:15px;margin-left:4px}
+.dtext{margin:0;font-size:19px;min-height:2.8em;white-space:pre-line}
+.choices{display:grid;gap:8px;margin-top:12px}
+.choices button{text-align:left;background:#fff;border:3px solid var(--ink);border-radius:3px;padding:9px 12px;font-weight:600;font-size:17px;min-height:48px;color:var(--ink);box-shadow:3px 3px 0 var(--ink)}
+.choices button:hover,.choices button:focus-visible{background:var(--lime)}
+.choices b{color:var(--ubp);margin-right:6px}
+.dinput{display:flex;gap:8px;margin-top:12px}
+.dinput input{flex:1;min-width:0;border:3px solid var(--ink);border-radius:3px;background:#fff;padding:10px 12px;font-size:18px}
+.dinput input:focus{outline:none;background:#fbffe6}
+.dnext{display:block;text-align:right;font-size:15px;color:var(--muted);margin-top:6px}
+.dnext::after{content:" ▶";color:var(--ubp);animation:blink 1s steps(1) infinite}
+@keyframes blink{50%{opacity:0}}
+
+/* TOASTS */
+.toast{position:absolute;left:50%;top:14px;transform:translateX(-50%);background:var(--ink);color:#fff;border:3px solid #fff;border-radius:3px;padding:8px 14px;font-size:16px;z-index:7;max-width:calc(100% - 24px);text-align:center;pointer-events:none}
+.badge-toast{position:absolute;left:50%;top:20%;transform:translateX(-50%);background:#fffdf6;border:4px solid var(--ink);border-radius:4px;padding:18px 28px;text-align:center;z-index:8;box-shadow:6px 6px 0 rgba(0,0,0,.35);pointer-events:none;animation:pop .3s steps(4)}
+.badge-toast .big{font-size:52px;display:block;animation:bounce .6s steps(6)}
+.badge-toast strong{display:block;font-size:22px}
+.badge-toast small{color:var(--muted);font-size:16px}
+@keyframes pop{from{transform:translateX(-50%) scale(.7)}to{transform:translateX(-50%) scale(1)}}
+@keyframes bounce{0%{transform:translateY(-14px)}50%{transform:translateY(4px)}100%{transform:translateY(0)}}
+
+/* OVERLAYS */
+.overlay{position:fixed;inset:0;background:rgba(29,27,31,.6);z-index:20;display:flex;align-items:center;justify-content:center;padding:16px}
+.card{background:#fffdf6;border:4px solid var(--ink);border-radius:4px;padding:26px;width:min(520px,100%);max-height:calc(100% - 8px);overflow:auto;box-shadow:8px 8px 0 rgba(0,0,0,.4)}
+.card .logo{display:block;height:40px;width:auto;margin-bottom:14px}
+.kicker{display:inline-block;padding:4px 10px;border:3px solid var(--ubp);border-radius:3px;background:var(--ubp-soft);color:var(--ubp);font-size:15px;font-weight:700}
+.card h1{font-size:clamp(30px,7vw,42px);line-height:1;margin:14px 0 10px;font-weight:700}
+.card h1 em{color:var(--ubp);font-style:normal}
+.card p{color:var(--muted);margin:0 0 18px;font-size:18px}
+.field{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
+.field label,.label{font-size:17px;font-weight:700}
+.field input{border:3px solid var(--ink);border-radius:3px;background:#fff;padding:10px 12px;font-size:18px}
+.field input:focus{outline:none;background:#fbffe6}
+.swatches{display:flex;gap:10px;margin:6px 0 18px}
+.swatch{width:42px;height:42px;border-radius:3px;border:3px solid var(--ink)}
+.swatch[aria-pressed="true"]{box-shadow:0 0 0 3px #fffdf6,0 0 0 6px var(--ink)}
+.actions{display:flex;gap:12px;flex-wrap:wrap}
+.actions .btn{flex:1;min-width:150px}
+.controls{margin:16px 0 0;font-size:15px;color:#777;display:grid;gap:2px}
+.letter{border:3px dashed #b9b6aa;border-radius:3px;padding:14px;background:#fff;font-size:16px;white-space:pre-line;margin:6px 0 16px;user-select:all;font-family:ui-sans-serif,system-ui,sans-serif}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:0 0 16px}
+.stats div{background:var(--ok-soft);border:3px solid var(--ok);border-radius:3px;padding:8px;text-align:center;font-size:14px;color:var(--ok)}
+.stats b{display:block;font-size:26px}
+.real{display:block;text-align:center;margin-top:16px;color:var(--ubp);font-weight:700;font-size:17px;text-decoration:none}
+.real:hover{text-decoration:underline}
+
+@media(max-width:640px){
+  .hud{padding:6px 10px}
+  .objective{flex-basis:100%;order:3;font-size:16px}
+  .chip{width:32px;height:32px;font-size:16px}
+  .dialog{padding:12px;gap:10px;bottom:10px}
+  .portrait{width:46px;height:46px;font-size:24px}
+  .dtext{font-size:18px}
+  .card{padding:20px}
+}
+@media(prefers-reduced-motion:reduce){*{animation:none!important}}
+</style>
+</head>
+<body>
+<div id="app">
+  <header class="hud">
+    <a class="back" href="index.html">← Sitio</a>
+    <ol class="chips" id="chips" aria-label="Etapas"></ol>
+    <div class="objective" aria-live="polite"><span>🎯</span><div id="objective"></div></div>
+  </header>
+  <div class="world" id="world">
+    <canvas id="cv" aria-label="Mapa del campus. Tocá un lugar para caminar o una persona para hablar."></canvas>
+    <div class="dialog" id="dialog" hidden aria-live="polite">
+      <div class="portrait" id="dPortrait"></div>
+      <div class="dmain">
+        <p class="dname"><b id="dName"></b><span id="dRole"></span></p>
+        <p class="dtext" id="dText"></p>
+        <div class="choices" id="dChoices"></div>
+        <form class="dinput" id="dInput" hidden><input id="dField" maxlength="60" autocomplete="off" aria-label="Tu respuesta"><button class="btn btn-red" type="submit">OK</button></form>
+        <span class="dnext" id="dNext">Tocá para seguir</span>
+      </div>
+    </div>
+    <div class="badge-toast" id="badgeToast" hidden><span class="big" id="btIcon"></span><strong id="btTitle"></strong><small id="btText"></small></div>
+    <div class="toast" id="toast" hidden role="status"></div>
+  </div>
+</div>
+
+<div class="overlay" id="titleScreen">
+  <form class="card" id="titleForm">
+    <img class="logo" src="ubp-logo.png" alt="Universidad Blas Pascal">
+    <span class="kicker">🎮 Puente PreLab · El juego</span>
+    <h1>Terminó la materia. <em>¿Y tu idea?</em></h1>
+    <p>Recorré la UBP, hablá con quien corresponda y llevá tu idea hasta el final del puente. Dura unos 5 minutos.</p>
+    <div class="field"><label for="playerName">¿Cómo te llamás?</label><input id="playerName" required maxlength="20" placeholder="Tu nombre" autocomplete="given-name"></div>
+    <span class="label">Elegí tu color</span>
+    <div class="swatches" id="swatches" role="group" aria-label="Color del personaje"></div>
+    <div class="actions">
+      <button class="btn btn-light" type="button" id="continueBtn" hidden>Continuar partida</button>
+      <button class="btn btn-red" type="submit">Jugar →</button>
+    </div>
+    <div class="controls"><span>📱 Tocá dónde ir · tocá a alguien para hablar</span><span>⌨️ Flechas o WASD para moverte · E o Espacio para hablar</span></div>
+  </form>
+</div>
+
+<div class="overlay" id="endScreen" hidden>
+  <div class="card">
+    <span class="kicker">🏆 Final</span>
+    <h1>¡Cruzaste <em>el puente!</em></h1>
+    <p id="endText"></p>
+    <div class="stats">
+      <div><b>6</b>charlas con estudiantes</div>
+      <div><b>4</b>insignias</div>
+      <div><b>6</b>semanas de recorrido</div>
+    </div>
+    <span class="label">✉️ Tu carta de presentación</span>
+    <div class="letter" id="letter"></div>
+    <div class="actions">
+      <button class="btn btn-dark" type="button" id="copyBtn">📋 Copiar carta</button>
+      <button class="btn btn-light" type="button" id="againBtn">Jugar de nuevo</button>
+    </div>
+    <a class="real" href="index.html#empezar">¿Tenés una idea de verdad? Presentala acá →</a>
+  </div>
+</div>
+
+<script>
+/* ===== CONFIG ===== */
+const TW=32,TH=16,W=16,H=16;           // tile size in art pixels
+const COLORS=['#A3223A','#2f6fed','#2f8f5b','#6b4bd6','#ef7d00'];
+const START={x:4,y:5};
+const OUTLINE='#1d1b1f';
+const STAGES=[
+  {emoji:'💭',name:'Idea inicial',badge:'Explorador'},
+  {emoji:'🧩',name:'Idea desarrollada',badge:'Constructor'},
+  {emoji:'🛠️',name:'Prototipo',badge:'Prototipista'},
+  {emoji:'🚀',name:'Quiero continuar',badge:'Lanzador'}
+];
+const BUILDINGS=[
+  {id:'aula',name:'Aula',x0:1,y0:1,x1:3,y1:3,h:40,wall:'#f3ece2',roof:'#A3223A',npc:'profe'},
+  {id:'prelab',name:'Puente PreLab',x0:6,y0:1,x1:9,y1:3,h:36,wall:'#ffffff',roof:'#3a3a3a',npc:'coord',accent:'#D9FF43'},
+  {id:'biblio',name:'Biblioteca',x0:12,y0:1,x1:14,y1:3,h:48,wall:'#ece6f7',roof:'#6b4bd6',npc:'mentor'},
+  {id:'taller',name:'Taller',x0:1,y0:6,x1:3,y1:8,h:32,wall:'#e4eef9',roof:'#2f6fed',npc:'tec'},
+  {id:'vinc',name:'Vinculación',x0:12,y0:6,x1:14,y1:8,h:38,wall:'#e7f4ea',roof:'#2f8f5b',npc:'asesora'},
+  {id:'doing',name:'doingLABS',x0:1,y0:11,x1:3,y1:14,h:50,wall:'#fff3e2',roof:'#ef7d00',npc:'doing'}
+];
+const TREES=[[0,2],[4,1],[10,1],[11,3],[15,2],[15,7],[0,10],[8,14],[10,14],[13,12],[15,13],[7,15],[14,14],[0,15]];
+const BENCHES=[[6,11],[10,11]];
+const FOUNTAIN=[8,8];
+const PLAZA={x0:6,y0:6,x1:10,y1:11};
+
+const NPC_DEFS=[
+  {id:'profe',name:'Profe Lucía',role:'Docente',emoji:'👩‍🏫',x:2,y:4,color:'#6b4bd6',hair:'#3b2a20',skin:'#f1c7a5',long:true},
+  {id:'coord',name:'Martín',role:'Puente PreLab',emoji:'🌉',x:7,y:4,color:'#3a3a3a',hair:'#1c1c1c',skin:'#c98e66'},
+  {id:'mentor',name:'Vale',role:'Mentora',emoji:'📚',x:13,y:4,color:'#2f8f5b',hair:'#7a3b1c',skin:'#f3d0b0',long:true},
+  {id:'tec',name:'Nico',role:'Taller',emoji:'🛠️',x:4,y:7,color:'#2f6fed',hair:'#e0b04a',skin:'#e8b892'},
+  {id:'asesora',name:'Paula',role:'Vinculación Tecnológica',emoji:'🔌',x:13,y:9,color:'#A3223A',hair:'#2b1b12',skin:'#a9714f',long:true},
+  {id:'doing',name:'Equipo doingLABS',role:'Incubadora',emoji:'🚀',x:4,y:12,color:'#ef7d00',hair:'#333333',skin:'#d9a27c'}
+];
+const STUDENT_DEFS=[
+  {name:'Juli',color:'#e05a7a',hair:'#2b1b12',skin:'#f1c7a5',x:7,y:7,long:true},
+  {name:'Tomi',color:'#3aa0c8',hair:'#111111',skin:'#c98e66',x:9,y:7},
+  {name:'Cami',color:'#9b59d0',hair:'#a0522d',skin:'#f3d0b0',x:7,y:10,long:true},
+  {name:'Fran',color:'#d4a017',hair:'#3b2a20',skin:'#a9714f',x:9,y:10},
+  {name:'Sol',color:'#27ae60',hair:'#e0b04a',skin:'#e8b892',x:10,y:8}
+];
+
+/* Story content */
+const INSIGHTS=[
+  ['A mí me pasa seguido. Lo resuelvo como puedo, pero pierdo un montón de tiempo.','les pasa seguido y pierden tiempo'],
+  ['Probé algo parecido y lo dejé: era muy complicado de usar.','lo que existe hoy es complicado'],
+  ['Si fuera simple y gratis, lo usaría seguro.','lo usarían si es simple'],
+  ['Nunca lo vi como un problema… aunque ahora que lo decís, sí.','el problema está, aunque no siempre se nota'],
+  ['A mi hermano le pasa lo mismo en el trabajo. ¡No es solo de estudiantes!','también le pasa a gente fuera de la facultad']
+];
+const REACTIONS=[
+  ['Lo entendí sin que me expliques. Pero no supe por dónde empezar.','se entiende, pero el inicio confunde'],
+  ['¿Lo puedo usar desde el celu? Ahí sí lo usaría todos los días.','piden una versión para celular'],
+  ['Me gusta, pero por ahora no pagaría.','lo usarían, pero dudan en pagar'],
+  ['Tardé un rato en entender para qué sirve.','la propuesta no se entiende al primer vistazo'],
+  ['¡Está buenísimo! Avisame cuando salga.','generó entusiasmo real']
+];
+const CHATTER=[
+  '¿Viste que este mes hay Feria de Innovación?',
+  'Tengo parcial mañana… ¡deseame suerte!',
+  'Dicen que en el Taller hay una impresora 3D.',
+  'Yo también tengo una idea, pero no sé a quién contarle.',
+  'El café de la Biblioteca es el mejor del campus.'
+];
+const DOUBTS=[
+  ['¿Alguien pagaría por esto?','Clásica. No hace falta adivinar: se puede probar antes de construir.'],
+  ['¿Podemos construirlo nosotros?','Buena. Quizás falte alguien técnico en el equipo, y eso también se resuelve.'],
+  ['¿Cuánto cuesta hacerlo?','Importante. Empecemos por la versión más barata posible.'],
+  ['¿Ya existe algo igual?','Siempre hay algo parecido. La clave es en qué te diferenciás.']
+];
+const PROTOS=[['Un boceto en papel','un boceto en papel'],['Una maqueta en Figma o Canva','una maqueta en Figma'],['Una landing page simple','una landing page'],['Un video corto que muestre la idea','un video demo']];
+const GOALS=['Conseguir 20 personas probándolo','Sumar a alguien técnico al equipo','Presentarnos a una convocatoria','Tener la primera versión funcionando'];
+const DEST={
+  doing:{label:'🚀 doingLABS: quiero emprender',name:'doingLABS',place:'doingLABS',npc:'doing'},
+  vinc:{label:'🔌 Vinculación: empresas y convocatorias',name:'Vinculación Tecnológica',place:'Vinculación Tecnológica',npc:'asesora'},
+  inv:{label:'🔬 Investigación y Extensión: impacto social o investigación',name:'Investigación y Extensión',place:'la profe, en el Aula',npc:'profe'}
+};
+const STEPS={
+  intro:{stage:-1,obj:()=>'Hablá con la profe en el Aula 🏫',target:()=>['profe']},
+  prelab:{stage:-1,obj:()=>'Andá al Puente PreLab 🌉',target:()=>['coord']},
+  talk1:{stage:0,obj:()=>'Hablá con estudiantes en la plaza · '+S.talked.length+'/3',target:()=>'students'},
+  report1:{stage:0,obj:()=>'Contale a PreLab lo que aprendiste 🌉',target:()=>['coord']},
+  mentor:{stage:1,obj:()=>'Encontrá a tu mentora en la Biblioteca 📚',target:()=>['mentor']},
+  lab:{stage:2,obj:()=>'Armá un prototipo en el Taller 🛠️',target:()=>['tec']},
+  test:{stage:2,obj:()=>'Probá tu prototipo en la plaza · '+S.talked.length+'/3',target:()=>'students'},
+  report3:{stage:2,obj:()=>'Contale a tu mentora cómo te fue 📚',target:()=>['mentor']},
+  vinc:{stage:3,obj:()=>'Consultá en Vinculación Tecnológica 🔌',target:()=>['asesora']},
+  decide:{stage:3,obj:()=>'Volvé al Puente PreLab 🌉',target:()=>['coord']},
+  deliver:{stage:4,obj:()=>'Llevá tu carta a '+DEST[S.dest].place,target:()=>[DEST[S.dest].npc]},
+  end:{stage:4,obj:()=>'¡Cruzaste el puente! 🏆',target:()=>[]}
+};
+
+/* ===== STATE / SAVE ===== */
+const STORE='prelabIsoGame';
+function fresh(name,color){return {v:1,name,color,idea:'',step:'intro',badges:0,talked:[],insights:[],doubts:[],proto:'',reactions:[],dest:'',goal:'',x:START.x,y:START.y}}
+function load(){try{return JSON.parse(localStorage.getItem(STORE)||'null')}catch(e){return null}}
+function save(){if(!S)return;S.x=Math.round(player.x);S.y=Math.round(player.y);try{localStorage.setItem(STORE,JSON.stringify(S))}catch(e){}}
+let S=null;
+
+/* ===== ISO MATH (art pixels) ===== */
+const iso=(cx,cy)=>({x:(cx-cy)*TW/2,y:(cx+cy)*TH/2});
+const toTile=(wx,wy)=>({x:Math.floor((wx/(TW/2)+wy/(TH/2))/2),y:Math.floor((wy/(TH/2)-wx/(TW/2))/2)});
+const foot=e=>{const p=iso(e.x+.5,e.y+.5);return {x:Math.round(p.x),y:Math.round(p.y)}};
+const up=(p,h)=>({x:p.x,y:p.y-h});
+const lerpP=(a,b,t)=>({x:a.x+(b.x-a.x)*t,y:a.y+(b.y-a.y)*t});
+
+/* ===== MAP ===== */
+const blocked=[...Array(H)].map(()=>Array(W).fill(false));
+BUILDINGS.forEach(b=>{for(let y=b.y0;y<=b.y1;y++)for(let x=b.x0;x<=b.x1;x++)blocked[y][x]=true});
+[...TREES,...BENCHES,FOUNTAIN].forEach(([x,y])=>blocked[y][x]=true);
+NPC_DEFS.forEach(n=>blocked[n.y][n.x]=true);
+const inPlaza=(x,y)=>x>=PLAZA.x0&&x<=PLAZA.x1&&y>=PLAZA.y0&&y<=PLAZA.y1;
+const isPath=(x,y)=>y===5||x===5||(x===11&&y>=5)||(y===10&&x>=11);
+const walkable=(x,y)=>x>=0&&y>=0&&x<W&&y<H&&!blocked[y][x];
+const DIRS=[[1,0],[-1,0],[0,1],[0,-1],[1,1],[1,-1],[-1,1],[-1,-1]];
+function canStep(x,y,dx,dy){
+  if(!walkable(x+dx,y+dy))return false;
+  return !(dx&&dy)||(walkable(x+dx,y)&&walkable(x,y+dy));
+}
+function bfs(sx,sy,isGoal){
+  const prev=new Map(),key=(x,y)=>y*W+x,q=[[sx,sy]];
+  prev.set(key(sx,sy),null);
+  while(q.length){
+    const [x,y]=q.shift();
+    if(isGoal(x,y)){
+      const path=[];let k=key(x,y);
+      while(k!==key(sx,sy)){path.unshift({x:k%W,y:Math.floor(k/W)});k=prev.get(k)}
+      return path;
+    }
+    for(const [dx,dy] of DIRS){
+      const nx=x+dx,ny=y+dy;
+      if(!prev.has(key(nx,ny))&&canStep(x,y,dx,dy)){prev.set(key(nx,ny),key(x,y));q.push([nx,ny])}
+    }
+  }
+  return null;
+}
+
+/* ===== ENTITIES ===== */
+const player={x:START.x,y:START.y,path:[],walkT:0,moving:false,goal:null,face:1,color:COLORS[0],hair:'#2b1b12',skin:'#e8b892',isPlayer:true};
+const npcs=NPC_DEFS.map(d=>({...d,path:[],walkT:0,moving:false,face:1}));
+const students=STUDENT_DEFS.map((d,i)=>({...d,id:'s'+i,i,role:'Estudiante',emoji:'🙂',path:[],walkT:0,moving:false,face:1,timer:1+Math.random()*3,frozen:false,student:true}));
+const people=[...npcs,...students];
+const byId=id=>people.find(p=>p.id===id);
+
+function moveAlong(e,dt,speed){
+  if(!e.path.length){e.moving=false;return false}
+  const t=e.path[0],dx=t.x-e.x,dy=t.y-e.y,d=Math.hypot(dx,dy),step=speed*dt;
+  e.moving=true;e.walkT+=dt;
+  if(dx-dy)e.face=dx-dy>0?1:-1;
+  if(d<=step){e.x=t.x;e.y=t.y;e.path.shift();return !e.path.length}
+  e.x+=dx/d*step;e.y+=dy/d*step;return false;
+}
+function wander(st,dt){
+  if(st.frozen||talkingTo===st){st.moving=false;return}
+  moveAlong(st,dt,1.3);
+  if(st.path.length)return;
+  st.timer-=dt;
+  if(st.timer>0)return;
+  st.timer=2+Math.random()*4;
+  const tx=PLAZA.x0+Math.floor(Math.random()*(PLAZA.x1-PLAZA.x0+1)),ty=PLAZA.y0+Math.floor(Math.random()*(PLAZA.y1-PLAZA.y0+1));
+  if(!walkable(tx,ty))return;
+  st.path=bfs(Math.round(st.x),Math.round(st.y),(x,y)=>x===tx&&y===ty)||[];
+}
+
+/* ===== PIXEL PRIMITIVES (crisp, no anti-aliasing) ===== */
+function shade(hex,f){
+  const n=parseInt(hex.slice(1),16);
+  const c=[n>>16,(n>>8)&255,n&255].map(v=>Math.max(0,Math.min(255,Math.round(f<1?v*f:v+(255-v)*(f-1)))));
+  return 'rgb('+c.join(',')+')';
+}
+// Fills a convex polygon one pixel column at a time, so edges stay hard.
+function fillPoly(g,pts,color){
+  g.fillStyle=color;
+  let minx=Infinity,maxx=-Infinity;
+  pts.forEach(p=>{minx=Math.min(minx,p.x);maxx=Math.max(maxx,p.x)});
+  for(let x=Math.floor(minx);x<Math.ceil(maxx);x++){
+    const sx=x+.5;let lo=Infinity,hi=-Infinity;
+    for(let i=0;i<pts.length;i++){
+      const a=pts[i],b=pts[(i+1)%pts.length];
+      if((a.x<=sx&&b.x>=sx)||(b.x<=sx&&a.x>=sx)){
+        const y=a.x===b.x?a.y:a.y+(sx-a.x)/(b.x-a.x)*(b.y-a.y);
+        lo=Math.min(lo,y);hi=Math.max(hi,y);
+      }
+    }
+    const y0=Math.round(lo),y1=Math.round(hi);
+    if(y1>y0)g.fillRect(x,y0,1,y1-y0);
+  }
+}
+function outlinePoly(g,pts,color){
+  [[-1,0],[1,0],[0,-1],[0,1]].forEach(([dx,dy])=>fillPoly(g,pts.map(p=>({x:p.x+dx,y:p.y+dy})),color));
+}
+function fillEllipse(g,cx,cy,rx,ry,color){
+  g.fillStyle=color;
+  for(let dy=-ry;dy<=ry;dy++){const hw=Math.round(rx*Math.sqrt(1-(dy/ry)**2));g.fillRect(cx-hw,cy+dy,hw*2+1,1)}
+}
+function makeCanvas(w,h){const c=document.createElement('canvas');c.width=w;c.height=h;return c}
+
+/* ===== SPRITES ===== */
+const BODY=[
+  '..kkkk..',
+  '.khhhhk.',
+  'khhhhhhk',
+  'khsssshk',
+  'ksessesk',
+  'kssssssk',
+  '.kssssk.',
+  'kbbbbbBk',
+  'kbbbbbBk',
+  'ksbbbbsk',
+  '.kppppk.'
+];
+const LEGS=[['.kp..pk.','.ko..ok.'],['..kppk..','..kook..']];
+const spriteCache=new Map();
+function personSprite(e,frame){
+  const key=[e.hair,e.skin,e.color,e.long,frame,e.isPlayer].join();
+  if(spriteCache.has(key))return spriteCache.get(key);
+  const rows=[...BODY,...LEGS[frame]].map(r=>r.split(''));
+  if(e.long)for(let r=4;r<=8;r++){rows[r][0]='h';rows[r][7]='h'}
+  if(e.isPlayer){rows[7][6]='a';rows[8][6]='a';rows[9][6]='a'}
+  const pal={k:OUTLINE,e:OUTLINE,h:e.hair,s:e.skin,b:e.color,B:shade(e.color,.72),p:'#3b4256',o:'#4a2f22',a:'#D9FF43'};
+  const c=makeCanvas(8,rows.length),g=c.getContext('2d');
+  rows.forEach((r,y)=>r.forEach((ch,x)=>{if(pal[ch]){g.fillStyle=pal[ch];g.fillRect(x,y,1,1)}}));
+  spriteCache.set(key,c);
+  return c;
+}
+const treeSprite=(()=>{
+  const c=makeCanvas(17,24),g=c.getContext('2d');
+  g.fillStyle='#3a2414';g.fillRect(6,14,5,10);
+  g.fillStyle='#6b4226';g.fillRect(7,14,3,9);
+  for(let y=0;y<17;y++)for(let x=0;x<17;x++){
+    const dx=x-8,dy=y-8,d=Math.hypot(dx,dy);
+    if(d>8.2)continue;
+    g.fillStyle=d>7.2?'#1f4a2a':dx+dy<-5?'#7cc96f':dx+dy>4?'#2f7a3e':(x*7+y*3)%11===0?'#5db55c':'#46a04f';
+    g.fillRect(x,y,1,1);
+  }
+  return c;
+})();
+const GLYPHS={'!':['1','1','1','1','0','1'],'?':['01110','10001','00010','00100','00000','00100']};
+function drawBubble(g,x,y,ch){
+  const gl=GLYPHS[ch],w=gl[0].length+6,h=gl.length+6;
+  g.fillStyle=OUTLINE;g.fillRect(x-(w>>1)-1,y-h-1,w+2,h+2);
+  g.fillStyle='#fff';g.fillRect(x-(w>>1),y-h,w,h);
+  g.fillStyle=OUTLINE;g.fillRect(x-1,y+1,3,1);g.fillRect(x,y+2,1,1);
+  g.fillStyle='#fff';g.fillRect(x,y,1,1);g.fillRect(x-1,y,3,1);
+  g.fillStyle='#A3223A';
+  gl.forEach((row,ry)=>row.split('').forEach((v,rx)=>{if(v==='1')g.fillRect(x-(w>>1)+3+rx,y-h+3+ry,1,1)}));
+}
+
+/* ===== STATIC LAYERS (ground and buildings are drawn once) ===== */
+const GROUND_OFF={x:W*TW/2,y:2};
+const ground=(()=>{
+  const c=makeCanvas(W*TW+2,(W+H)*TH/2+12),g=c.getContext('2d');
+  const o=p=>({x:p.x+GROUND_OFF.x,y:p.y+GROUND_OFF.y});
+  let seed=7;const rnd=()=>(seed=(seed*16807)%2147483647)/2147483647;
+  const s=8;
+  fillPoly(g,[o(iso(0,H)),o(iso(W,H)),o(up(iso(W,H),-s)),o(up(iso(0,H),-s))],'#7a5a3c');
+  fillPoly(g,[o(iso(W,H)),o(iso(W,0)),o(up(iso(W,0),-s)),o(up(iso(W,H),-s))],'#946c48');
+  for(let y=0;y<H;y++)for(let x=0;x<W;x++){
+    let c1=(x+y)%2?'#8fcf6e':'#86c766',spots=['#6fb257','#a6dd85'];
+    if(inPlaza(x,y)){c1=(x+y)%2?'#e8e4d8':'#d9d4c5';spots=['#c9c3b2']}
+    else if(isPath(x,y)){c1='#e6d3a8';spots=['#cdb886','#f2e4c2']}
+    const d=[o(iso(x,y)),o(iso(x+1,y)),o(iso(x+1,y+1)),o(iso(x,y+1))];
+    fillPoly(g,d,c1);
+    const cc=o(iso(x+.5,y+.5));
+    for(let i=0;i<4;i++){
+      const px=Math.round(cc.x+(rnd()-.5)*18),py=Math.round(cc.y+(rnd()-.5)*8);
+      g.fillStyle=spots[Math.floor(rnd()*spots.length)];g.fillRect(px,py,1,1);
+    }
+    if(!inPlaza(x,y)&&!isPath(x,y)&&rnd()<.12){g.fillStyle=rnd()<.5?'#fff6c8':'#ffd1dc';g.fillRect(Math.round(cc.x+(rnd()-.5)*12),Math.round(cc.y+(rnd()-.5)*5),1,1)}
+  }
+  return c;
+})();
+function buildingLayer(b){
+  const x0=b.x0,y0=b.y0,x1=b.x1+1,y1=b.y1+1,h=b.h;
+  const N=iso(x0,y0),E=iso(x1,y0),Sc=iso(x1,y1),Wc=iso(x0,y1);
+  const minx=Wc.x-2,maxx=E.x+2,miny=N.y-h-2,maxy=Sc.y+2;
+  const c=makeCanvas(maxx-minx,maxy-miny),g=c.getContext('2d');
+  g.translate(-minx,-miny);
+  const hull=[Wc,Sc,E,up(E,h),up(N,h),up(Wc,h)];
+  outlinePoly(g,hull,OUTLINE);
+  fillPoly(g,[Wc,Sc,up(Sc,h),up(Wc,h)],shade(b.wall,.82));
+  fillPoly(g,[Sc,E,up(E,h),up(Sc,h)],shade(b.wall,.97));
+  // shadow band under the roof
+  fillPoly(g,[up(Wc,h),up(Sc,h),up(Sc,h-3),up(Wc,h-3)],shade(b.wall,.62));
+  fillPoly(g,[up(Sc,h),up(E,h),up(E,h-3),up(Sc,h-3)],shade(b.wall,.72));
+  if(b.accent){
+    fillPoly(g,[up(Wc,h-3),up(Sc,h-3),up(Sc,h-6),up(Wc,h-6)],shade(b.accent,.85));
+    fillPoly(g,[up(Sc,h-3),up(E,h-3),up(E,h-6),up(Sc,h-6)],b.accent);
+  }
+  const top=[up(N,h),up(E,h),up(Sc,h),up(Wc,h)];
+  fillPoly(g,top,b.roof);
+  fillPoly(g,top.map((p,i)=>lerpP(p,top[(i+2)%4],.1)),shade(b.roof,1.18));
+  fillPoly(g,top.map((p,i)=>lerpP(p,top[(i+2)%4],.18)),b.roof);
+  // corner highlight
+  g.fillStyle=shade(b.wall,1.04);g.fillRect(Sc.x,Sc.y-h+3,1,h-3);
+  // windows and door
+  const npc=NPC_DEFS.find(n=>n.id===b.npc);
+  const faces=[{a:Wc,b:Sc,n:x1-x0,door:npc.y===b.y1+1?npc.x-x0:-1,glass:'#7fb8e0'},{a:Sc,b:E,n:y1-y0,door:npc.x===b.x1+1?b.y1-npc.y:-1,glass:'#9fd0f0'}];
+  faces.forEach(f=>{
+    for(let i=0;i<f.n;i++){
+      const p0=lerpP(f.a,f.b,(i+.28)/f.n),p1=lerpP(f.a,f.b,(i+.72)/f.n);
+      if(i===f.door){
+        fillPoly(g,[p0,p1,up(p1,15),up(p0,15)],OUTLINE);
+        const q0=lerpP(p0,p1,.15),q1=lerpP(p0,p1,.85);
+        fillPoly(g,[q0,q1,up(q1,13),up(q0,13)],'#8a5a36');
+        g.fillStyle='#e0b04a';g.fillRect(Math.round(lerpP(q0,q1,.75).x),Math.round(lerpP(q0,q1,.75).y)-7,1,1);
+      }else{
+        for(let r=0;r<(h>=44?2:1);r++){
+          const z=Math.round(h*.38)+r*13;
+          fillPoly(g,[up(p0,z-1),up(p1,z-1),up(p1,z+8),up(p0,z+8)],OUTLINE);
+          fillPoly(g,[up(p0,z),up(p1,z),up(p1,z+7),up(p0,z+7)],f.glass);
+          const hl=lerpP(up(p0,z+6),up(p1,z+6),.25);g.fillStyle='#e8f6ff';g.fillRect(Math.round(hl.x),Math.round(hl.y),1,1);
+        }
+      }
+    }
+  });
+  return {c,x:minx,y:miny};
+}
+const buildingLayers=new Map(BUILDINGS.map(b=>[b.id,buildingLayer(b)]));
+
+/* ===== CANVAS / CAMERA ===== */
+const cv=document.getElementById('cv'),ctx=cv.getContext('2d');
+const buf=makeCanvas(1,1),bx=buf.getContext('2d');
+let cw=0,ch=0,dpr=1,PX=3,bw=1,bh=1,offX=0,offY=0;
+const cam={x:0,y:0};
+let camFrac=.5;
+function resize(){
+  const r=cv.getBoundingClientRect();
+  dpr=window.devicePixelRatio||1;cw=r.width;ch=r.height;
+  cv.width=Math.round(cw*dpr);cv.height=Math.round(ch*dpr);
+  PX=Math.max(2,Math.min(4,Math.round(Math.min(cw,ch*1.45)/330)));
+  bw=Math.ceil(cw/PX);bh=Math.ceil(ch/PX);
+  buf.width=bw;buf.height=bh;
+}
+window.addEventListener('resize',resize);
+
+/* ===== DRAWING ===== */
+function drawPerson(g,e){
+  const f=foot(e),frame=e.moving?Math.floor(e.walkT*8)%2:0,bob=frame;
+  fillEllipse(g,f.x,f.y,5,1,'rgba(0,0,0,.25)');
+  const sp=personSprite(e,frame);
+  g.save();g.translate(f.x,f.y-13+bob);
+  if(e.face<0){g.scale(-1,1);g.drawImage(sp,-4,0)}else g.drawImage(sp,-4,0);
+  g.restore();
+}
+function diamond(g,cx,cy,rw,color){fillPoly(g,[{x:cx,y:cy-rw/2},{x:cx+rw,y:cy},{x:cx,y:cy+rw/2},{x:cx-rw,y:cy}],color)}
+function drawFountain(g){
+  const c=foot({x:FOUNTAIN[0],y:FOUNTAIN[1]});
+  fillEllipse(g,c.x,c.y+1,14,6,OUTLINE);
+  fillEllipse(g,c.x,c.y,13,5,'#a9a497');
+  fillEllipse(g,c.x,c.y-2,13,5,'#d6d1c3');
+  fillEllipse(g,c.x,c.y-2,10,3,'#4fa7d6');
+  g.fillStyle=OUTLINE;g.fillRect(c.x-2,c.y-13,4,11);
+  g.fillStyle='#d6d1c3';g.fillRect(c.x-1,c.y-12,2,10);
+  const t=Math.floor(time*6)%3;
+  g.fillStyle='#bfe9ff';g.fillRect(c.x-1-t,c.y-15+t,1,1);g.fillRect(c.x+1+t,c.y-15+t,1,1);g.fillRect(c.x,c.y-16,1,1);
+  g.fillStyle='#e8f8ff';g.fillRect(c.x-6+t*2,c.y-3,1,1);
+}
+function drawBench(g,x,y){
+  const p=[iso(x+.15,y+.4),iso(x+.85,y+.4),iso(x+.85,y+.6),iso(x+.15,y+.6)];
+  const top=p.map(q=>up(q,4));
+  outlinePoly(g,[p[3],p[2],p[1],top[1],top[0],top[3]],OUTLINE);
+  fillPoly(g,[p[3],p[2],top[2],top[3]],'#8a5c34');
+  fillPoly(g,[p[2],p[1],top[1],top[2]],'#9c6a3f');
+  fillPoly(g,top,'#c48a52');
+}
+
+/* Draw order: one object goes behind another when it is fully on the far
+   side along x or y. Only objects whose screen boxes overlap are compared. */
+function sortItems(items){
+  const n=items.length,indeg=new Array(n).fill(0),out=items.map(()=>[]);
+  const behind=(a,b)=>a.x1<=b.x0+1e-6||a.y1<=b.y0+1e-6;
+  const sum=a=>a.x0+a.x1+a.y0+a.y1;
+  for(let i=0;i<n;i++)for(let j=i+1;j<n;j++){
+    const a=items[i],b=items[j];
+    if(a.sx1<=b.sx0||b.sx1<=a.sx0||a.sy1<=b.sy0||b.sy1<=a.sy0)continue;
+    const ab=behind(a,b),ba=behind(b,a);
+    const first=ab&&!ba?i:ba&&!ab?j:sum(a)<=sum(b)?i:j;
+    const second=first===i?j:i;
+    out[first].push(second);indeg[second]++;
+  }
+  const done=new Array(n).fill(false),order=[];
+  for(let k=0;k<n;k++){
+    let pick=-1;
+    for(let i=0;i<n;i++)if(!done[i]&&indeg[i]===0&&(pick<0||sum(items[i])<sum(items[pick])))pick=i;
+    if(pick<0)for(let i=0;i<n;i++)if(!done[i]&&(pick<0||sum(items[i])<sum(items[pick])))pick=i;
+    done[pick]=true;order.push(items[pick]);out[pick].forEach(j=>indeg[j]--);
+  }
+  return order;
+}
+function sceneItems(){
+  const items=[];
+  BUILDINGS.forEach(b=>{
+    const L=buildingLayers.get(b.id);
+    items.push({x0:b.x0,y0:b.y0,x1:b.x1+1,y1:b.y1+1,sx0:L.x,sy0:L.y,sx1:L.x+L.c.width,sy1:L.y+L.c.height,draw:g=>g.drawImage(L.c,L.x,L.y)});
+  });
+  TREES.forEach(([x,y])=>{const f=foot({x,y});items.push({x0:x+.2,y0:y+.2,x1:x+.8,y1:y+.8,sx0:f.x-9,sy0:f.y-23,sx1:f.x+9,sy1:f.y+2,draw:g=>{fillEllipse(g,f.x,f.y,7,2,'rgba(0,0,0,.22)');g.drawImage(treeSprite,f.x-8,f.y-23)}})});
+  BENCHES.forEach(([x,y])=>{const f=foot({x,y});items.push({x0:x+.15,y0:y+.4,x1:x+.85,y1:y+.6,sx0:f.x-12,sy0:f.y-10,sx1:f.x+12,sy1:f.y+6,draw:g=>drawBench(g,x,y)})});
+  {const [x,y]=FOUNTAIN,f=foot({x,y});items.push({x0:x,y0:y,x1:x+1,y1:y+1,sx0:f.x-15,sy0:f.y-17,sx1:f.x+15,sy1:f.y+8,draw:drawFountain})}
+  [...people,player].forEach(p=>{const f=foot(p);items.push({x0:p.x+.3,y0:p.y+.3,x1:p.x+.7,y1:p.y+.7,sx0:f.x-6,sy0:f.y-14,sx1:f.x+6,sy1:f.y+2,draw:g=>drawPerson(g,p)})});
+  return items;
+}
+
+function targets(){
+  if(!S)return [];
+  const t=STEPS[S.step].target();
+  if(t==='students')return students.filter(s=>!S.talked.includes(s.i));
+  return t.map(byId);
+}
+
+let time=0,tapMark=null;
+function render(){
+  offX=Math.round(bw/2-cam.x);offY=Math.round(bh*camFrac-cam.y);
+  const g=bx;
+  g.setTransform(1,0,0,1,0,0);
+  g.fillStyle='#5e9e6e';g.fillRect(0,0,bw,bh);
+  g.translate(offX,offY);
+  g.drawImage(ground,-GROUND_OFF.x,-GROUND_OFF.y);
+  if(tapMark&&tapMark.t<.6&&Math.floor(tapMark.t*10)%2===0){const c=foot(tapMark);diamond(g,c.x,c.y,10,'rgba(163,34,58,.55)')}
+  const tg=targets();
+  const pulse=Math.floor(time*3)%2;
+  tg.forEach(t=>{const f=foot(t);diamond(g,f.x,f.y,13+pulse*2,'rgba(217,255,67,.75)')});
+  {const f=foot(player);diamond(g,f.x,f.y,8,'rgba(217,255,67,.9)')}
+  sortItems(sceneItems()).forEach(i=>i.draw(g));
+  if(!talkingTo){
+    const by=Math.floor(time*2.5)%2;
+    tg.forEach(t=>{const f=foot(t);drawBubble(g,f.x,f.y-19-by,t.student?'?':'!')});
+  }
+  g.setTransform(1,0,0,1,0,0);
+  drawArrow(g,tg[0]);
+  // upscale with hard pixels
+  ctx.setTransform(1,0,0,1,0,0);
+  ctx.imageSmoothingEnabled=false;
+  ctx.drawImage(buf,0,0,bw,bh,0,0,Math.round(bw*PX*dpr),Math.round(bh*PX*dpr));
+  drawSigns();
+}
+function drawSigns(){
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  ctx.font='600 14px "Pixelify Sans",ui-monospace,monospace';
+  ctx.textAlign='center';ctx.textBaseline='middle';
+  BUILDINGS.forEach(b=>{
+    const p=up(iso((b.x0+b.x1+1)/2,(b.y0+b.y1+1)/2),b.h+10);
+    const x=Math.round((p.x+offX)*PX),y=Math.round((p.y+offY)*PX);
+    if(x<-80||x>cw+80||y<-20||y>ch+20)return;
+    const w=Math.round(ctx.measureText(b.name).width)+16;
+    ctx.fillStyle='rgba(0,0,0,.35)';ctx.fillRect(x-w/2+3,y-11+3,w,22);
+    ctx.fillStyle=OUTLINE;ctx.fillRect(x-w/2-3,y-14,w+6,28);
+    ctx.fillStyle=b.roof;ctx.fillRect(x-w/2,y-11,w,22);
+    ctx.fillStyle='#fffdf6';ctx.fillRect(x-w/2+2,y-9,w-4,18);
+    ctx.fillStyle=OUTLINE;ctx.fillText(b.name,x,y+1);
+  });
+}
+function drawArrow(g,t){
+  if(!t||talkingTo)return;
+  const f=foot(t),sx=f.x+offX,sy=f.y-10+offY,m=14;
+  if(sx>m&&sx<bw-m&&sy>m&&sy<bh-m)return;
+  const cx=Math.max(m,Math.min(bw-m,sx)),cy=Math.max(m,Math.min(bh-m,sy)),a=Math.atan2(sy-cy,sx-cx);
+  const pt=(r,da)=>({x:cx+Math.cos(a+da)*r,y:cy+Math.sin(a+da)*r});
+  fillPoly(g,[pt(16,0),pt(11,.6),pt(11,-.6)],OUTLINE);
+  fillPoly(g,[pt(14,0),pt(10,.5),pt(10,-.5)],'#A3223A');
+  g.fillStyle=OUTLINE;g.fillRect(Math.round(cx)-8,Math.round(cy)-8,17,17);
+  g.fillStyle='#fffdf6';g.fillRect(Math.round(cx)-7,Math.round(cy)-7,15,15);
+  g.fillStyle='#A3223A';g.fillRect(Math.round(cx),Math.round(cy)-4,1,5);g.fillRect(Math.round(cx),Math.round(cy)+2,1,1);
+}
+
+/* ===== LOOP ===== */
+let last=performance.now();
+function loop(now){
+  const dt=Math.min(.05,(now-last)/1000);last=now;time+=dt;
+  if(tapMark)tapMark.t+=dt;
+  if(S&&!talkingTo)updatePlayer(dt);
+  students.forEach(s=>wander(s,dt));
+  const f=foot(player),k=1-Math.exp(-dt*6);
+  cam.x+=(f.x-cam.x)*k;cam.y+=(f.y-cam.y)*k;
+  camFrac+=((talkingTo?.32:.5)-camFrac)*k;
+  render();
+  requestAnimationFrame(loop);
+}
+function updatePlayer(dt){
+  if(!player.path.length){
+    const d=keyDir();
+    if(d){
+      const x=Math.round(player.x),y=Math.round(player.y);
+      if(canStep(x,y,d[0],d[1]))player.path=[{x:x+d[0],y:y+d[1]}];
+      else if(d[0]&&d[1]){if(canStep(x,y,d[0],0))player.path=[{x:x+d[0],y}];else if(canStep(x,y,0,d[1]))player.path=[{x,y:y+d[1]}]}
+    }
+  }
+  const arrived=moveAlong(player,dt,3.6);
+  if(arrived&&player.goal){const g=player.goal;player.goal=null;if(near(g))talk(g)}
+}
+const near=e=>Math.hypot(e.x-player.x,e.y-player.y)<=1.6;
+
+/* ===== INPUT ===== */
+const keys=new Set();
+const KEYMAP={ArrowUp:[-1,-1],w:[-1,-1],ArrowDown:[1,1],s:[1,1],ArrowLeft:[-1,1],a:[-1,1],ArrowRight:[1,-1],d:[1,-1]};
+function keyDir(){
+  let x=0,y=0;keys.forEach(k=>{const v=KEYMAP[k];if(v){x+=v[0];y+=v[1]}});
+  x=Math.sign(x);y=Math.sign(y);return x||y?[x,y]:null;
+}
+document.addEventListener('keydown',e=>{
+  if(e.target.tagName==='INPUT')return;
+  const k=e.key.length===1?e.key.toLowerCase():e.key;
+  if(dlg){
+    if(dlg.mode==='say'&&['Enter',' ','e'].includes(k)){e.preventDefault();advance()}
+    if(dlg.mode==='choice'&&/^[1-4]$/.test(k)){const b=document.querySelectorAll('#dChoices button')[+k-1];if(b)b.click()}
+    return;
+  }
+  if(!S||!document.getElementById('titleScreen').hidden)return;
+  if(KEYMAP[k]){e.preventDefault();keys.add(k);player.goal=null;unfreeze()}
+  if(k==='e'||k===' '||k==='Enter'){
+    e.preventDefault();
+    const n=[...people].filter(near).sort((a,b)=>Math.hypot(a.x-player.x,a.y-player.y)-Math.hypot(b.x-player.x,b.y-player.y))[0];
+    if(n)talk(n);
+  }
+});
+document.addEventListener('keyup',e=>keys.delete(e.key.length===1?e.key.toLowerCase():e.key));
+window.addEventListener('blur',()=>keys.clear());
+
+function inPoly(pt,pts){
+  let ins=false;
+  for(let i=0,j=pts.length-1;i<pts.length;j=i++){
+    const a=pts[i],b=pts[j];
+    if((a.y>pt.y)!==(b.y>pt.y)&&pt.x<(b.x-a.x)*(pt.y-a.y)/(b.y-a.y)+a.x)ins=!ins;
+  }
+  return ins;
+}
+cv.addEventListener('pointerdown',e=>{
+  if(!S||talkingTo)return;
+  const r=cv.getBoundingClientRect(),w={x:(e.clientX-r.left)/PX-offX,y:(e.clientY-r.top)/PX-offY};
+  unfreeze();
+  const hit=[...people].sort((a,b)=>(b.x+b.y)-(a.x+a.y)).find(p=>{const f=foot(p);return Math.abs(w.x-f.x)<9&&w.y>f.y-18&&w.y<f.y+4});
+  if(hit)return goTalk(hit);
+  const b=[...BUILDINGS].sort((a,c)=>(c.x1+c.y1)-(a.x1+a.y1)).find(b=>{
+    const x0=b.x0,y0=b.y0,x1=b.x1+1,y1=b.y1+1;
+    return inPoly(w,[iso(x0,y1),iso(x1,y1),iso(x1,y0),up(iso(x1,y0),b.h),up(iso(x0,y0),b.h),up(iso(x0,y1),b.h)]);
+  });
+  if(b)return goTalk(byId(b.npc));
+  const t=toTile(w.x,w.y);
+  if(!walkable(t.x,t.y))return;
+  player.goal=null;
+  const p=bfs(Math.round(player.x),Math.round(player.y),(x,y)=>x===t.x&&y===t.y);
+  if(p){player.path=p;tapMark={x:t.x,y:t.y,t:0}}
+});
+function goTalk(n){
+  if(n.student){n.frozen=true;n.path=n.path.slice(0,1)}
+  const nx=n.path.length?n.path[0].x:Math.round(n.x),ny=n.path.length?n.path[0].y:Math.round(n.y);
+  if(near(n)&&!player.path.length)return talk(n);
+  const p=bfs(Math.round(player.x),Math.round(player.y),(x,y)=>Math.max(Math.abs(x-nx),Math.abs(y-ny))<=1&&!(x===nx&&y===ny));
+  if(!p){toast('No encuentro cómo llegar ahí.');return}
+  player.path=p;player.goal=n;
+  if(!p.length)talk(n);
+}
+function unfreeze(){students.forEach(s=>s.frozen=false)}
+
+/* ===== DIALOGUE ===== */
+const $=id=>document.getElementById(id);
+const reduce=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+let dlg=null,talkingTo=null,typer=null;
+function speaker(sp){
+  $('dialog').hidden=false;
+  $('dPortrait').textContent=sp.emoji;
+  $('dPortrait').style.background=sp.color?shade(sp.color,1.8):'var(--ubp-soft)';
+  $('dName').textContent=sp.name;$('dRole').textContent=sp.role?'· '+sp.role:'';
+  $('dChoices').replaceChildren();$('dInput').hidden=true;$('dNext').hidden=true;
+}
+function typeText(text,done){
+  clearInterval(typer);
+  const el=$('dText');
+  if(reduce){el.textContent=text;typer=null;done();return}
+  let i=0;el.textContent='';
+  typer=setInterval(()=>{i+=2;el.textContent=text.slice(0,i);if(i>=text.length){clearInterval(typer);typer=null;done()}},22);
+  dlg.finish=()=>{clearInterval(typer);typer=null;el.textContent=text;done()};
+}
+function say(sp,text){
+  return new Promise(res=>{
+    speaker(sp);dlg={mode:'say',res};
+    typeText(text,()=>{$('dNext').hidden=false});
+  });
+}
+function advance(){
+  if(!dlg)return;
+  if(typer){dlg.finish();return}
+  if(dlg.mode==='say'){const r=dlg.res;dlg=null;r()}
+}
+$('dialog').addEventListener('click',e=>{if(!e.target.closest('button,input,form'))advance()});
+function choice(sp,text,options){
+  return new Promise(res=>{
+    speaker(sp);dlg={mode:'choice',res};
+    typeText(text,()=>{
+      $('dChoices').replaceChildren(...options.map((o,i)=>{
+        const b=document.createElement('button');b.type='button';
+        const n=document.createElement('b');n.textContent=(i+1)+'.';
+        b.append(n,o);
+        b.addEventListener('click',()=>{dlg=null;res(i)});
+        return b;
+      }));
+      $('dChoices').firstChild.focus({preventScroll:true});
+    });
+  });
+}
+function ask(sp,text,placeholder){
+  return new Promise(res=>{
+    speaker(sp);dlg={mode:'ask',res};
+    typeText(text,()=>{
+      $('dInput').hidden=false;$('dField').value='';$('dField').placeholder=placeholder;$('dField').focus({preventScroll:true});
+    });
+    $('dInput').onsubmit=e=>{e.preventDefault();dlg=null;res($('dField').value.trim())};
+  });
+}
+function closeDialog(){$('dialog').hidden=true;dlg=null;clearInterval(typer);typer=null}
+
+/* ===== HUD ===== */
+let toastTimer;
+function toast(text){const t=$('toast');t.textContent=text;t.hidden=false;clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.hidden=true,2600)}
+function updateHud(){
+  if(!S)return;
+  const st=STEPS[S.step].stage;
+  $('chips').replaceChildren(...STAGES.map((s,i)=>{
+    const li=document.createElement('li');
+    li.className='chip'+(i<S.badges?' done':i===st?' now':'');
+    li.textContent=i<S.badges?'✅':s.emoji;
+    li.title=s.name+(i<S.badges?' · insignia '+s.badge:i===st?' · etapa actual':'');
+    li.setAttribute('aria-label',li.title);
+    return li;
+  }));
+  $('objective').textContent=STEPS[S.step].obj();
+}
+function setStep(step){S.step=step;updateHud();save()}
+function badge(n){
+  S.badges=n;updateHud();
+  const s=STAGES[n-1];
+  $('btIcon').textContent=s.emoji;$('btTitle').textContent='🏅 Insignia '+s.badge;$('btText').textContent='Etapa '+n+' de 4 completa';
+  const b=$('badgeToast');b.hidden=false;b.style.animation='none';void b.offsetWidth;b.style.animation='';
+  setTimeout(()=>b.hidden=true,2400);
+}
+
+/* ===== STORY ===== */
+async function talk(n){
+  if(talkingTo||!S)return;
+  talkingTo=n;player.path=[];player.goal=null;keys.clear();
+  const dx=n.x-player.x,dy=n.y-player.y;if(dx-dy)player.face=dx-dy>0?1:-1;
+  try{await (n.student?studentScene(n):SCENES[n.id](n))}
+  finally{closeDialog();talkingTo=null;unfreeze();save();updateHud()}
+}
+const phone={name:'Puente PreLab',role:'Mensaje',emoji:'📱',color:'#3a3a3a'};
+async function checkin(week){
+  const c=await choice(phone,'📅 Semana '+week+': ¿“'+S.idea+'” sigue en marcha?',['¡Sí, sigo con todo!','Voy lento, pero sigo']);
+  await say(phone,c?'Está perfecto ir a tu ritmo. Lo importante es no frenar del todo.':'¡Genial! Te volvemos a escribir en unas semanas.');
+}
+const objective=()=>'Tu próximo paso: '+STEPS[S.step].obj().replace(/ · \d\/3/,'')+'.';
+const SCENES={
+  async profe(n){
+    if(S.step==='intro'){
+      await say(n,'¡'+S.name+'! Terminó la cursada y tu proyecto quedó muy bien.');
+      await say(n,'Muchos guardan el TP en un cajón y ahí queda. Pero tu idea no tiene por qué terminar.');
+      await say(n,'Andá al Puente PreLab, acá al lado. Ahí te orientan sobre el próximo paso.');
+      setStep('prelab');
+    }else if(S.step==='deliver'&&S.dest==='inv'){
+      await say(n,'¡Qué bueno verte de nuevo! Recibí tu carta.');
+      await say(n,'Se la paso hoy a Investigación y Extensión. Con esta evidencia, seguro les interesa.');
+      finish();
+    }else await say(n,'¿Cómo va tu idea? '+objective());
+  },
+  async coord(n){
+    if(S.step==='prelab'){
+      await say(n,'¡Hola, '+S.name+'! Este es el Puente PreLab: conectamos tu idea con la gente indicada de la UBP.');
+      S.idea=(await ask(n,'¿Cómo se llama tu idea?','Ej.: App para compartir viajes'))||'Mi idea';
+      await say(n,'“'+S.idea+'”, ¡me encanta! Trabajamos en 4 etapas: idea inicial, idea desarrollada, prototipo y continuidad.');
+      await say(n,'Primera misión: confirmá que el problema existe. Hablá con 3 estudiantes en la plaza. Escuchá, no vendas.');
+      S.talked=[];setStep('talk1');
+    }else if(S.step==='report1'){
+      await say(n,'¿Y? ¿Qué te dijeron?');
+      await say(n,'Esto aprendiste:\n• '+S.insights.join('\n• '));
+      await say(n,'¡Eso es validar! Ahora sabés que el problema es real.');
+      badge(1);
+      await say(n,'Tu idea pasó a la etapa 2. Te asignamos a Vale, tu mentora: está en la Biblioteca.');
+      await say(n,'Son solo 3 encuentros de 30 minutos en 6 semanas. Compatible con la cursada.');
+      await checkin(3);
+      setStep('mentor');
+    }else if(S.step==='decide'){
+      await say(n,'¡Mirá todo lo que avanzaste con “'+S.idea+'”!');
+      const keys=Object.keys(DEST);
+      S.dest=keys[await choice(n,'Último paso: ¿a dónde querés llevarla?',keys.map(k=>DEST[k].label))];
+      S.goal=GOALS[await choice(n,'¿Y tu objetivo para los próximos 60 días?',GOALS)];
+      badge(4);
+      await say(n,'Con todo lo que hiciste te armé una carta de presentación. Llevala a '+DEST[S.dest].place+'.');
+      setStep('deliver');
+    }else if(S.step==='intro')await say(n,'¡Hola! Pasá primero por el Aula: la profe te está buscando.');
+    else await say(n,objective());
+  },
+  async mentor(n){
+    if(S.step==='mentor'){
+      await say(n,'¡Hola, '+S.name+'! Soy Vale, tu mentora. Contame de “'+S.idea+'”.');
+      await say(n,'Lo más útil que podemos hacer: encontrar las dudas que, si salen mal, hacen caer el proyecto.');
+      const a=await choice(n,'¿Cuál es la duda que más te frena?',DOUBTS.map(d=>d[0]));
+      await say(n,DOUBTS[a][1]);
+      const rest=DOUBTS.filter((_,i)=>i!==a);
+      const b=await choice(n,'¿Y la segunda?',rest.map(d=>d[0]));
+      await say(n,rest[b][1]);
+      S.doubts=[DOUBTS[a][0],rest[b][0]];
+      await say(n,'Esas dos son tus hipótesis. Para responderlas no hay que pensar más: hay que probar.');
+      badge(2);
+      await say(n,'Pasá por el Taller. Nico te ayuda a armar un prototipo simple, sin gastar de más.');
+      setStep('lab');
+    }else if(S.step==='report3'){
+      await say(n,'¡Volviste! ¿Cómo te fue con las pruebas?');
+      await say(n,'Esto pasó:\n• '+S.reactions.join('\n• '));
+      await say(n,'Eso es evidencia real, mucho mejor que cualquier suposición. Ajustá lo que no funcionó y seguí.');
+      badge(3);
+      await checkin(6);
+      await say(n,'Antes del gran paso, pasá por Vinculación Tecnológica. Te van a aclarar algo importante.');
+      setStep('vinc');
+    }else if(S.badges<1)await say(n,'Hola, soy Vale, mentora del Puente PreLab. Cuando tu idea llegue a la etapa 2, te espero acá.');
+    else await say(n,objective());
+  },
+  async tec(n){
+    if(S.step==='lab'){
+      await say(n,'¡Hola! Este es el Taller. Acá se prueban ideas sin gastar de más.');
+      const p=await choice(n,'No hace falta construir todo. ¿Qué armamos primero?',PROTOS.map(p=>p[0]));
+      S.proto=PROTOS[p][1];
+      await say(n,'¡Buena elección! En una tarde lo tenés.');
+      await say(n,'Ahora probalo con 3 personas en la plaza. Mirá qué hacen y no expliques: si hay que explicar, es una pista.');
+      S.talked=[];setStep('test');
+    }else if(S.badges<2)await say(n,'El Taller está abierto para prototipar. ¡Volvé cuando tengas tus hipótesis!');
+    else await say(n,objective());
+  },
+  async asesora(n){
+    if(S.step==='vinc'){
+      await say(n,'¡Hola, '+S.name+'! Soy Paula, de Vinculación Tecnológica.');
+      await choice(n,'Muchos estudiantes llegan con una duda que no se animan a preguntar…',['¿La idea es mía, del equipo o de la UBP?','¿Puedo contarla sin que me la copien?']);
+      await say(n,'Buena pregunta. La idea es tuya y de tu equipo. Si hubo aportes de docentes o empresas, lo dejamos por escrito antes de avanzar.');
+      await say(n,'Y antes de mostrarla en público, te ayudamos a cuidar lo sensible. Para eso estamos.');
+      await say(n,'También te conectamos con convocatorias, financiamiento y empresas. Ahora volvé al Puente PreLab para elegir tu destino.');
+      setStep('decide');
+    }else if(S.step==='deliver'&&S.dest==='vinc'){
+      await say(n,'¡Llegó tu carta! Con esta evidencia ya podemos buscarte una convocatoria o una empresa aliada.');
+      finish();
+    }else await say(n,'Acá ayudamos con propiedad intelectual, convocatorias y vínculos con empresas.');
+  },
+  async doing(n){
+    if(S.step==='deliver'&&S.dest==='doing'){
+      await say(n,'¡Hola! Nos llegó tu carta desde el Puente PreLab.');
+      await say(n,'Con problema validado, prototipo probado y un objetivo claro, ya podemos hablar en serio. ¡Coordinemos una reunión!');
+      finish();
+    }else{
+      await say(n,'¡Hola! Somos doingLABS, la incubadora de la UBP. Trabajamos con proyectos más avanzados.');
+      await say(n,'Primero recorré el Puente PreLab. Cuando tu idea esté lista, te esperamos.');
+    }
+  }
+};
+async function studentScene(st){
+  const round=S.step==='talk1'?INSIGHTS:S.step==='test'?REACTIONS:null;
+  if(round&&!S.talked.includes(st.i)){
+    if(S.step==='test')await say(st,'(Le mostrás '+S.proto+' sin explicar nada…)');
+    else await say(st,'¿Un problema con “'+S.idea+'”? A ver, contame…');
+    await say(st,round[st.i][0]);
+    S.talked.push(st.i);
+    (S.step==='talk1'?S.insights:S.reactions).push(round[st.i][1]);
+    toast('📝 Anotado · '+S.talked.length+'/3');
+    if(S.talked.length>=3)setStep(S.step==='talk1'?'report1':'report3');
+    else updateHud();
+  }else if(round)await say(st,'Ya te conté lo que pienso. ¡Suerte con tu idea!');
+  else await say(st,CHATTER[st.i]);
+}
+
+/* ===== ENDING ===== */
+function buildLetter(){
+  const d=DEST[S.dest]||DEST.doing;
+  return ['Hola, equipo de '+d.name+':',
+    'Les presentamos “'+S.idea+'”, un proyecto de '+S.name+'.',
+    'Hablamos con estudiantes y aprendimos que '+S.insights.join('; ')+'.',
+    'Nuestras dudas principales: '+S.doubts.join(' y '),
+    'Armamos '+S.proto+' y lo probamos con 3 personas: '+S.reactions.join('; ')+'.',
+    'Objetivo para los próximos 60 días: '+S.goal.charAt(0).toLowerCase()+S.goal.slice(1)+'.',
+    'Buscamos orientación para dar el próximo paso.',
+    '— '+S.name+', vía Puente PreLab UBP'].join('\n\n');
+}
+function finish(){
+  setStep('end');
+  closeDialog();
+  showEnd();
+}
+function showEnd(){
+  $('endText').textContent='En 6 semanas, “'+S.idea+'” pasó de ser un TP a tener problema validado, prototipo probado y un lugar a dónde ir: '+(DEST[S.dest]||DEST.doing).name+'.';
+  $('letter').textContent=buildLetter();
+  $('endScreen').hidden=false;
+}
+$('copyBtn').addEventListener('click',()=>{
+  const text=buildLetter();
+  const ok=()=>{$('copyBtn').textContent='✓ Copiada'};
+  try{navigator.clipboard.writeText(text).then(ok,()=>{$('copyBtn').textContent='Seleccioná el texto para copiar'})}
+  catch(e){$('copyBtn').textContent='Seleccioná el texto para copiar'}
+});
+$('againBtn').addEventListener('click',()=>{$('endScreen').hidden=true;$('copyBtn').textContent='📋 Copiar carta';openTitle()});
+
+/* ===== TITLE ===== */
+let pickedColor=COLORS[0];
+$('swatches').replaceChildren(...COLORS.map((c,i)=>{
+  const b=document.createElement('button');b.type='button';b.className='swatch';b.style.background=c;
+  b.setAttribute('aria-label','Color '+(i+1));b.setAttribute('aria-pressed',String(i===0));
+  b.addEventListener('click',()=>{pickedColor=c;document.querySelectorAll('.swatch').forEach(s=>s.setAttribute('aria-pressed',String(s===b)))});
+  return b;
+}));
+function openTitle(){
+  const saved=load();
+  $('continueBtn').hidden=!(saved&&saved.v===1&&saved.step!=='end');
+  if(saved&&saved.name)$('playerName').value=saved.name;
+  $('titleScreen').hidden=false;
+}
+function begin(state){
+  S=state;
+  Object.assign(player,{x:S.x,y:S.y,path:[],goal:null,color:S.color});
+  const f=foot(player);cam.x=f.x;cam.y=f.y;
+  $('titleScreen').hidden=true;
+  updateHud();save();
+  if(S.step==='end')showEnd();
+  else if(S.step==='intro')toast('Tocá a la profe (o usá las flechas) para empezar');
+}
+$('titleForm').addEventListener('submit',e=>{e.preventDefault();begin(fresh($('playerName').value.trim()||'Estudiante',pickedColor))});
+$('continueBtn').addEventListener('click',()=>{const s=load();if(s)begin(s)});
+document.addEventListener('visibilitychange',()=>{if(document.hidden)save()});
+
+resize();
+{const f=foot(player);cam.x=f.x;cam.y=f.y}
+openTitle();
+requestAnimationFrame(loop);
+</script>
+</body>
+</html>
