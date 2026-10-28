@@ -179,9 +179,9 @@ canvas{display:block;width:100%;height:100%;touch-action:none;cursor:pointer}
 
 <script>
 /* ===== CONFIG ===== */
-const TW=32,TH=16,W=16,H=16;           // tile size in art pixels
+const TW=32,TH=16,W=24,H=20;           // tile size in art pixels; x runs west→east, y north→south
 const COLORS=['#A3223A','#2f6fed','#2f8f5b','#6b4bd6','#ef7d00'];
-const START={x:4,y:5};
+const START={x:9,y:13};
 const OUTLINE='#1d1b1f';
 const STAGES=[
   {emoji:'💭',name:'Idea inicial',badge:'Explorador'},
@@ -189,33 +189,46 @@ const STAGES=[
   {emoji:'🛠️',name:'Prototipo',badge:'Prototipista'},
   {emoji:'🚀',name:'Quiero continuar',badge:'Lanzador'}
 ];
+/* Layout based on the UBP campus map (mapa.png): Jorge Descotte to the north,
+   Av. Donato Álvarez to the west, the south road with the entrances, the
+   sports field in the north-east and the park with the pond in the middle. */
 const BUILDINGS=[
-  {id:'aula',name:'Aula',x0:1,y0:1,x1:3,y1:3,h:40,wall:'#f3ece2',roof:'#A3223A',npc:'profe'},
-  {id:'prelab',name:'Puente PreLab',x0:6,y0:1,x1:9,y1:3,h:36,wall:'#ffffff',roof:'#3a3a3a',npc:'coord',accent:'#D9FF43'},
-  {id:'biblio',name:'Biblioteca',x0:12,y0:1,x1:14,y1:3,h:48,wall:'#ece6f7',roof:'#6b4bd6',npc:'mentor'},
-  {id:'taller',name:'Taller',x0:1,y0:6,x1:3,y1:8,h:32,wall:'#e4eef9',roof:'#2f6fed',npc:'tec'},
-  {id:'vinc',name:'Vinculación',x0:12,y0:6,x1:14,y1:8,h:38,wall:'#e7f4ea',roof:'#2f8f5b',npc:'asesora'},
-  {id:'doing',name:'doingLABS',x0:1,y0:11,x1:3,y1:14,h:50,wall:'#fff3e2',roof:'#ef7d00',npc:'doing'}
+  {id:'doing',name:'doingLABS',x0:4,y0:3,x1:6,y1:4,h:34,wall:'#f4e6c8',roof:'#e3a83a',npc:'doing'},
+  {id:'amarillo',x0:3,y0:6,x1:6,y1:7,h:30,wall:'#f0dfbf',roof:'#d99a2b'},
+  {id:'verde',x0:4,y0:9,x1:8,y1:9,h:24,wall:'#efe8dc',roof:'#2f7a3e'},
+  {id:'torre',x0:8,y0:10,x1:9,y1:11,h:56,wall:'#f4e4d2',roof:'#cdb08e'},
+  {id:'aula',name:'Aula',x0:3,y0:10,x1:7,y1:13,h:44,wall:'#f2d2bc',roof:'#b9532f',npc:'profe'},
+  {id:'prelab',name:'Puente PreLab',x0:10,y0:10,x1:13,y1:12,h:34,wall:'#f7e4d8',roof:'#e2775a',npc:'coord',accent:'#D9FF43'},
+  {id:'biblio',name:'Biblioteca',x0:10,y0:6,x1:16,y1:7,h:42,wall:'#e6e2f0',roof:'#6f5a9e',npc:'mentor'},
+  {id:'vinc',name:'Vinculación',x0:17,y0:6,x1:19,y1:7,h:36,wall:'#ffffff',roof:'#a3223a',npc:'asesora'},
+  {id:'taller',name:'Taller',x0:20,y0:9,x1:21,y1:13,h:38,wall:'#dfe3ea',roof:'#7d7f86',npc:'tec'},
+  {id:'cochera1',x0:4,y0:16,x1:7,y1:16,h:12,roof:'#454952',carport:true},
+  {id:'cochera2',x0:9,y0:16,x1:12,y1:16,h:12,roof:'#454952',carport:true}
 ];
-const TREES=[[0,2],[4,1],[10,1],[11,3],[15,2],[15,7],[0,10],[8,14],[10,14],[13,12],[15,13],[7,15],[14,14],[0,15]];
-const BENCHES=[[6,11],[10,11]];
-const FOUNTAIN=[8,8];
-const PLAZA={x0:6,y0:6,x1:10,y1:11};
+const TREES=[[7,3],[10,3],[11,2],[20,6],[21,7],[15,15],[17,16],[19,16],[21,16],[16,17],[18,17],[20,17],[3,17],[5,17],[7,17],[9,17],[11,17],[13,17]];
+const CYPRESSES=[[2,2],[3,2],[2,3],[2,16],[2,17],[9,4],[12,4]];
+const BIG_TREE=[16,10];
+const BENCHES=[[15,13],[18,9]];
+const POND=[[17,13],[18,13]];
+const PARK={x0:15,y0:9,x1:18,y1:13};
+const FIELD={x0:13,y0:2,x1:21,y1:4};
+const ROAD_LABELS=[{name:'Jorge Descotte',x:10,y:1},{name:'Av. Donato Álvarez',x:1,y:11}];
+const ENTRANCES=[{n:'1',x:14,y:18},{n:'2',x:0,y:8},{n:'3',x:1,y:18}];
 
 const NPC_DEFS=[
-  {id:'profe',name:'Profe Lucía',role:'Docente',emoji:'👩‍🏫',x:2,y:4,color:'#6b4bd6',hair:'#3b2a20',skin:'#f1c7a5',long:true},
-  {id:'coord',name:'Martín',role:'Puente PreLab',emoji:'🌉',x:7,y:4,color:'#3a3a3a',hair:'#1c1c1c',skin:'#c98e66'},
-  {id:'mentor',name:'Vale',role:'Mentora',emoji:'📚',x:13,y:4,color:'#2f8f5b',hair:'#7a3b1c',skin:'#f3d0b0',long:true},
-  {id:'tec',name:'Nico',role:'Taller',emoji:'🛠️',x:4,y:7,color:'#2f6fed',hair:'#e0b04a',skin:'#e8b892'},
-  {id:'asesora',name:'Paula',role:'Vinculación Tecnológica',emoji:'🔌',x:13,y:9,color:'#A3223A',hair:'#2b1b12',skin:'#a9714f',long:true},
-  {id:'doing',name:'Equipo doingLABS',role:'Incubadora',emoji:'🚀',x:4,y:12,color:'#ef7d00',hair:'#333333',skin:'#d9a27c'}
+  {id:'profe',name:'Profe Lucía',role:'Docente',emoji:'👩‍🏫',x:8,y:12,color:'#6b4bd6',hair:'#3b2a20',skin:'#f1c7a5',long:true},
+  {id:'coord',name:'Martín',role:'Puente PreLab',emoji:'🌉',x:14,y:11,color:'#3a3a3a',hair:'#1c1c1c',skin:'#c98e66'},
+  {id:'mentor',name:'Vale',role:'Mentora',emoji:'📚',x:13,y:8,color:'#2f8f5b',hair:'#7a3b1c',skin:'#f3d0b0',long:true},
+  {id:'tec',name:'Nico',role:'Taller',emoji:'🛠️',x:20,y:14,color:'#2f6fed',hair:'#e0b04a',skin:'#e8b892'},
+  {id:'asesora',name:'Paula',role:'Vinculación Tecnológica',emoji:'🔌',x:18,y:8,color:'#A3223A',hair:'#2b1b12',skin:'#a9714f',long:true},
+  {id:'doing',name:'Equipo doingLABS',role:'Incubadora',emoji:'🚀',x:5,y:5,color:'#ef7d00',hair:'#333333',skin:'#d9a27c'}
 ];
 const STUDENT_DEFS=[
-  {name:'Juli',color:'#e05a7a',hair:'#2b1b12',skin:'#f1c7a5',x:7,y:7,long:true},
-  {name:'Tomi',color:'#3aa0c8',hair:'#111111',skin:'#c98e66',x:9,y:7},
-  {name:'Cami',color:'#9b59d0',hair:'#a0522d',skin:'#f3d0b0',x:7,y:10,long:true},
-  {name:'Fran',color:'#d4a017',hair:'#3b2a20',skin:'#a9714f',x:9,y:10},
-  {name:'Sol',color:'#27ae60',hair:'#e0b04a',skin:'#e8b892',x:10,y:8}
+  {name:'Juli',color:'#e05a7a',hair:'#2b1b12',skin:'#f1c7a5',x:15,y:9,long:true},
+  {name:'Tomi',color:'#3aa0c8',hair:'#111111',skin:'#c98e66',x:17,y:9},
+  {name:'Cami',color:'#9b59d0',hair:'#a0522d',skin:'#f3d0b0',x:17,y:11,long:true},
+  {name:'Fran',color:'#d4a017',hair:'#3b2a20',skin:'#a9714f',x:15,y:12},
+  {name:'Sol',color:'#27ae60',hair:'#e0b04a',skin:'#e8b892',x:18,y:12}
 ];
 
 /* Story content */
@@ -256,11 +269,11 @@ const DEST={
 const STEPS={
   intro:{stage:-1,obj:()=>'Hablá con la profe en el Aula 🏫',target:()=>['profe']},
   prelab:{stage:-1,obj:()=>'Andá al Puente PreLab 🌉',target:()=>['coord']},
-  talk1:{stage:0,obj:()=>'Hablá con estudiantes en la plaza · '+S.talked.length+'/3',target:()=>'students'},
+  talk1:{stage:0,obj:()=>'Hablá con estudiantes en el parque · '+S.talked.length+'/3',target:()=>'students'},
   report1:{stage:0,obj:()=>'Contale a PreLab lo que aprendiste 🌉',target:()=>['coord']},
   mentor:{stage:1,obj:()=>'Encontrá a tu mentora en la Biblioteca 📚',target:()=>['mentor']},
   lab:{stage:2,obj:()=>'Armá un prototipo en el Taller 🛠️',target:()=>['tec']},
-  test:{stage:2,obj:()=>'Probá tu prototipo en la plaza · '+S.talked.length+'/3',target:()=>'students'},
+  test:{stage:2,obj:()=>'Probá tu prototipo en el parque · '+S.talked.length+'/3',target:()=>'students'},
   report3:{stage:2,obj:()=>'Contale a tu mentora cómo te fue 📚',target:()=>['mentor']},
   vinc:{stage:3,obj:()=>'Consultá en Vinculación Tecnológica 🔌',target:()=>['asesora']},
   decide:{stage:3,obj:()=>'Volvé al Puente PreLab 🌉',target:()=>['coord']},
@@ -270,7 +283,7 @@ const STEPS={
 
 /* ===== STATE / SAVE ===== */
 const STORE='prelabIsoGame';
-function fresh(name,color){return {v:1,name,color,idea:'',step:'intro',badges:0,talked:[],insights:[],doubts:[],proto:'',reactions:[],dest:'',goal:'',x:START.x,y:START.y}}
+function fresh(name,color){return {v:2,name,color,idea:'',step:'intro',badges:0,talked:[],insights:[],doubts:[],proto:'',reactions:[],dest:'',goal:'',x:START.x,y:START.y}}
 function load(){try{return JSON.parse(localStorage.getItem(STORE)||'null')}catch(e){return null}}
 function save(){if(!S)return;S.x=Math.round(player.x);S.y=Math.round(player.y);try{localStorage.setItem(STORE,JSON.stringify(S))}catch(e){}}
 let S=null;
@@ -285,10 +298,13 @@ const lerpP=(a,b,t)=>({x:a.x+(b.x-a.x)*t,y:a.y+(b.y-a.y)*t});
 /* ===== MAP ===== */
 const blocked=[...Array(H)].map(()=>Array(W).fill(false));
 BUILDINGS.forEach(b=>{for(let y=b.y0;y<=b.y1;y++)for(let x=b.x0;x<=b.x1;x++)blocked[y][x]=true});
-[...TREES,...BENCHES,FOUNTAIN].forEach(([x,y])=>blocked[y][x]=true);
+[...TREES,...CYPRESSES,BIG_TREE,...BENCHES,...POND].forEach(([x,y])=>blocked[y][x]=true);
 NPC_DEFS.forEach(n=>blocked[n.y][n.x]=true);
-const inPlaza=(x,y)=>x>=PLAZA.x0&&x<=PLAZA.x1&&y>=PLAZA.y0&&y<=PLAZA.y1;
-const isPath=(x,y)=>y===5||x===5||(x===11&&y>=5)||(y===10&&x>=11);
+const inRect=(r,x,y)=>x>=r.x0&&x<=r.x1&&y>=r.y0&&y<=r.y1;
+const isOutside=(x,y)=>x===0||y===0||x===W-1||y===H-1;
+const isRoad=(x,y)=>!isOutside(x,y)&&(x===1||y===1||x===W-2||y===H-2);
+const isParking=(x,y)=>y===15&&x>=3&&x<=13;
+const isPath=(x,y)=>((y===5||y===8||y===14)&&x>=2&&x<=21)||(x===14&&y>=8&&y<=17)||(x===8&&y>=5&&y<=8)||(x===2&&y>=5&&y<=14);
 const walkable=(x,y)=>x>=0&&y>=0&&x<W&&y<H&&!blocked[y][x];
 const DIRS=[[1,0],[-1,0],[0,1],[0,-1],[1,1],[1,-1],[-1,1],[-1,-1]];
 function canStep(x,y,dx,dy){
@@ -335,7 +351,7 @@ function wander(st,dt){
   st.timer-=dt;
   if(st.timer>0)return;
   st.timer=2+Math.random()*4;
-  const tx=PLAZA.x0+Math.floor(Math.random()*(PLAZA.x1-PLAZA.x0+1)),ty=PLAZA.y0+Math.floor(Math.random()*(PLAZA.y1-PLAZA.y0+1));
+  const tx=PARK.x0+Math.floor(Math.random()*(PARK.x1-PARK.x0+1)),ty=PARK.y0+Math.floor(Math.random()*(PARK.y1-PARK.y0+1));
   if(!walkable(tx,ty))return;
   st.path=bfs(Math.round(st.x),Math.round(st.y),(x,y)=>x===tx&&y===ty)||[];
 }
@@ -401,19 +417,33 @@ function personSprite(e,frame){
   spriteCache.set(key,c);
   return c;
 }
-const treeSprite=(()=>{
-  const c=makeCanvas(17,24),g=c.getContext('2d');
-  g.fillStyle='#3a2414';g.fillRect(6,14,5,10);
-  g.fillStyle='#6b4226';g.fillRect(7,14,3,9);
-  for(let y=0;y<17;y++)for(let x=0;x<17;x++){
-    const dx=x-8,dy=y-8,d=Math.hypot(dx,dy);
-    if(d>8.2)continue;
-    g.fillStyle=d>7.2?'#1f4a2a':dx+dy<-5?'#7cc96f':dx+dy>4?'#2f7a3e':(x*7+y*3)%11===0?'#5db55c':'#46a04f';
+// Round tree: canopy of radius r over a trunk; the sprite's bottom centre is the tree's foot.
+function makeTree(r,trunk){
+  const s=r*2+1,c=makeCanvas(s,s+trunk-4),g=c.getContext('2d');
+  g.fillStyle='#3a2414';g.fillRect(r-2,s-6,5,trunk+2);
+  g.fillStyle='#6b4226';g.fillRect(r-1,s-6,3,trunk+1);
+  for(let y=0;y<s;y++)for(let x=0;x<s;x++){
+    const dx=x-r,dy=y-r,d=Math.hypot(dx,dy);
+    if(d>r+.2)continue;
+    g.fillStyle=d>r-.8?'#1f4a2a':dx+dy<-r*.6?'#7cc96f':dx+dy>r*.5?'#2f7a3e':(x*7+y*3)%11===0?'#5db55c':'#46a04f';
+    g.fillRect(x,y,1,1);
+  }
+  return c;
+}
+const treeSprite=makeTree(8,10),bigTreeSprite=makeTree(13,12);
+const cypressSprite=(()=>{
+  const c=makeCanvas(9,27),g=c.getContext('2d');
+  g.fillStyle='#3a2414';g.fillRect(3,22,3,5);
+  for(let y=0;y<23;y++)for(let x=0;x<9;x++){
+    const dx=(x-4)/4.4,dy=(y-12)/11.5,d=Math.hypot(dx,dy);
+    if(d>1)continue;
+    g.fillStyle=d>.86?'#163a20':dx<-.25&&dy<.2?'#4f9a50':dx>.3?'#21532c':'#2f6e3a';
     g.fillRect(x,y,1,1);
   }
   return c;
 })();
-const GLYPHS={'!':['1','1','1','1','0','1'],'?':['01110','10001','00010','00100','00000','00100']};
+const GLYPHS={'!':['1','1','1','1','0','1'],'?':['01110','10001','00010','00100','00000','00100'],
+  '1':['010','110','010','010','111'],'2':['111','001','111','100','111'],'3':['111','001','111','001','111']};
 function drawBubble(g,x,y,ch){
   const gl=GLYPHS[ch],w=gl[0].length+6,h=gl.length+6;
   g.fillStyle=OUTLINE;g.fillRect(x-(w>>1)-1,y-h-1,w+2,h+2);
@@ -425,18 +455,31 @@ function drawBubble(g,x,y,ch){
 }
 
 /* ===== STATIC LAYERS (ground and buildings are drawn once) ===== */
-const GROUND_OFF={x:W*TW/2,y:2};
+function pixelLine(g,a,b,color){
+  const n=Math.max(Math.abs(b.x-a.x),Math.abs(b.y-a.y));
+  g.fillStyle=color;
+  for(let i=0;i<=n;i++){const t=n?i/n:0;g.fillRect(Math.round(a.x+(b.x-a.x)*t),Math.round(a.y+(b.y-a.y)*t),1,1)}
+}
+function drawDisk(g,x,y,ch){
+  fillEllipse(g,x,y,6,6,OUTLINE);fillEllipse(g,x,y,5,5,'#ffffff');
+  g.fillStyle=OUTLINE;
+  GLYPHS[ch].forEach((row,ry)=>row.split('').forEach((v,rx)=>{if(v==='1')g.fillRect(x-1+rx,y-2+ry,1,1)}));
+}
+const GROUND_OFF={x:H*TW/2+1,y:2};
 const ground=(()=>{
-  const c=makeCanvas(W*TW+2,(W+H)*TH/2+12),g=c.getContext('2d');
+  const c=makeCanvas((W+H)*TW/2+2,(W+H)*TH/2+14),g=c.getContext('2d');
   const o=p=>({x:p.x+GROUND_OFF.x,y:p.y+GROUND_OFF.y});
   let seed=7;const rnd=()=>(seed=(seed*16807)%2147483647)/2147483647;
   const s=8;
   fillPoly(g,[o(iso(0,H)),o(iso(W,H)),o(up(iso(W,H),-s)),o(up(iso(0,H),-s))],'#7a5a3c');
   fillPoly(g,[o(iso(W,H)),o(iso(W,0)),o(up(iso(W,0),-s)),o(up(iso(W,H),-s))],'#946c48');
   for(let y=0;y<H;y++)for(let x=0;x<W;x++){
-    let c1=(x+y)%2?'#8fcf6e':'#86c766',spots=['#6fb257','#a6dd85'];
-    if(inPlaza(x,y)){c1=(x+y)%2?'#e8e4d8':'#d9d4c5';spots=['#c9c3b2']}
-    else if(isPath(x,y)){c1='#e6d3a8';spots=['#cdb886','#f2e4c2']}
+    let c1=(x+y)%2?'#8fcf6e':'#86c766',spots=['#6fb257','#a6dd85'],flowers=true;
+    if(isOutside(x,y)){c1=(x+y)%2?'#7bbd60':'#74b459';spots=['#5f9e48']}
+    else if(isRoad(x,y)){c1=(x+y)%2?'#8e9096':'#898b91';spots=['#7d7f85','#a3a5aa'];flowers=false}
+    else if(inRect(FIELD,x,y)){c1=x%2?'#46a24a':'#3f9a45';spots=['#3a8f40'];flowers=false}
+    else if(isParking(x,y)){c1='#cdb88f';spots=['#b59f74','#ddcaa3'];flowers=false}
+    else if(isPath(x,y)){c1='#d4d2ca';spots=['#bdbab0','#e4e2da'];flowers=false}
     const d=[o(iso(x,y)),o(iso(x+1,y)),o(iso(x+1,y+1)),o(iso(x,y+1))];
     fillPoly(g,d,c1);
     const cc=o(iso(x+.5,y+.5));
@@ -444,16 +487,44 @@ const ground=(()=>{
       const px=Math.round(cc.x+(rnd()-.5)*18),py=Math.round(cc.y+(rnd()-.5)*8);
       g.fillStyle=spots[Math.floor(rnd()*spots.length)];g.fillRect(px,py,1,1);
     }
-    if(!inPlaza(x,y)&&!isPath(x,y)&&rnd()<.12){g.fillStyle=rnd()<.5?'#fff6c8':'#ffd1dc';g.fillRect(Math.round(cc.x+(rnd()-.5)*12),Math.round(cc.y+(rnd()-.5)*5),1,1)}
+    if(flowers&&rnd()<.12){g.fillStyle=rnd()<.5?'#fff6c8':'#ffd1dc';g.fillRect(Math.round(cc.x+(rnd()-.5)*12),Math.round(cc.y+(rnd()-.5)*5),1,1)}
+    // dashed centre line on straight road stretches
+    if(isRoad(x,y)){
+      const alongX=(y===1||y===H-2)&&x!==1&&x!==W-2,alongY=(x===1||x===W-2)&&y!==1&&y!==H-2;
+      if(alongX||alongY)for(let k=-2;k<2;k++){g.fillStyle='#ece6c6';g.fillRect(Math.round(cc.x)+(alongX?2*k:-2*k),Math.round(cc.y)+k,2,1)}
+    }
+  }
+  // sports field lines
+  const F=FIELD,fl=[o(iso(F.x0+.3,F.y0+.3)),o(iso(F.x1+.7,F.y0+.3)),o(iso(F.x1+.7,F.y1+.7)),o(iso(F.x0+.3,F.y1+.7))];
+  fl.forEach((p,i)=>pixelLine(g,p,fl[(i+1)%4],'#f2f2ea'));
+  const mx=(F.x0+F.x1+1)/2;
+  pixelLine(g,o(iso(mx,F.y0+.3)),o(iso(mx,F.y1+.7)),'#f2f2ea');
+  {const m=o(iso(mx,(F.y0+F.y1+1)/2));fillEllipse(g,m.x,m.y,9,4,'#f2f2ea');fillEllipse(g,m.x,m.y,8,3,'#43a047')}
+  // roundabouts with the entrance numbers from the campus map
+  ENTRANCES.forEach(e=>{
+    const m=o(iso(e.x+.5,e.y+.5));
+    if(isRoad(e.x,e.y)){
+      fillEllipse(g,m.x,m.y,31,15,'#6f7177');fillEllipse(g,m.x,m.y,30,14,'#8c8e94');
+      fillEllipse(g,m.x,m.y,13,6,'#5f9e48');fillEllipse(g,m.x,m.y,12,5,'#86c766');
+    }
+    drawDisk(g,m.x,m.y-5,e.n);
+  });
+  // pond
+  {const m=o(iso(18,13.5));
+    fillEllipse(g,m.x,m.y,23,10,'#5f6b4a');fillEllipse(g,m.x,m.y,22,9,'#3f8fc4');
+    fillEllipse(g,m.x-3,m.y-1,16,6,'#4fa7d6');
+    g.fillStyle='#d6f0ff';g.fillRect(m.x-8,m.y-3,4,1);g.fillRect(m.x+5,m.y+1,3,1);
+    g.fillStyle='#2f7a3e';[[-20,-2],[-18,-3],[19,1],[17,3]].forEach(([dx,dy])=>g.fillRect(m.x+dx,m.y+dy-3,1,4));
   }
   return c;
 })();
 function buildingLayer(b){
   const x0=b.x0,y0=b.y0,x1=b.x1+1,y1=b.y1+1,h=b.h;
   const N=iso(x0,y0),E=iso(x1,y0),Sc=iso(x1,y1),Wc=iso(x0,y1);
-  const minx=Wc.x-2,maxx=E.x+2,miny=N.y-h-2,maxy=Sc.y+2;
+  const minx=Wc.x-2,maxx=E.x+2,miny=N.y-h-6,maxy=Sc.y+2;
   const c=makeCanvas(maxx-minx,maxy-miny),g=c.getContext('2d');
   g.translate(-minx,-miny);
+  if(b.carport){drawCarport(g,b,N,E,Sc,Wc);return {c,x:minx,y:miny}}
   const hull=[Wc,Sc,E,up(E,h),up(N,h),up(Wc,h)];
   outlinePoly(g,hull,OUTLINE);
   fillPoly(g,[Wc,Sc,up(Sc,h),up(Wc,h)],shade(b.wall,.82));
@@ -472,7 +543,7 @@ function buildingLayer(b){
   // corner highlight
   g.fillStyle=shade(b.wall,1.04);g.fillRect(Sc.x,Sc.y-h+3,1,h-3);
   // windows and door
-  const npc=NPC_DEFS.find(n=>n.id===b.npc);
+  const npc=NPC_DEFS.find(n=>n.id===b.npc)||{x:-9,y:-9};
   const faces=[{a:Wc,b:Sc,n:x1-x0,door:npc.y===b.y1+1?npc.x-x0:-1,glass:'#7fb8e0'},{a:Sc,b:E,n:y1-y0,door:npc.x===b.x1+1?b.y1-npc.y:-1,glass:'#9fd0f0'}];
   faces.forEach(f=>{
     for(let i=0;i<f.n;i++){
@@ -493,6 +564,18 @@ function buildingLayer(b){
     }
   });
   return {c,x:minx,y:miny};
+}
+// Covered parking: a thin roof on posts, open underneath.
+function drawCarport(g,b,N,E,Sc,Wc){
+  const h=b.h,t=3;
+  fillPoly(g,[N,E,Sc,Wc],'rgba(0,0,0,.18)');
+  const posts=[Wc,lerpP(Wc,Sc,.5),Sc,lerpP(Sc,E,.5),E];
+  posts.forEach(p=>{g.fillStyle=OUTLINE;g.fillRect(Math.round(p.x)-1,Math.round(p.y)-h,3,h);g.fillStyle='#8a8d95';g.fillRect(Math.round(p.x),Math.round(p.y)-h,1,h-1)});
+  outlinePoly(g,[up(Wc,h),up(Sc,h),up(E,h),up(E,h+t),up(N,h+t),up(Wc,h+t)],OUTLINE);
+  fillPoly(g,[up(Wc,h),up(Sc,h),up(Sc,h+t),up(Wc,h+t)],shade(b.roof,.8));
+  fillPoly(g,[up(Sc,h),up(E,h),up(E,h+t),up(Sc,h+t)],shade(b.roof,.95));
+  fillPoly(g,[up(N,h+t),up(E,h+t),up(Sc,h+t),up(Wc,h+t)],b.roof);
+  for(let i=1;i<6;i++)pixelLine(g,up(lerpP(N,E,i/6),h+t),up(lerpP(Wc,Sc,i/6),h+t),shade(b.roof,1.15));
 }
 const buildingLayers=new Map(BUILDINGS.map(b=>[b.id,buildingLayer(b)]));
 
@@ -522,18 +605,6 @@ function drawPerson(g,e){
   g.restore();
 }
 function diamond(g,cx,cy,rw,color){fillPoly(g,[{x:cx,y:cy-rw/2},{x:cx+rw,y:cy},{x:cx,y:cy+rw/2},{x:cx-rw,y:cy}],color)}
-function drawFountain(g){
-  const c=foot({x:FOUNTAIN[0],y:FOUNTAIN[1]});
-  fillEllipse(g,c.x,c.y+1,14,6,OUTLINE);
-  fillEllipse(g,c.x,c.y,13,5,'#a9a497');
-  fillEllipse(g,c.x,c.y-2,13,5,'#d6d1c3');
-  fillEllipse(g,c.x,c.y-2,10,3,'#4fa7d6');
-  g.fillStyle=OUTLINE;g.fillRect(c.x-2,c.y-13,4,11);
-  g.fillStyle='#d6d1c3';g.fillRect(c.x-1,c.y-12,2,10);
-  const t=Math.floor(time*6)%3;
-  g.fillStyle='#bfe9ff';g.fillRect(c.x-1-t,c.y-15+t,1,1);g.fillRect(c.x+1+t,c.y-15+t,1,1);g.fillRect(c.x,c.y-16,1,1);
-  g.fillStyle='#e8f8ff';g.fillRect(c.x-6+t*2,c.y-3,1,1);
-}
 function drawBench(g,x,y){
   const p=[iso(x+.15,y+.4),iso(x+.85,y+.4),iso(x+.85,y+.6),iso(x+.15,y+.6)];
   const top=p.map(q=>up(q,4));
@@ -570,12 +641,19 @@ function sceneItems(){
   const items=[];
   BUILDINGS.forEach(b=>{
     const L=buildingLayers.get(b.id);
-    items.push({x0:b.x0,y0:b.y0,x1:b.x1+1,y1:b.y1+1,sx0:L.x,sy0:L.y,sx1:L.x+L.c.width,sy1:L.y+L.c.height,draw:g=>g.drawImage(L.c,L.x,L.y)});
+    const x0=b.x0,y0=b.y0,x1=b.x1+1,y1=b.y1+1,h=b.h+(b.carport?3:0);
+    const hull=[iso(x0,y1),iso(x1,y1),iso(x1,y0),up(iso(x1,y0),h),up(iso(x0,y0),h),up(iso(x0,y1),h)];
+    items.push({key:b.id,covers:p=>inPoly(p,hull),x0,y0,x1,y1,sx0:L.x,sy0:L.y,sx1:L.x+L.c.width,sy1:L.y+L.c.height,draw:g=>g.drawImage(L.c,L.x,L.y)});
   });
-  TREES.forEach(([x,y])=>{const f=foot({x,y});items.push({x0:x+.2,y0:y+.2,x1:x+.8,y1:y+.8,sx0:f.x-9,sy0:f.y-23,sx1:f.x+9,sy1:f.y+2,draw:g=>{fillEllipse(g,f.x,f.y,7,2,'rgba(0,0,0,.22)');g.drawImage(treeSprite,f.x-8,f.y-23)}})});
+  const plant=(x,y,sp,shadow)=>{
+    const f=foot({x,y}),w=sp.width,h=sp.height,l=f.x-(w>>1),t=f.y-h+1;
+    items.push({key:'t'+x+','+y,covers:p=>p.x>=l&&p.x<l+w&&p.y>=t&&p.y<f.y-2,x0:x+.2,y0:y+.2,x1:x+.8,y1:y+.8,sx0:l,sy0:t,sx1:l+w,sy1:f.y+3,draw:g=>{fillEllipse(g,f.x,f.y,shadow,Math.max(1,shadow>>2),'rgba(0,0,0,.22)');g.drawImage(sp,l,t)}});
+  };
+  TREES.forEach(([x,y])=>plant(x,y,treeSprite,7));
+  CYPRESSES.forEach(([x,y])=>plant(x,y,cypressSprite,4));
+  plant(BIG_TREE[0],BIG_TREE[1],bigTreeSprite,12);
   BENCHES.forEach(([x,y])=>{const f=foot({x,y});items.push({x0:x+.15,y0:y+.4,x1:x+.85,y1:y+.6,sx0:f.x-12,sy0:f.y-10,sx1:f.x+12,sy1:f.y+6,draw:g=>drawBench(g,x,y)})});
-  {const [x,y]=FOUNTAIN,f=foot({x,y});items.push({x0:x,y0:y,x1:x+1,y1:y+1,sx0:f.x-15,sy0:f.y-17,sx1:f.x+15,sy1:f.y+8,draw:drawFountain})}
-  [...people,player].forEach(p=>{const f=foot(p);items.push({x0:p.x+.3,y0:p.y+.3,x1:p.x+.7,y1:p.y+.7,sx0:f.x-6,sy0:f.y-14,sx1:f.x+6,sy1:f.y+2,draw:g=>drawPerson(g,p)})});
+  [...people,player].forEach(p=>{const f=foot(p);items.push({isPlayer:p===player,x0:p.x+.3,y0:p.y+.3,x1:p.x+.7,y1:p.y+.7,sx0:f.x-6,sy0:f.y-14,sx1:f.x+6,sy1:f.y+2,draw:g=>drawPerson(g,p)})});
   return items;
 }
 
@@ -586,7 +664,8 @@ function targets(){
   return t.map(byId);
 }
 
-let time=0,tapMark=null;
+let time=0,tapMark=null,frameDt=1/60;
+const fade=new Map();
 function render(){
   offX=Math.round(bw/2-cam.x);offY=Math.round(bh*camFrac-cam.y);
   const g=bx;
@@ -599,7 +678,19 @@ function render(){
   const pulse=Math.floor(time*3)%2;
   tg.forEach(t=>{const f=foot(t);diamond(g,f.x,f.y,13+pulse*2,'rgba(217,255,67,.75)')});
   {const f=foot(player);diamond(g,f.x,f.y,8,'rgba(217,255,67,.9)')}
-  sortItems(sceneItems()).forEach(i=>i.draw(g));
+  const order=sortItems(sceneItems()),pi=order.findIndex(i=>i.isPlayer);
+  const pf=foot(player),probe=[{x:pf.x,y:pf.y-1},{x:pf.x,y:pf.y-7},{x:pf.x,y:pf.y-12}];
+  let covered=false;
+  order.forEach((it,i)=>{
+    if(!it.key)return it.draw(g);
+    // fade anything drawn after the player that covers the player's sprite
+    const hides=i>pi&&probe.some(p=>it.covers(p));
+    covered=covered||hides;
+    const a=(fade.get(it.key)??1)+((hides?.4:1)-(fade.get(it.key)??1))*Math.min(1,frameDt*10);
+    fade.set(it.key,a);
+    g.globalAlpha=a;it.draw(g);g.globalAlpha=1;
+  });
+  if(covered){g.globalAlpha=.55;drawPerson(g,player);g.globalAlpha=1}
   if(!talkingTo){
     const by=Math.floor(time*2.5)%2;
     tg.forEach(t=>{const f=foot(t);drawBubble(g,f.x,f.y-19-by,t.student?'?':'!')});
@@ -616,16 +707,26 @@ function drawSigns(){
   ctx.setTransform(dpr,0,0,dpr,0,0);
   ctx.font='600 14px "Pixelify Sans",ui-monospace,monospace';
   ctx.textAlign='center';ctx.textBaseline='middle';
+  ROAD_LABELS.forEach(r=>{
+    const p=iso(r.x+.5,r.y+.5),x=Math.round((p.x+offX)*PX),y=Math.round((p.y+offY)*PX);
+    if(x<-120||x>cw+120||y<-20||y>ch+20)return;
+    const w=Math.round(ctx.measureText(r.name).width)+12;
+    ctx.fillStyle='rgba(29,27,31,.75)';ctx.fillRect(x-w/2,y-10,w,20);
+    ctx.fillStyle='#f2f2ea';ctx.fillText(r.name,x,y+1);
+  });
   BUILDINGS.forEach(b=>{
+    if(!b.name)return;
     const p=up(iso((b.x0+b.x1+1)/2,(b.y0+b.y1+1)/2),b.h+10);
     const x=Math.round((p.x+offX)*PX),y=Math.round((p.y+offY)*PX);
     if(x<-80||x>cw+80||y<-20||y>ch+20)return;
     const w=Math.round(ctx.measureText(b.name).width)+16;
+    ctx.globalAlpha=fade.get(b.id)??1;
     ctx.fillStyle='rgba(0,0,0,.35)';ctx.fillRect(x-w/2+3,y-11+3,w,22);
     ctx.fillStyle=OUTLINE;ctx.fillRect(x-w/2-3,y-14,w+6,28);
     ctx.fillStyle=b.roof;ctx.fillRect(x-w/2,y-11,w,22);
     ctx.fillStyle='#fffdf6';ctx.fillRect(x-w/2+2,y-9,w-4,18);
     ctx.fillStyle=OUTLINE;ctx.fillText(b.name,x,y+1);
+    ctx.globalAlpha=1;
   });
 }
 function drawArrow(g,t){
@@ -644,7 +745,7 @@ function drawArrow(g,t){
 /* ===== LOOP ===== */
 let last=performance.now();
 function loop(now){
-  const dt=Math.min(.05,(now-last)/1000);last=now;time+=dt;
+  const dt=Math.min(.05,(now-last)/1000);last=now;time+=dt;frameDt=dt;
   if(tapMark)tapMark.t+=dt;
   if(S&&!talkingTo)updatePlayer(dt);
   students.forEach(s=>wander(s,dt));
@@ -708,7 +809,7 @@ cv.addEventListener('pointerdown',e=>{
   unfreeze();
   const hit=[...people].sort((a,b)=>(b.x+b.y)-(a.x+a.y)).find(p=>{const f=foot(p);return Math.abs(w.x-f.x)<9&&w.y>f.y-18&&w.y<f.y+4});
   if(hit)return goTalk(hit);
-  const b=[...BUILDINGS].sort((a,c)=>(c.x1+c.y1)-(a.x1+a.y1)).find(b=>{
+  const b=BUILDINGS.filter(b=>b.npc).sort((a,c)=>(c.x1+c.y1)-(a.x1+a.y1)).find(b=>{
     const x0=b.x0,y0=b.y0,x1=b.x1+1,y1=b.y1+1;
     return inPoly(w,[iso(x0,y1),iso(x1,y1),iso(x1,y0),up(iso(x1,y0),b.h),up(iso(x0,y0),b.h),up(iso(x0,y1),b.h)]);
   });
@@ -844,7 +945,7 @@ const SCENES={
       await say(n,'¡Hola, '+S.name+'! Este es el Puente PreLab: conectamos tu idea con la gente indicada de la UBP.');
       S.idea=(await ask(n,'¿Cómo se llama tu idea?','Ej.: App para compartir viajes'))||'Mi idea';
       await say(n,'“'+S.idea+'”, ¡me encanta! Trabajamos en 4 etapas: idea inicial, idea desarrollada, prototipo y continuidad.');
-      await say(n,'Primera misión: confirmá que el problema existe. Hablá con 3 estudiantes en la plaza. Escuchá, no vendas.');
+      await say(n,'Primera misión: confirmá que el problema existe. Hablá con 3 estudiantes en el parque. Escuchá, no vendas.');
       S.talked=[];setStep('talk1');
     }else if(S.step==='report1'){
       await say(n,'¿Y? ¿Qué te dijeron?');
@@ -897,7 +998,7 @@ const SCENES={
       const p=await choice(n,'No hace falta construir todo. ¿Qué armamos primero?',PROTOS.map(p=>p[0]));
       S.proto=PROTOS[p][1];
       await say(n,'¡Buena elección! En una tarde lo tenés.');
-      await say(n,'Ahora probalo con 3 personas en la plaza. Mirá qué hacen y no expliques: si hay que explicar, es una pista.');
+      await say(n,'Ahora probalo con 3 personas en el parque. Mirá qué hacen y no expliques: si hay que explicar, es una pista.');
       S.talked=[];setStep('test');
     }else if(S.badges<2)await say(n,'El Taller está abierto para prototipar. ¡Volvé cuando tengas tus hipótesis!');
     else await say(n,objective());
@@ -981,7 +1082,7 @@ $('swatches').replaceChildren(...COLORS.map((c,i)=>{
 }));
 function openTitle(){
   const saved=load();
-  $('continueBtn').hidden=!(saved&&saved.v===1&&saved.step!=='end');
+  $('continueBtn').hidden=!(saved&&saved.v===2&&saved.step!=='end');
   if(saved&&saved.name)$('playerName').value=saved.name;
   $('titleScreen').hidden=false;
 }
