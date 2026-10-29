@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Puente PreLab UBP</title>
+<title>IDEAS UBP PreLab</title>
 <meta name="description" content="Terminaste la materia, tu idea no tiene por qué terminar. Contanos en qué etapa está y te mostramos tu próximo paso en la UBP.">
 <style>
 :root{
@@ -226,7 +226,7 @@ textarea{min-height:92px;resize:vertical}
 
 <header class="hero" id="inicio">
   <div class="container">
-    <span class="kicker">Puente PreLab UBP</span>
+    <span class="kicker">IDEAS UBP PreLab</span>
     <h1>Terminaste la materia. <em>Tu idea no tiene por qué terminar.</em></h1>
     <p>Contanos en qué etapa está y te mostramos tu próximo paso dentro de la UBP.</p>
     <div class="hero-actions">
@@ -316,7 +316,7 @@ textarea{min-height:92px;resize:vertical}
     <h2>¿Quién te puede ayudar?</h2>
     <p class="lead">No tenés que saber a quién escribir: nosotros te derivamos.</p>
     <div class="actors">
-      <div class="actor main"><span class="icon">🌉</span><span class="when">Primer paso</span><h3>Puente PreLab</h3><p>Recibe tu idea y te conecta con quien corresponda.</p></div>
+      <div class="actor main"><span class="icon">💡</span><span class="when">Primer paso</span><h3>IDEAS UBP PreLab</h3><p>Recibe tu idea y te conecta con quien corresponda.</p></div>
       <div class="actor"><span class="icon">🚀</span><span class="when">Proyecto maduro</span><h3>doingLABS</h3><p>Incubadora de la UBP: mentorías, validación y redes.</p></div>
       <div class="actor"><span class="icon">🔌</span><span class="when">Empresas y autoría</span><h3>Vinculación Tecnológica</h3><p>Convocatorias, financiamiento y propiedad intelectual.</p></div>
       <div class="actor"><span class="icon">🌱</span><span class="when">Investigación o impacto</span><h3>Investigación y Extensión</h3><p>Para seguir como investigación aplicada o proyecto social.</p></div>
@@ -457,7 +457,7 @@ $('ideaForm').addEventListener('submit',e=>{
       (team?'Equipo que continúa: '+team+'.\n':'')+
       'Contacto: '+$('email').value.trim()+'\n\n'+
       'El equipo quiere seguir desarrollando la idea más allá de la materia y busca orientación sobre el próximo paso.\n\n'+
-      '— Puente PreLab UBP';
+      '— IDEAS UBP PreLab';
   }
 
   try{localStorage.removeItem('prelabDraft')}catch(e){}
@@ -625,7 +625,7 @@ $('ideaForm').addEventListener('submit',e=>{
   }
   async function who(){
     await bot(
-      '• Puente PreLab: el primer paso. Recibe tu idea y te deriva.\n• Mentor/a: docente o alumno avanzado. 3 encuentros de 30 minutos en 6 semanas.\n• doingLABS: la incubadora de la UBP, para proyectos maduros.\n• Vinculación Tecnológica: empresas, financiamiento y propiedad intelectual.\n• Investigación y Extensión: investigación aplicada o proyectos sociales.',
+      '• IDEAS UBP PreLab: el primer paso. Recibe tu idea y te deriva.\n• Mentor/a: docente o alumno avanzado. 3 encuentros de 30 minutos en 6 semanas.\n• doingLABS: la incubadora de la UBP, para proyectos maduros.\n• Vinculación Tecnológica: empresas, financiamiento y propiedad intelectual.\n• Investigación y Extensión: investigación aplicada o proyectos sociales.',
       'No hace falta saber a quién escribir: cargás tu idea y PreLab te conecta.'
     );
     opts([['👀 Ver «Quién ayuda»',()=>goTo('quien-ayuda')],toForm]);
@@ -669,7 +669,7 @@ $('ideaForm').addEventListener('submit',e=>{
     $('guideClose').focus();
     if(!started){
       started=true;
-      run(async()=>{await bot('¡Hola! 👋 Soy la guía de Puente PreLab. Te ayudo a ordenar tu idea y a saber cuál es tu próximo paso.');await menu()});
+      run(async()=>{await bot('¡Hola! 👋 Soy la guía de IDEAS UBP PreLab. Te ayudo a ordenar tu idea y a saber cuál es tu próximo paso.');await menu()});
     }
   }
   function close(){

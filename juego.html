@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Puente PreLab · El juego</title>
+<title>IDEAS UBP PreLab · El juego</title>
 <meta name="description" content="Recorré la UBP con tu idea: hablá con estudiantes, mentores y áreas de la universidad hasta llevarla al siguiente nivel.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -172,9 +172,9 @@ button{cursor:pointer}
 <div class="overlay" id="titleScreen">
   <form class="card" id="titleForm">
     <img class="logo" src="ubp-logo.png" alt="Universidad Blas Pascal">
-    <span class="kicker">🎮 Puente PreLab · El juego</span>
+    <span class="kicker">🎮 IDEAS UBP PreLab · El juego</span>
     <h1>Terminó la materia. <em>¿Y tu idea?</em></h1>
-    <p>Recorré la UBP, hablá con quien corresponda y llevá tu idea hasta el final del puente. Dura unos 5 minutos.</p>
+    <p>Recorré la UBP, hablá con quien corresponda y llevá tu idea hasta el final del camino. Dura unos 5 minutos.</p>
     <div class="field"><label for="playerName">¿Cómo te llamás?</label><input id="playerName" required maxlength="20" placeholder="Tu nombre" autocomplete="given-name"></div>
     <span class="label">Elegí tu color</span>
     <div class="swatches" id="swatches" role="group" aria-label="Color del personaje"></div>
@@ -189,7 +189,7 @@ button{cursor:pointer}
 <div class="overlay" id="endScreen" hidden>
   <div class="card">
     <span class="kicker">🏆 Final</span>
-    <h1>¡Cruzaste <em>el puente!</em></h1>
+    <h1>¡Llegaste <em>a la meta!</em></h1>
     <p id="endText"></p>
     <div class="stats">
       <div><b>6</b>charlas con estudiantes</div>
@@ -230,7 +230,7 @@ const BUILDINGS=[
   {id:'amarillo',x0:8,y0:3,x1:11,y1:6,h:30,wall:'#f0dfbf',roof:'#d99a2b'},
   {id:'torre',x0:12,y0:3,x1:13,y1:4,h:56,wall:'#f4e4d2',roof:'#cdb08e'},
   {id:'aula',name:'Aula',x0:3,y0:10,x1:8,y1:12,h:44,wall:'#f2d2bc',roof:'#b9532f',npc:'profe'},
-  {id:'prelab',name:'Puente PreLab',x0:11,y0:10,x1:13,y1:12,h:34,wall:'#f7e4d8',roof:'#e2775a',npc:'coord',accent:'#D9FF43'},
+  {id:'prelab',name:'IDEAS UBP PreLab',x0:11,y0:10,x1:13,y1:12,h:34,wall:'#f7e4d8',roof:'#e2775a',npc:'coord',accent:'#D9FF43'},
   {id:'biblio',name:'Biblioteca',x0:18,y0:10,x1:24,y1:12,h:42,wall:'#e6e2f0',roof:'#6f5a9e',npc:'mentor'},
   {id:'vinc',name:'Vinculación',x0:3,y0:15,x1:6,y1:17,h:36,wall:'#ffffff',roof:'#a3223a',npc:'asesora'},
   {id:'verde',x0:8,y0:16,x1:9,y1:17,h:24,wall:'#efe8dc',roof:'#2f7a3e'},
@@ -253,7 +253,7 @@ const ROAD_LABELS=[{name:'Jorge Descotte',x:9,y:.5},{name:'Av. Donato Álvarez',
 
 const NPC_DEFS=[
   {id:'profe',name:'Profe Lucía',role:'Docente',emoji:'👩‍🏫',x:5,y:13,color:'#6b4bd6',hair:'#3b2a20',skin:'#f1c7a5',long:true},
-  {id:'coord',name:'Martín',role:'Puente PreLab',emoji:'🌉',x:14,y:11,color:'#3a3a3a',hair:'#1c1c1c',skin:'#c98e66'},
+  {id:'coord',name:'Martín',role:'IDEAS UBP PreLab',emoji:'💡',x:14,y:11,color:'#3a3a3a',hair:'#1c1c1c',skin:'#c98e66'},
   {id:'mentor',name:'Vale',role:'Mentora',emoji:'📚',x:20,y:13,color:'#2f8f5b',hair:'#7a3b1c',skin:'#f3d0b0',long:true},
   {id:'tec',name:'Nico',role:'Taller',emoji:'🛠️',x:14,y:16,color:'#2f6fed',hair:'#e0b04a',skin:'#e8b892'},
   {id:'asesora',name:'Paula',role:'Vinculación Tecnológica',emoji:'🔌',x:4,y:18,color:'#A3223A',hair:'#2b1b12',skin:'#a9714f',long:true},
@@ -299,7 +299,7 @@ const CHATTER=[
   ['¿Viste que este mes hay Feria de Innovación?','Me anoté en la Feria de Innovación, ¿vos vas?','En la Feria de Innovación se presentan proyectos de estudiantes. ¡Está buenísima!'],
   ['Tengo parcial mañana… ¡deseame suerte!','Vengo de rendir… creo que me fue bien.','Estoy repasando para el final, ¡no me desconcentres!'],
   ['Dicen que en el Taller hay una impresora 3D.','En el Taller imprimieron una pieza en 3D, ¡re loco!','Nico, el del Taller, sabe arreglar de todo.'],
-  ['Yo también tengo una idea, pero no sé a quién contarle.','Tengo una idea dando vueltas hace meses…','¿Al Puente PreLab puede ir cualquiera? Tengo una idea.'],
+  ['Yo también tengo una idea, pero no sé a quién contarle.','Tengo una idea dando vueltas hace meses…','¿A IDEAS UBP PreLab puede ir cualquiera? Tengo una idea.'],
   ['El café de la Biblioteca es el mejor del campus.','¿Pasaste por el Comedor? Hoy hay milanesas.','Me encanta estudiar en el parque cuando hay sol.']
 ];
 const DOUBTS=[
@@ -317,17 +317,17 @@ const DEST={
 };
 const STEPS={
   intro:{stage:-1,obj:()=>'Hablá con la profe en el Aula 🏫',target:()=>['profe']},
-  prelab:{stage:-1,obj:()=>'Andá al Puente PreLab 🌉',target:()=>['coord']},
+  prelab:{stage:-1,obj:()=>'Andá a IDEAS UBP PreLab 💡',target:()=>['coord']},
   talk1:{stage:0,obj:()=>'Hablá con estudiantes en el parque · '+S.talked.length+'/3',target:()=>'students'},
-  report1:{stage:0,obj:()=>'Contale a PreLab lo que aprendiste 🌉',target:()=>['coord']},
+  report1:{stage:0,obj:()=>'Contale a PreLab lo que aprendiste 💡',target:()=>['coord']},
   mentor:{stage:1,obj:()=>'Encontrá a tu mentora en la Biblioteca 📚',target:()=>['mentor']},
   lab:{stage:2,obj:()=>'Armá un prototipo en el Taller 🛠️',target:()=>['tec']},
   test:{stage:2,obj:()=>'Probá tu prototipo en el parque · '+S.talked.length+'/3',target:()=>'students'},
   report3:{stage:2,obj:()=>'Contale a tu mentora cómo te fue 📚',target:()=>['mentor']},
   vinc:{stage:3,obj:()=>'Consultá en Vinculación Tecnológica 🔌',target:()=>['asesora']},
-  decide:{stage:3,obj:()=>'Volvé al Puente PreLab 🌉',target:()=>['coord']},
+  decide:{stage:3,obj:()=>'Volvé a IDEAS UBP PreLab 💡',target:()=>['coord']},
   deliver:{stage:4,obj:()=>'Llevá tu carta a '+DEST[S.dest].place,target:()=>[DEST[S.dest].npc]},
-  end:{stage:4,obj:()=>'¡Cruzaste el puente! 🏆',target:()=>[]}
+  end:{stage:4,obj:()=>'¡Llegaste a la meta! 🏆',target:()=>[]}
 };
 
 /* ===== STATE / SAVE ===== */
@@ -1134,7 +1134,7 @@ async function talk(n){
   try{await (n.student?studentScene(n):SCENES[n.id](n))}
   finally{closeDialog();talkingTo=null;unfreeze();save();updateHud()}
 }
-const phone={name:'Puente PreLab',role:'Mensaje',emoji:'📱',color:'#3a3a3a'};
+const phone={name:'IDEAS UBP PreLab',role:'Mensaje',emoji:'📱',color:'#3a3a3a'};
 async function checkin(week){
   const c=await choice(phone,['📅 Semana '+week+': ¿“'+S.idea+'” sigue en marcha?','📅 Semana '+week+': ¿cómo viene “'+S.idea+'”?','📅 Semana '+week+': pasamos a saludar. ¿Seguís con “'+S.idea+'”?'],['¡Sí, sigo con todo!','Voy lento, pero sigo']);
   await say(phone,c?['Está perfecto ir a tu ritmo. Lo importante es no frenar del todo.','Ir lento también es avanzar. Seguimos en contacto.','Cada proyecto tiene su ritmo. Lo importante es no soltarlo.']
@@ -1149,7 +1149,7 @@ const SCENES={
     if(S.step==='intro'){
       await say(n,['¡'+S.name+'! Terminó la cursada y tu proyecto quedó muy bien.','¡Hola, '+S.name+'! Cerramos la materia y tu proyecto fue de los mejores.','¡'+S.name+', qué bueno cruzarte! Tu proyecto de la materia me encantó.']);
       await say(n,['Muchos guardan el TP en un cajón y ahí queda. Pero tu idea no tiene por qué terminar.','La mayoría de los TPs mueren cuando termina el cuatrimestre. El tuyo no tiene por qué.','Sería una pena que quede en una carpeta. Las buenas ideas se merecen una segunda vida.']);
-      await say(n,['Andá al Puente PreLab, acá cerca. Ahí te orientan sobre el próximo paso.','Pasá por el Puente PreLab, a unos pasos: te dicen exactamente qué hacer ahora.','El Puente PreLab está sobre el camino central. Contales tu idea y te van a orientar.']);
+      await say(n,['Andá a IDEAS UBP PreLab, acá cerca. Ahí te orientan sobre el próximo paso.','Pasá por IDEAS UBP PreLab, a unos pasos: te dicen exactamente qué hacer ahora.','IDEAS UBP PreLab está sobre el camino central. Contales tu idea y te van a orientar.']);
       setStep('prelab');
     }else if(S.step==='deliver'&&S.dest==='inv'){
       await say(n,['¡Qué bueno verte de nuevo! Recibí tu carta.','¡Volviste! Ya tengo tu carta en la mano.','¡'+S.name+'! Me llegó tu carta y la leí completa.']);
@@ -1159,7 +1159,7 @@ const SCENES={
   },
   async coord(n){
     if(S.step==='prelab'){
-      await say(n,['¡Hola, '+S.name+'! Este es el Puente PreLab: conectamos tu idea con la gente indicada de la UBP.','¡Hola, '+S.name+'! Te damos la bienvenida al Puente PreLab: unimos tu idea con quien te puede ayudar.','¡'+S.name+'! En el Puente PreLab ayudamos a que las ideas de clase sigan después de la materia.']);
+      await say(n,['¡Hola, '+S.name+'! Esto es IDEAS UBP PreLab: conectamos tu idea con la gente indicada de la UBP.','¡Hola, '+S.name+'! Te damos la bienvenida a IDEAS UBP PreLab: unimos tu idea con quien te puede ayudar.','¡'+S.name+'! En IDEAS UBP PreLab ayudamos a que las ideas de clase sigan después de la materia.']);
       S.idea=(await ask(n,['¿Cómo se llama tu idea?','Contame, ¿cómo se llama tu idea?','Primero lo primero: ¿qué nombre tiene tu idea?'],'Ej.: App para compartir viajes'))||'Mi idea';
       await say(n,['“'+S.idea+'”, ¡me encanta! Trabajamos en 4 etapas: idea inicial, idea desarrollada, prototipo y continuidad.','“'+S.idea+'”, ¡suena muy bien! El recorrido tiene 4 etapas: idea inicial, idea desarrollada, prototipo y continuidad.','¡“'+S.idea+'”! Buen nombre. Vamos por 4 etapas: idea inicial, idea desarrollada, prototipo y continuidad.']);
       await say(n,['Primera misión: confirmá que el problema existe. Hablá con 3 estudiantes en el parque. Escuchá, no vendas.','Arrancamos por validar: andá al parque y hablá con 3 estudiantes. Preguntá y escuchá, no vendas.','Antes de construir nada, confirmemos que el problema es real. Hablá con 3 estudiantes del parque y escuchalos.']);
@@ -1210,7 +1210,7 @@ const SCENES={
       await checkin(6);
       await say(n,['Antes del gran paso, pasá por Vinculación Tecnológica. Te van a aclarar algo importante.','Antes de seguir, visitá Vinculación Tecnológica: hay algo que conviene que sepas.','Una parada más antes del gran paso: Vinculación Tecnológica. Te van a responder una duda clave.']);
       setStep('vinc');
-    }else if(S.badges<1)await say(n,['Hola, soy Vale, mentora del Puente PreLab. Cuando tu idea llegue a la etapa 2, te espero acá.','¡Hola! Soy mentora del Puente PreLab. Cuando pases a la etapa 2, nos vemos.','Hola, soy Vale. Primero validá tu idea con el PreLab; después trabajamos en equipo.']);
+    }else if(S.badges<1)await say(n,['Hola, soy Vale, mentora de IDEAS UBP PreLab. Cuando tu idea llegue a la etapa 2, te espero acá.','¡Hola! Soy mentora de IDEAS UBP PreLab. Cuando pases a la etapa 2, nos vemos.','Hola, soy Vale. Primero validá tu idea con el PreLab; después trabajamos en equipo.']);
     else await say(n,objective());
   },
   async tec(n){
@@ -1231,7 +1231,7 @@ const SCENES={
       await choice(n,['Muchos estudiantes llegan con una duda que no se animan a preguntar…','Hay una pregunta que casi todos tienen y pocos hacen…','Contame, ¿qué duda tenés sobre tu idea?'],['¿La idea es mía, del equipo o de la UBP?','¿Puedo contarla sin que me la copien?']);
       await say(n,['Buena pregunta. La idea es tuya y de tu equipo. Si hubo aportes de docentes o empresas, lo dejamos por escrito antes de avanzar.','Tranqui: la idea es tuya y de tu equipo. Si alguien más aportó, lo dejamos por escrito.','Es la pregunta más común. La idea es de quienes la crearon; si hubo aportes externos, lo documentamos.']);
       await say(n,['Y antes de mostrarla en público, te ayudamos a cuidar lo sensible. Para eso estamos.','Antes de presentarla en público, revisamos juntos qué conviene proteger.','Y si vas a mostrarla afuera, te ayudamos a cuidar lo que haga falta.']);
-      await say(n,['También te conectamos con convocatorias, financiamiento y empresas. Ahora volvé al Puente PreLab para elegir tu destino.','Además te acercamos convocatorias, financiamiento y empresas. Volvé al PreLab para decidir el próximo paso.','También conocemos convocatorias y empresas que buscan ideas. Volvé al Puente PreLab a elegir tu destino.']);
+      await say(n,['También te conectamos con convocatorias, financiamiento y empresas. Ahora volvé a IDEAS UBP PreLab para elegir tu destino.','Además te acercamos convocatorias, financiamiento y empresas. Volvé al PreLab para decidir el próximo paso.','También conocemos convocatorias y empresas que buscan ideas. Volvé a IDEAS UBP PreLab a elegir tu destino.']);
       setStep('decide');
     }else if(S.step==='deliver'&&S.dest==='vinc'){
       await say(n,['¡Llegó tu carta! Con esta evidencia ya podemos buscarte una convocatoria o una empresa aliada.','¡Tu carta! Con problema validado y prototipo probado, podemos buscarte una convocatoria.','Leí tu carta. Con esta evidencia ya te puedo presentar a una empresa aliada.']);
@@ -1240,12 +1240,12 @@ const SCENES={
   },
   async doing(n){
     if(S.step==='deliver'&&S.dest==='doing'){
-      await say(n,['¡Hola! Nos llegó tu carta desde el Puente PreLab.','¡Así que '+S.name+' eras vos! Ya leímos tu carta.','¡Hola, '+S.name+'! El PreLab nos mandó tu carta.']);
+      await say(n,['¡Hola! Nos llegó tu carta desde IDEAS UBP PreLab.','¡Así que '+S.name+' eras vos! Ya leímos tu carta.','¡Hola, '+S.name+'! El PreLab nos mandó tu carta.']);
       await say(n,['Con problema validado, prototipo probado y un objetivo claro, ya podemos hablar en serio. ¡Coordinemos una reunión!','Tenés lo que buscamos: evidencia, prototipo y un objetivo. ¡Agendemos una reunión!','Esto ya es un proyecto en serio. Coordinemos una reunión para ver cómo seguimos.']);
       finish();
     }else{
       await say(n,['¡Hola! Somos doingLABS, la incubadora de la UBP. Trabajamos con proyectos más avanzados.','Esto es doingLABS, la incubadora de la UBP. Acompañamos proyectos que ya dieron sus primeros pasos.','¡Hola! En doingLABS incubamos proyectos que ya pasaron por la validación.']);
-      await say(n,['Primero recorré el Puente PreLab. Cuando tu idea esté lista, te esperamos.','El camino empieza en el Puente PreLab. Cuando estés, te esperamos.','Pasá primero por el Puente PreLab; después, la puerta está abierta.']);
+      await say(n,['Primero recorré IDEAS UBP PreLab. Cuando tu idea esté lista, te esperamos.','El camino empieza en IDEAS UBP PreLab. Cuando estés, te esperamos.','Pasá primero por IDEAS UBP PreLab; después, la puerta está abierta.']);
     }
   }
 };
@@ -1277,7 +1277,7 @@ function buildLetter(){
     'Armamos '+S.proto+' y lo probamos con 3 personas: '+S.reactions.join('; ')+'.',
     'Objetivo para los próximos 60 días: '+S.goal.charAt(0).toLowerCase()+S.goal.slice(1)+'.',
     'Buscamos orientación para dar el próximo paso.',
-    '— '+S.name+', vía Puente PreLab UBP'].join('\n\n');
+    '— '+S.name+', vía IDEAS UBP PreLab'].join('\n\n');
 }
 function finish(){
   setStep('end');
